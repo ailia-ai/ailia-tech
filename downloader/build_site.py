@@ -401,6 +401,39 @@ a:hover { text-decoration: underline; }
   .pub-meta h1 { font-size: 1.4em; }
 }
 
+/* Tablet以上 (>=720px): Mediumライクなカードグリッドに切り替える */
+@media (min-width: 720px) {
+  .article-feed {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 36px 28px;
+    border-top: 1px solid var(--border);
+    padding-top: 28px;
+  }
+  .card { border-bottom: none; }
+  .card-link {
+    display: flex;
+    flex-direction: column-reverse;  /* DOM順 (body, thumb) を逆転して
+                                        thumb が上 / body が下になるよう描画 */
+    gap: 14px;
+    padding: 0;
+  }
+  .card-body { min-width: 0; }
+  .card-thumb, .card-thumb-placeholder {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border-radius: 4px;
+  }
+  .card-title { font-size: 1.25em; -webkit-line-clamp: 3; }
+  .card-excerpt { -webkit-line-clamp: 3; }
+}
+
+/* PC ワイド (>=1024px): 3列グリッド */
+@media (min-width: 1024px) {
+  .article-feed { grid-template-columns: repeat(3, 1fr); }
+}
+
 /* Article page */
 .post-nav {
   display: flex;
