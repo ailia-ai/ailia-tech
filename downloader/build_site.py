@@ -404,6 +404,11 @@ _BYLINE_PATTERNS = [
     # English month dates: "Sep 26, 2023" / "26 Sep 2023"
     re.compile(r"^[A-Z][a-z]{2,9}\s+\d{1,2},?\s+\d{4}$"),
     re.compile(r"^\d{1,2}\s+[A-Z][a-z]{2,9}\s+\d{4}$"),
+    # Mediumが投稿直後の記事に表示する相対時刻 ("1 hour ago" 等)
+    re.compile(
+        r"^(?:Just now|Yesterday|\d+\s+(?:second|minute|hour|day|week|month)s?\s+ago)$",
+        re.I,
+    ),
 ]
 
 
