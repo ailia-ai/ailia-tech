@@ -73,7 +73,7 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
   <div class="pub-meta">
     <h1>{title}</h1>
     <p class="pub-tagline">{tagline}</p>
-    <p class="pub-source">Mirror of <a href="{medium_url}">medium.com/axinc</a> · {count} articles</p>
+    <p class="pub-source"><a href="https://ailia.ai/">ailia.ai</a> · {count} articles</p>
   </div>
 </header>
 <nav class="tag-filter" role="tablist" aria-label="タグで絞り込み">
@@ -633,7 +633,6 @@ def build(source: Path, output: Path) -> int:
         title=html.escape(PUBLICATION_TITLE),
         tagline=html.escape(PUBLICATION_TAGLINE),
         logo=html.escape(PUBLICATION_LOGO, quote=True),
-        medium_url=html.escape(MEDIUM_PUBLICATION_URL, quote=True),
         cards=cards,
         tag_chips=tag_chips_html,
         count=len(posts),
