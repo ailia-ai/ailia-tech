@@ -605,16 +605,25 @@ def rewrite_internal_links(text: str) -> str:
     return re.sub(r"\]\(([^)]+)\)", repl, text)
 
 
+_BOILERPLATE_LEAD_RE = re.compile(
+    r"\n+(アイリア株式会社(?:は|では|の)|AIで、しごとするなら|株式会社アクセル)"
+)
+_REDUNDANT_HR_RE = re.compile(r"(?:\n*---\n+){2,}")
+
+
 def inject_company_separator(text: str) -> str:
     """既存スクレイプ済みの記事は ``<div role="separator">`` がmarkdownify
-    時点で読み飛ばされて ``---`` が残っていない。末尾に必ず登場するアイリア
-    株式会社の定型パラグラフの直前に ``---`` を1本注入する事でこの取りこぼし
-    を救う。新規スクレイプでは medium_publication.py が事前に <hr> へ差し替え
-    るため、既に ``---`` がある場合は二重挿入しない。"""
-    pattern = re.compile(
-        r"(?<!---\n)\n+(アイリア株式会社はAIを実用化する会社として)"
-    )
-    return pattern.sub(r"\n\n---\n\n\1", text, count=1)
+    時点で読み飛ばされて ``---`` が残っていない。記事末尾に登場する既知の
+    定型パラグラフ (アイリア株式会社のお問い合わせ案内、AIで、しごとするなら
+    の媒体紹介、株式会社アクセル始まりのco-author案内など) の直前に ``---``
+    を注入することでこの取りこぼしを救う。
+
+    新規スクレイプでは medium_publication.py が事前に ``<hr>`` を入れて
+    ``---`` が markdown に残るため、二重挿入回避として最後に連続 ``---`` を
+    一本に畳む。"""
+    text = _BOILERPLATE_LEAD_RE.sub(r"\n\n---\n\n\1", text)
+    text = _REDUNDANT_HR_RE.sub("\n\n---\n\n", text)
+    return text
 
 
 def clean_body(body: str) -> str:
