@@ -546,8 +546,15 @@ def normalize_card_links(text: str) -> str:
 
 
 def _rewrite_internal_link_url(url: str) -> str:
-    """1つのリンクURLを判定し、本ミラー内の記事を指していれば ``/<slug>/``
-    形式に書き換える。それ以外はそのまま返す。"""
+    """1つのリンクURLを判定し、本ミラー内の記事を指していれば
+    記事ページから見た相対パス ``../<slug>/`` 形式に書き換える。それ以外は
+    そのまま返す。
+
+    GitHub Pages のプロジェクトページ (``ailia-ai.github.io/ailia-tech/``)
+    で配信するため、絶対パス ``/<slug>/`` だと
+    ``ailia-ai.github.io/<slug>/`` (basepath が抜ける) になり 404 する。
+    記事HTMLは ``_site/<slug>/index.html`` に置かれているので
+    隣の記事へは ``../<other-slug>/`` で安全に到達できる。"""
     from urllib.parse import unquote as _unq
 
     url = url.strip()
@@ -565,7 +572,7 @@ def _rewrite_internal_link_url(url: str) -> str:
         return url
     if not _INTERNAL_LINK_HEX_RE.search(slug):
         return url
-    return f"/{_unq(slug)}/"
+    return f"../{_unq(slug)}/"
 
 
 def rewrite_internal_links(text: str) -> str:
