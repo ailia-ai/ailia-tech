@@ -28,6 +28,7 @@ which resolves correctly from ``_site/<slug>/`` to ``_site/images/``.
 
 import argparse
 import html
+import json
 import re
 import shutil
 from pathlib import Path
@@ -62,6 +63,18 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{tagline}">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<link rel="canonical" href="{site_url}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{tagline}">
+<meta property="og:url" content="{site_url}">
+<meta property="og:site_name" content="{title}">
+<meta property="og:image" content="{logo}">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{tagline}">
+<meta name="twitter:image" content="{logo}">
 <link rel="stylesheet" href="style.css">
 {gtm_head}
 </head>
@@ -180,8 +193,23 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title} | {pub_title}</title>
 <meta name="description" content="{excerpt}">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<link rel="canonical" href="{page_url}">
+<meta property="og:type" content="article">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{excerpt}">
+<meta property="og:url" content="{page_url}">
+<meta property="og:site_name" content="{pub_title}">
+<meta property="og:image" content="{og_image}">
+<meta property="article:published_time" content="{date}">
+<meta property="article:modified_time" content="{lastmod}">
+<meta property="article:author" content="{author}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{excerpt}">
+<meta name="twitter:image" content="{og_image}">
+<script type="application/ld+json">{ld_json}</script>
 <link rel="stylesheet" href="../style.css">
-<link rel="canonical" href="{original_url}">
 {gtm_head}
 </head>
 <body class="page-article">
@@ -658,20 +686,17 @@ def normalize_card_links(text: str) -> str:
 
 
 def _rewrite_internal_link_url(url: str) -> str:
-    """1つのリンクURLを判定し、本ミラー内の記事を指していれば
-    記事ページから見た相対パス ``../<slug>/`` 形式に書き換える。それ以外は
-    そのまま返す。
-
-    GitHub Pages のプロジェクトページ (``ailia-ai.github.io/ailia-tech/``)
-    で配信するため、絶対パス ``/<slug>/`` だと
-    ``ailia-ai.github.io/<slug>/`` (basepath が抜ける) になり 404 する。
-    記事HTMLは ``_site/<slug>/index.html`` に置かれているので
-    隣の記事へは ``../<other-slug>/`` で安全に到達できる。"""
+    """1つのリンクURLを判定し、本ミラー内の記事を指していれば記事ページから
+    見た相対パス ``../<slug>/`` に書き換える。独自ドメインで basepath が
+    無いため、絶対パス ``/<slug>/`` でも問題なく動くが、相対パスにしておけば
+    ホスティング先を変えてもリンク切れが起きない。"""
     from urllib.parse import unquote as _unq
 
     url = url.strip()
-    # 絶対URL: medium.com/axinc/<slug>
-    m = re.match(r"https?://medium\.com/axinc/([^?\s#)]+)", url)
+    # 絶対URL: medium.com/axinc/<slug> または tech.ailia.ai/<slug>
+    m = re.match(
+        r"https?://(?:medium\.com/axinc|tech\.ailia\.ai)/([^?\s#)]+)", url
+    )
     if m:
         slug = m.group(1).rstrip("/")
     elif url.startswith("/") and not url.startswith("//"):
@@ -821,9 +846,12 @@ def thumb_html_for(thumb_url: str, alt: str) -> str:
     return f'<img src="{html.escape(thumb_url, quote=True)}" alt="{html.escape(alt)}" class="card-thumb" loading="lazy">'
 
 
-# GitHub Pages の公開ホスト名 + project basepath。sitemap.xml / robots.txt
-# のloc絶対URLを組み立てるのに使う。CDN置換時はここを差し替える。
-SITE_BASE_URL = "https://ailia-ai.github.io/ailia-tech/"
+# 公開ホスト名 (project basepath を含めた絶対 URL の前置部分)。独自ドメイン
+# 利用時はホスト名のみで basepath は付かない。CDN/別ドメインに移すときは
+# ここを書き換えるだけで sitemap / canonical / OGP の URL が同期する。
+SITE_BASE_URL = "https://tech.ailia.ai/"
+# GitHub Pages に独自ドメインを伝える CNAME ファイルの中身。
+SITE_HOST = "tech.ailia.ai"
 
 
 def _write_sitemap(posts: list, output: Path) -> None:
@@ -890,6 +918,8 @@ def build(source: Path, output: Path) -> int:
         author = fm.get("author", "")
         original_url = fm.get("original_url", "")
         slug = medium_slug_from_url(original_url) or mdf.stem
+        from urllib.parse import quote as _q
+        page_url = f"{SITE_BASE_URL}{_q(slug, safe='-_')}/"
 
         tags = fm.get("tags") or []
         if isinstance(tags, str):
@@ -906,14 +936,43 @@ def build(source: Path, output: Path) -> int:
         body_html = md.convert(cleaned)
         md.reset()
 
+        # OGP / JSON-LD で参照する画像は CDN 上の絶対 URL でないと SNS 等で
+        # 解決されないため、本文中の miro.medium.com 画像 URL があればそちらを
+        # 優先し、無ければ自サイトのアバター画像を使う。
+        og_image = thumb_url if (thumb_url and thumb_url.startswith("http")) else (
+            f"{SITE_BASE_URL}images/{_q(slug, safe='-_')}/image_001.png"
+            if thumb_url else PUBLICATION_LOGO
+        )
+
+        ld_json = json.dumps({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            "headline": title,
+            "description": excerpt,
+            "datePublished": date,
+            "dateModified": lastmod,
+            "author": {"@type": "Person", "name": author} if author else None,
+            "image": og_image,
+            "url": page_url,
+            "mainEntityOfPage": {"@type": "WebPage", "@id": page_url},
+            "publisher": {
+                "@type": "Organization",
+                "name": PUBLICATION_TITLE,
+                "logo": {"@type": "ImageObject", "url": PUBLICATION_LOGO},
+            },
+        }, ensure_ascii=False, separators=(",", ":"))
+
         out_html = ARTICLE_TEMPLATE.format(
             title=html.escape(title),
             pub_title=html.escape(PUBLICATION_TITLE),
             author=html.escape(author),
             date=html.escape(date),
+            lastmod=html.escape(lastmod),
             excerpt=html.escape(excerpt, quote=True),
             content=body_html,
-            original_url=html.escape(original_url, quote=True),
+            page_url=html.escape(page_url, quote=True),
+            og_image=html.escape(og_image, quote=True),
+            ld_json=ld_json,
             logo=html.escape(PUBLICATION_LOGO, quote=True),
             gtm_head=GTM_HEAD,
             gtm_body=GTM_BODY,
@@ -986,6 +1045,7 @@ def build(source: Path, output: Path) -> int:
         title=html.escape(PUBLICATION_TITLE),
         tagline=html.escape(PUBLICATION_TAGLINE),
         logo=html.escape(PUBLICATION_LOGO, quote=True),
+        site_url=html.escape(SITE_BASE_URL, quote=True),
         cards=cards,
         tag_chips=tag_chips_html,
         count=len(posts),
@@ -996,6 +1056,8 @@ def build(source: Path, output: Path) -> int:
     (output / "style.css").write_text(CSS, encoding="utf-8")
     _write_sitemap(posts, output)
     _write_robots(output)
+    # GitHub Pages 用の独自ドメイン指定
+    (output / "CNAME").write_text(SITE_HOST + "\n", encoding="utf-8")
     return len(posts)
 
 
