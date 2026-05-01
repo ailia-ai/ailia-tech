@@ -5,6 +5,21 @@ on:
     # 毎日 01:00 UTC (= 10:00 JST) に実行
     - cron: "0 1 * * *"
   workflow_dispatch:
+    inputs:
+      refresh:
+        description: "既存記事の再取得モード"
+        required: true
+        type: choice
+        default: "off"
+        options:
+          - "off"        # 新着のみ取得 (cron既定動作)
+          - "updated"    # sitemap lastmod が新しい記事だけ再取得
+          - "all"        # 全記事を強制的に再取得 (時間がかかる)
+      only_url:
+        description: "1記事だけ更新する場合の記事URL (Medium / tech.ailia.ai)"
+        required: false
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -26,9 +41,28 @@ jobs:
         # sitemap から取り込まれなくなるため、毎回削除してから実行する。
         run: |
           rm -f medium_export/urls.txt
+
+          refresh_mode="${{ github.event.inputs.refresh }}"
+          # cron実行時は inputs が空文字 → 既定値 "off" 扱い
+          if [[ -z "${refresh_mode}" ]]; then
+            refresh_mode="off"
+          fi
+
+          flags=""
+          case "${refresh_mode}" in
+            updated) flags="--refresh" ;;
+            all)     flags="--refresh-all" ;;
+          esac
+
+          only_url="${{ github.event.inputs.only_url }}"
+          if [[ -n "${only_url}" ]]; then
+            flags="${flags} --only-url ${only_url} --refresh"
+          fi
+
           python downloader/medium_publication.py \
             --publication axinc \
-            --custom-domain tech.ailia.ai
+            --custom-domain tech.ailia.ai \
+            ${flags}
 
       - name: Commit & push if there are new articles
         run: |
@@ -39,8 +73,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add medium_export/
-          # 件数が分かるようにmd差分から取得
           added=$(git diff --cached --name-status -- 'medium_export/articles/*.md' | grep -c '^A' || true)
-          msg="Auto-scrape: ${added} new article(s) on $(date -u +%Y-%m-%d)"
+          modified=$(git diff --cached --name-status -- 'medium_export/articles/*.md' | grep -c '^M' || true)
+          if [[ "${added}" -gt 0 && "${modified}" -gt 0 ]]; then
+            msg="Auto-scrape: ${added} new + ${modified} updated article(s) on $(date -u +%Y-%m-%d)"
+          elif [[ "${added}" -gt 0 ]]; then
+            msg="Auto-scrape: ${added} new article(s) on $(date -u +%Y-%m-%d)"
+          else
+            msg="Auto-scrape: ${modified} updated article(s) on $(date -u +%Y-%m-%d)"
+          fi
           git commit -m "$msg"
           git push

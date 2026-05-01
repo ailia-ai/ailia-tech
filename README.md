@@ -70,16 +70,52 @@ python downloader/build_site.py --source medium_export --output _site
 
 `.github/workflows/scrape.yml` が毎日 01:00 UTC (10:00 JST) に実行される。
 
-1. sitemap.xml から最新の記事URL一覧を取得
+1. sitemap.xml から最新の記事URL一覧を取得 (RSSフィードでも補完)
 2. ローカルに無い記事だけを新規スクレイピング
 3. 差分があれば `medium_export/` を `github-actions[bot]` がコミット & push
 4. push を検知して `pages.yml` がサイトを再ビルド & 再デプロイ
 
-`workflow_dispatch` で手動実行も可。
-
 > 注意: GitHub Actions の `schedule` イベントはデフォルトブランチ上の
 > ワークフローのみ実行される。フィーチャーブランチでは
 > `workflow_dispatch` から手動でテストすること。
+
+## 既存記事の更新
+
+Medium上で過去記事を編集した場合、デフォルトの cron では再取得されない
+(同名のmarkdownが既にあるためスキップされる)。次のいずれかで再取得する。
+
+### GitHub Actions UI から (推奨)
+
+Actions タブ → **Daily scrape** → **Run workflow** で以下の入力を選ぶ:
+
+| `refresh` | 動作                                                       |
+| --------- | ---------------------------------------------------------- |
+| `off`     | 新着のみ取得 (cron既定動作)                                |
+| `updated` | sitemap の `<lastmod>` がローカルより新しい記事を再取得    |
+| `all`     | 全記事を強制再取得 (時間がかかる)                          |
+
+`only_url` を指定すると、その記事1本だけを `--refresh` 付きで再取得できる。
+
+### CLIから
+
+```bash
+# sitemap の lastmod が新しい記事だけ再取得
+python downloader/medium_publication.py \
+    --publication axinc --custom-domain tech.ailia.ai --refresh
+
+# 全記事を強制再取得
+python downloader/medium_publication.py \
+    --publication axinc --custom-domain tech.ailia.ai --refresh-all
+
+# 1記事だけ更新
+python downloader/medium_publication.py \
+    --publication axinc --custom-domain tech.ailia.ai \
+    --only-url "https://tech.ailia.ai/<slug>" --refresh
+```
+
+スクレイパーは sitemap.xml の `<lastmod>` を各記事の YAMLフロントマターに
+`lastmod: YYYY-MM-DD` として保存し、次回以降の `--refresh` で
+ローカル値より新しい場合のみ再取得する。
 
 ## アナリティクス
 

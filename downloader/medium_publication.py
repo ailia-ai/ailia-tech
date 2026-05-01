@@ -62,17 +62,27 @@ def fetch_bytes(url: str) -> bytes:
 _HEX_ID_RE = re.compile(r"-[a-f0-9]{10,14}$")
 
 
-def collect_urls_from_sitemap(custom_domain: str) -> list:
-    """publicationのカスタムドメインのsitemap.xmlから記事URLを収集。"""
+def collect_urls_from_sitemap(custom_domain: str) -> dict:
+    """publicationのカスタムドメインのsitemap.xmlから記事URLとlastmodを収集。
+    返り値は {url: lastmod_date_str} の dict。lastmodはMediumが記事を編集
+    すると更新されるため、ローカル保存版との差分検知に使う。"""
     sitemap_url = f"https://{custom_domain}/sitemap/sitemap.xml"
     print(f"[sitemap] {sitemap_url}")
     xml = fetch(sitemap_url)
     if not xml:
-        return []
-    locs = re.findall(r"<loc>([^<]+)</loc>", xml)
-    articles = sorted({l for l in locs if _HEX_ID_RE.search(l)})
-    print(f"[sitemap] found {len(articles)} article URLs (out of {len(locs)} total)")
-    return articles
+        return {}
+    result: dict = {}
+    for block in re.findall(r"<url>(.*?)</url>", xml, re.DOTALL):
+        loc_m = re.search(r"<loc>([^<]+)</loc>", block)
+        if not loc_m:
+            continue
+        url = loc_m.group(1)
+        if not _HEX_ID_RE.search(url):
+            continue
+        lastmod_m = re.search(r"<lastmod>([^<]+)</lastmod>", block)
+        result[url] = lastmod_m.group(1)[:10] if lastmod_m else ""
+    print(f"[sitemap] found {len(result)} article URLs")
+    return result
 
 
 def collect_urls_from_feed(publication: str) -> list:
@@ -180,8 +190,32 @@ def download_images(article_soup, image_dir: Path) -> dict:
     return url_to_local
 
 
-def scrape_article(url: str, output_dir: Path):
-    """記事1本をMarkdownで保存。ファイル名は YYYY-MM-DD_slug.md 形式。"""
+def _read_lastmod(md_path: Path) -> str:
+    """既存記事の YAML フロントマターから lastmod の値を取り出す。"""
+    try:
+        text = md_path.read_text(encoding="utf-8")
+    except Exception:
+        return ""
+    if not text.startswith("---\n"):
+        return ""
+    end = text.find("\n---\n", 4)
+    fm = text[4:end] if end != -1 else text[4:]
+    m = re.search(r"^lastmod:\s*(.+)$", fm, re.M)
+    return m.group(1).strip() if m else ""
+
+
+def scrape_article(
+    url: str,
+    output_dir: Path,
+    sitemap_lastmod: str = "",
+    refresh: bool = False,
+) -> str:
+    """記事1本をMarkdownで保存。ファイル名は YYYY-MM-DD_slug.md 形式。
+
+    既に保存済みの記事は通常スキップするが、``refresh=True`` の場合は
+    sitemap の lastmod とローカルの ``lastmod:`` 値を比較し、Mediumで
+    記事が更新されていれば再取得 (上書き) する。
+    """
     slug = slugify(url)
     articles_dir = output_dir / "articles"
     articles_dir.mkdir(parents=True, exist_ok=True)
@@ -192,13 +226,29 @@ def scrape_article(url: str, output_dir: Path):
         + list(articles_dir.glob(f"{slug}.md"))
     )
     if existing:
-        print(f"[skip] already saved: {existing[0].name}")
-        return
+        if not refresh:
+            print(f"[skip] already saved: {existing[0].name}")
+            return "skip"
+        local_lastmod = _read_lastmod(existing[0])
+        # ローカルが lastmod 未保持 (旧バージョン) → refresh で1回だけ再取得し
+        # lastmod を埋める。それ以外は sitemap の方が新しい場合のみ再取得。
+        if local_lastmod and sitemap_lastmod and local_lastmod >= sitemap_lastmod:
+            print(
+                f"[skip-uptodate] {existing[0].name} (lastmod={local_lastmod})"
+            )
+            return "uptodate"
+        print(
+            f"[refresh] {existing[0].name} "
+            f"(lastmod {local_lastmod or '-'} -> {sitemap_lastmod or '-'})"
+        )
+        # 既存ファイルを削除して上書き保存できるようにする
+        for f in existing:
+            f.unlink()
 
     print(f"[scrape] {url}")
     html = fetch(url)
     if not html:
-        return
+        return "fetch-failed"
 
     soup = BeautifulSoup(html, "html.parser")
 
@@ -216,7 +266,7 @@ def scrape_article(url: str, output_dir: Path):
     article = soup.find("article")
     if not article:
         print(f"  [warn] no <article> tag: {url}")
-        return
+        return "no-article"
 
     normalize_pictures(article)
 
@@ -240,6 +290,8 @@ def scrape_article(url: str, output_dir: Path):
             f.write(f'author: "{author}"\n')
         if pub_date:
             f.write(f"date: {pub_date}\n")
+        if sitemap_lastmod:
+            f.write(f"lastmod: {sitemap_lastmod}\n")
         if tags:
             f.write("tags: [" + ", ".join(tags) + "]\n")
         f.write(f"original_url: {url}\n")
@@ -249,6 +301,7 @@ def scrape_article(url: str, output_dir: Path):
 
     print(f"  [saved] {md_path.name}")
     time.sleep(DELAY)
+    return "saved"
 
 
 def main():
@@ -263,6 +316,21 @@ def main():
     parser.add_argument("--output", default="medium_export")
     parser.add_argument("--urls-only", action="store_true", help="URL収集だけ実行")
     parser.add_argument("--limit", type=int, default=0, help="最大記事数 (0=全件)")
+    parser.add_argument(
+        "--refresh",
+        action="store_true",
+        help="既存記事もsitemap lastmodと比較して、更新されていれば再取得する",
+    )
+    parser.add_argument(
+        "--refresh-all",
+        action="store_true",
+        help="既存記事を強制的にすべて再取得する",
+    )
+    parser.add_argument(
+        "--only-url",
+        default="",
+        help="指定したURLのみを (再) 取得する。--refresh と併用で1記事だけ更新可能。",
+    )
     args = parser.parse_args()
 
     output_dir = Path(args.output)
@@ -274,17 +342,21 @@ def main():
         if urls_file.exists()
         else set()
     )
-    sitemap_urls = collect_urls_from_sitemap(args.custom_domain)
-    if not sitemap_urls:
+    sitemap_map = collect_urls_from_sitemap(args.custom_domain)
+    if not sitemap_map:
         print("[warn] sitemap returned no URLs; aborting")
         return
     # sitemap.xmlは更新が遅延し最新記事を取りこぼすことがあるため、RSSフィードから
     # 直近10件を追加で取得してマージする (重複は集合で吸収)。
     feed_urls = collect_urls_from_feed(args.publication)
-    urls = sorted(set(sitemap_urls) | set(feed_urls))
-    extra = len(set(feed_urls) - set(sitemap_urls))
+    extra = len(set(feed_urls) - set(sitemap_map))
     if extra:
         print(f"[info]    {extra} URL(s) only in feed (sitemap missed)")
+    # feed-only URLは lastmod 未知なので空文字 (= 強制スキップ判定にならず、
+    # 既存があれば skip / 無ければ scrape)
+    for u in feed_urls:
+        sitemap_map.setdefault(u, "")
+    urls = sorted(sitemap_map.keys())
     urls_file.write_text("\n".join(urls))
     new_urls = [u for u in urls if u not in previous]
     print(
@@ -292,17 +364,38 @@ def main():
         f"({len(new_urls)} new since last run, {len(previous)} previously known)\n"
     )
 
+    if args.only_url:
+        if args.only_url not in sitemap_map:
+            sitemap_map[args.only_url] = ""
+        urls = [args.only_url]
+
     if args.urls_only:
         return
 
     if args.limit > 0:
         urls = urls[: args.limit]
 
+    refresh_mode = args.refresh or args.refresh_all
+    counts: dict = {}
     for i, url in enumerate(urls, 1):
         print(f"\n--- {i}/{len(urls)} ---")
-        scrape_article(url, output_dir)
+        lastmod = sitemap_map.get(url, "")
+        # --refresh-all は lastmod 比較を無視して強制再取得するため、
+        # ローカルの lastmod とミスマッチさせるダミー値を渡す。
+        effective_lastmod = "9999-12-31" if args.refresh_all else lastmod
+        result = scrape_article(
+            url,
+            output_dir,
+            sitemap_lastmod=effective_lastmod,
+            refresh=refresh_mode,
+        )
+        if result:
+            counts[result] = counts.get(result, 0) + 1
 
     print(f"\n[done] export complete: {output_dir}")
+    if counts:
+        summary = ", ".join(f"{k}={v}" for k, v in sorted(counts.items()))
+        print(f"[summary] {summary}")
 
 
 if __name__ == "__main__":
