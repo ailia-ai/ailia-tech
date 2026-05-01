@@ -2,6 +2,7 @@
 title: "MMFashion : ファッションをセグメンテーションする機械学習モデル"
 author: "Kazuki Kyakuno"
 date: 2021-05-27
+lastmod: 2021-05-27
 original_url: https://tech.ailia.ai/mmfashion-ファッションをセグメンテーションする機械学習モデル-c486af72fdb5
 tags: [ailia-models]
 ---

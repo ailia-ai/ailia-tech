@@ -2,6 +2,7 @@
 title: "ailia SDK チュートリアル（JNI）"
 author: "Kazuki Kyakuno"
 date: 2023-07-21
+lastmod: 2023-07-21
 original_url: https://tech.ailia.ai/ailia-sdk-チュートリアル-jni-7a11c1da08dc
 tags: [ailia-tutorial]
 ---

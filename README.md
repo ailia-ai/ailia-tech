@@ -70,10 +70,14 @@ python downloader/build_site.py --source medium_export --output _site
 
 `.github/workflows/scrape.yml` が毎日 01:00 UTC (10:00 JST) に実行される。
 
-1. sitemap.xml から最新の記事URL一覧を取得 (RSSフィードでも補完)
-2. ローカルに無い記事だけを新規スクレイピング
-3. 差分があれば `medium_export/` を `github-actions[bot]` がコミット & push
-4. push を検知して `pages.yml` がサイトを再ビルド & 再デプロイ
+1. sitemap.xml から URL と `<lastmod>` を取得 (RSSフィードでも補完)
+2. **新着記事**: ローカルに無いものを新規スクレイピング
+3. **更新された記事**: sitemap の `<lastmod>` がローカル保存値より新しい
+   記事は本文・画像を再取得して上書き
+4. 旧バージョンで保存された `lastmod` 未保持の記事は本文を再取得せず
+   sitemap の値だけ埋めてブートストラップ (`backfill-lastmod`)
+5. 差分があれば `medium_export/` を `github-actions[bot]` がコミット & push
+6. push を検知して `pages.yml` がサイトを再ビルド & 再デプロイ
 
 > 注意: GitHub Actions の `schedule` イベントはデフォルトブランチ上の
 > ワークフローのみ実行される。フィーチャーブランチでは

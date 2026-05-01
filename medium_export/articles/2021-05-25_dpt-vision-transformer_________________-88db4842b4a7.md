@@ -2,6 +2,7 @@
 title: "DPT : Vision Transformerを使用したセグメンテーションモデル"
 author: "Kazuki Kyakuno"
 date: 2021-05-25
+lastmod: 2021-05-25
 original_url: https://tech.ailia.ai/dpt-vision-transformerを使用したセグメンテーションモデル-88db4842b4a7
 tags: [ailia-models]
 ---

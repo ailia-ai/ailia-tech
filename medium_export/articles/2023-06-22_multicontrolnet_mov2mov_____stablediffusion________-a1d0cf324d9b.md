@@ -2,6 +2,7 @@
 title: "MultiControlNetとMov2Movを使用してStableDiffusionで動画を生成する"
 author: "Kazuki Kyakuno"
 date: 2023-06-22
+lastmod: 2023-06-22
 original_url: https://tech.ailia.ai/multicontrolnetとmov2movを使用してstablediffusionで動画を生成する-a1d0cf324d9b
 tags: [ailia-technology]
 ---

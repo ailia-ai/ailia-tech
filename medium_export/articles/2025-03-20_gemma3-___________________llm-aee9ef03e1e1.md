@@ -2,6 +2,7 @@
 title: "Gemma3 : マルチモーダルに対応した最新のローカルLLM"
 author: "Kazuki Kyakuno"
 date: 2025-03-20
+lastmod: 2025-03-20
 original_url: https://tech.ailia.ai/gemma3-マルチモーダルに対応した最新のローカルllm-aee9ef03e1e1
 tags: [ailia-models]
 ---

@@ -41,7 +41,6 @@ PUBLICATION_TAGLINE = "The latest technology related to AI."
 PUBLICATION_LOGO = (
     "https://miro.medium.com/v2/resize:fill:160:160/1*5yfBcdCERuuQ1y98iuvhAg.png"
 )
-MEDIUM_PUBLICATION_URL = "https://medium.com/axinc"
 
 GTM_HEAD = f"""<!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':
@@ -146,7 +145,7 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <article class="post">
   <header class="post-header">
     <h1>{title}</h1>
-    <p class="post-meta"><span class="post-author">{author}</span>{date_sep}<span class="post-date">{date}</span></p>
+    <p class="post-meta"><span class="post-author">{author}</span><span class="post-date">{date}</span></p>
   </header>
   <div class="post-body">
 {content}
@@ -592,7 +591,6 @@ def build(source: Path, output: Path) -> int:
             pub_title=html.escape(PUBLICATION_TITLE),
             author=html.escape(author),
             date=html.escape(date),
-            date_sep="" if not (author and date) else "",
             excerpt=html.escape(excerpt, quote=True),
             content=body_html,
             original_url=html.escape(original_url, quote=True),

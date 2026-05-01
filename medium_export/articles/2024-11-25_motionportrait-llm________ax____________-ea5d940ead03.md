@@ -2,6 +2,7 @@
 title: "MotionPortrait : LLMと合わせて使えるaxのアバターソリューション"
 author: "Kazuki Kyakuno"
 date: 2024-11-25
+lastmod: 2024-11-25
 original_url: https://tech.ailia.ai/motionportrait-llmと合わせて使えるaxのアバターソリューション-ea5d940ead03
 tags: [ailia-sdk]
 ---

@@ -2,6 +2,7 @@
 title: "ailia SDKの評価版がpip経由でインストール可能に"
 author: "Kazuki Kyakuno"
 date: 2024-05-23
+lastmod: 2024-05-23
 original_url: https://tech.ailia.ai/ailia-sdkの評価版がpip経由でインストール可能に-c69e620f5dc9
 tags: [ailia-sdk]
 ---

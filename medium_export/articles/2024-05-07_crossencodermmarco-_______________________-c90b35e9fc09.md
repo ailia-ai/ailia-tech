@@ -2,6 +2,7 @@
 title: "CrossEncoderMmarco : 質問文と回答文の類似度を計算する機械学習モデル"
 author: "Kazuki Kyakuno"
 date: 2024-05-07
+lastmod: 2024-05-07
 original_url: https://tech.ailia.ai/crossencodermmarco-質問文と回答文の類似度を計算する機械学習モデル-c90b35e9fc09
 tags: [ailia-model]
 ---

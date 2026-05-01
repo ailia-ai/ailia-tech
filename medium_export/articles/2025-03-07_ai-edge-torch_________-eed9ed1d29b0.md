@@ -2,6 +2,7 @@
 title: "ai-edge-torchの量子化の詳細解説"
 author: "Kazuki Kyakuno"
 date: 2025-03-07
+lastmod: 2025-03-07
 original_url: https://tech.ailia.ai/ai-edge-torchの量子化の詳細解説-eed9ed1d29b0
 tags: [ailia-technology]
 ---

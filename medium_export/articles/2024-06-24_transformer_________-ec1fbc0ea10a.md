@@ -2,6 +2,7 @@
 title: "Transformerの量子化の最新動向"
 author: "Kazuki Kyakuno"
 date: 2024-06-24
+lastmod: 2024-06-24
 original_url: https://tech.ailia.ai/transformerの量子化の最新動向-ec1fbc0ea10a
 tags: [ailia-technology]
 ---

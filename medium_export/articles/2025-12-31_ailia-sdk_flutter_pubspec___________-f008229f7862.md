@@ -2,6 +2,7 @@
 title: "ailia SDKがFlutterのpubspecからインストール可能に"
 author: "Kazuki Kyakuno"
 date: 2025-12-31
+lastmod: 2025-12-31
 original_url: https://tech.ailia.ai/ailia-sdkがflutterのpubspecからインストール可能に-f008229f7862
 tags: [ailia-sdk]
 ---

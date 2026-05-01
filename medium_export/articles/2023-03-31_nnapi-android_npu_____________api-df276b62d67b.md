@@ -2,6 +2,7 @@
 title: "NNAPI : AndroidでNPUを使用するためのローレベルAPI"
 author: "Kazuki Kyakuno"
 date: 2023-03-31
+lastmod: 2023-03-31
 original_url: https://tech.ailia.ai/nnapi-androidでnpuを使用するためのローレベルapi-df276b62d67b
 tags: [ailia-technology]
 ---

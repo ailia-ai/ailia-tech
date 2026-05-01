@@ -2,6 +2,7 @@
 title: "AgeGenderRecognitionRetail : 年齢と性別を識別する機械学習モデル"
 author: "Kazuki Kyakuno"
 date: 2021-09-03
+lastmod: 2021-09-03
 original_url: https://tech.ailia.ai/agegenderrecognitionretail-年齢と性別を予測する機械学習モデル-3632935d19ec
 tags: [ailia-models]
 ---

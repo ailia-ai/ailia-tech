@@ -2,6 +2,7 @@
 title: "MobileObjectLocalizer : 任意の物体を検出できる物体検出モデル"
 author: "Kazuki Kyakuno"
 date: 2021-12-24
+lastmod: 2021-12-24
 original_url: https://tech.ailia.ai/mobileobjectlocalizer-任意の物体を検出できる物体検出モデル-595b54cfab26
 tags: [ailia-models]
 ---

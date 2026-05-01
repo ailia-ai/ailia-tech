@@ -2,6 +2,7 @@
 title: "3D Gaussian Splatting : 複数視点の画像から3D空間を再現する最新手法"
 author: "Kazuki Kyakuno"
 date: 2023-09-26
+lastmod: 2023-09-26
 original_url: https://tech.ailia.ai/3d-gaussian-splatting-複数視点の画像から3d空間を再現する最新手法-273ce61200a8
 tags: [ailia-technology]
 ---

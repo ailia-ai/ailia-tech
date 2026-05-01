@@ -2,6 +2,7 @@
 title: "SPAN : パラメータフリーのAttentionによる効率的な超解像モデル"
 author: "Kazuki Kyakuno"
 date: 2025-01-06
+lastmod: 2025-01-06
 original_url: https://tech.ailia.ai/span-パラメータフリーのattentionによる効率的な超解像モデル-3af731eae44a
 tags: [ailia-models]
 ---

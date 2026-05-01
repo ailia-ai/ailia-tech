@@ -2,6 +2,7 @@
 title: "IP AdapterとStable Diffusion WebUIを使用してキャラクターを固定した画像を生成する"
 author: "Kazuki Kyakuno"
 date: 2023-10-06
+lastmod: 2023-10-06
 original_url: https://tech.ailia.ai/ip-adapterとstable-diffusion-webuiを使用してキャラクターを固定した画像を生成する-878e9159869d
 tags: [ailia-technology]
 ---

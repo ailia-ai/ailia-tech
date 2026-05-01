@@ -2,6 +2,7 @@
 title: "3DObjectDetectionPytorch : 3Dの物体検出モデル"
 author: "Kazuki Kyakuno"
 date: 2021-09-21
+lastmod: 2021-09-21
 original_url: https://tech.ailia.ai/3dobjectdetectionpytorch-3dの物体検出モデル-8df18b8eb5d1
 tags: [ailia-models]
 ---

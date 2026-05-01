@@ -2,6 +2,7 @@
 title: "WhisperをFineTuningして専門用語を認識可能にする"
 author: "Kazuki Kyakuno"
 date: 2023-05-01
+lastmod: 2023-05-01
 original_url: https://tech.ailia.ai/whisperをfine-tuningして専門用語を認識可能にする-3744e2779c71
 tags: [ailia-technology]
 ---

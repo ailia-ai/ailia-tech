@@ -2,6 +2,7 @@
 title: "TrafficSignDetection : 道路標識を検出できる機械学習モデル"
 author: "Kazuki Kyakuno"
 date: 2022-03-07
+lastmod: 2022-03-07
 original_url: https://tech.ailia.ai/trafficsigndetection-道路標識を検出できる機械学習モデル-d1dc1bd5ff5e
 tags: [ailia-models]
 ---

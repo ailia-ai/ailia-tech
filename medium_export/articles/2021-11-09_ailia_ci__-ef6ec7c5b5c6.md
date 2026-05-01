@@ -2,6 +2,7 @@
 title: "ailiaのCI環境"
 author: "Masashi MICHIGAMI"
 date: 2021-11-09
+lastmod: 2021-11-09
 original_url: https://tech.ailia.ai/ailiaのci環境-ef6ec7c5b5c6
 tags: [ailia, jenkins, boost, ci, ailia-technology]
 ---

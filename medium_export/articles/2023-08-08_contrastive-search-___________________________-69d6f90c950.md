@@ -2,6 +2,7 @@
 title: "Contrastive Search : 言語生成の繰り返しを抑制できるトークン選択アルゴリズム"
 author: "Kazuki Kyakuno"
 date: 2023-08-08
+lastmod: 2023-08-08
 original_url: https://tech.ailia.ai/contrastive-search-言語生成の繰り返しを抑制できるトークン選択アルゴリズム-69d6f90c950
 tags: [ailia-technology]
 ---

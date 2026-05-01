@@ -2,6 +2,7 @@
 title: "Pytorchで学習したAIモデルをiOSとAndroidに実装する"
 author: "Kazuki Kyakuno"
 date: 2023-06-30
+lastmod: 2023-06-30
 original_url: https://tech.ailia.ai/pytorchで学習したaiモデルをiosとandroidに実装する-307d1871bc14
 tags: [ailia-tutorial]
 ---

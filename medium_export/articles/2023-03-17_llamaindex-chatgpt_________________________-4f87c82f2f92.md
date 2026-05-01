@@ -2,6 +2,7 @@
 title: "LlamaIndex : ChatGPTで独自のデータに対して質問するためのフレームワーク"
 author: "Kazuki Kyakuno"
 date: 2023-03-17
+lastmod: 2023-03-17
 original_url: https://tech.ailia.ai/llamaindex-chatgptで独自のデータに対して質問するためのフレームワーク-4f87c82f2f92
 tags: [ailia-technology]
 ---

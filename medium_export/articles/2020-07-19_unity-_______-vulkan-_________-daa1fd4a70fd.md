@@ -2,6 +2,7 @@
 title: "Unity プラグインから Vulkan のテクスチャを扱う"
 author: "Ryohei Nishimura"
 date: 2020-07-19
+lastmod: 2020-07-19
 original_url: https://tech.ailia.ai/unity-プラグインから-vulkan-のテクスチャを扱う-daa1fd4a70fd
 tags: [ailia-technology]
 ---

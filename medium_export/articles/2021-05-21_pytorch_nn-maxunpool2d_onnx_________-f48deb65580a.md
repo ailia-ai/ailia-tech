@@ -2,6 +2,7 @@
 title: "Pytorchのnn.MaxUnpool2dをONNXにエクスポートする"
 author: "Kazuki Kyakuno"
 date: 2021-05-21
+lastmod: 2021-05-21
 original_url: https://tech.ailia.ai/pytorchのnn-maxunpool2dをonnxにエクスポートする-f48deb65580a
 tags: [ailia-technology]
 ---

@@ -204,17 +204,53 @@ def _read_lastmod(md_path: Path) -> str:
     return m.group(1).strip() if m else ""
 
 
+def _inject_lastmod(md_path: Path, lastmod: str) -> bool:
+    """フロントマターに ``lastmod: <date>`` を挿入する。
+    本文の再取得が不要な既存記事 (旧バージョンで保存された記事) に
+    sitemap の lastmod を後付けするために使う。"""
+    text = md_path.read_text(encoding="utf-8")
+    if not text.startswith("---\n"):
+        return False
+    end = text.find("\n---\n", 4)
+    if end == -1:
+        return False
+    fm = text[4:end]
+    body = text[end + 5 :]
+    if re.search(r"^lastmod:", fm, re.M):
+        return False
+    # date: の直後に挿入。date: が無ければ original_url: の前に置く。
+    new_fm, n = re.subn(
+        r"^(date:.*\n)", r"\1lastmod: " + lastmod + "\n", fm, count=1, flags=re.M
+    )
+    if n == 0:
+        new_fm, n = re.subn(
+            r"^(original_url:)",
+            "lastmod: " + lastmod + "\n" + r"\1",
+            fm,
+            count=1,
+            flags=re.M,
+        )
+    if n == 0:
+        new_fm = fm.rstrip() + f"\nlastmod: {lastmod}\n"
+    md_path.write_text(f"---\n{new_fm}\n---\n{body}", encoding="utf-8")
+    return True
+
+
 def scrape_article(
     url: str,
     output_dir: Path,
     sitemap_lastmod: str = "",
     refresh: bool = False,
+    force: bool = False,
 ) -> str:
     """記事1本をMarkdownで保存。ファイル名は YYYY-MM-DD_slug.md 形式。
 
-    既に保存済みの記事は通常スキップするが、``refresh=True`` の場合は
-    sitemap の lastmod とローカルの ``lastmod:`` 値を比較し、Mediumで
-    記事が更新されていれば再取得 (上書き) する。
+    挙動:
+      - ``force=True``        : 既存記事を必ず再取得 (--refresh-all)
+      - ``refresh=True``      : sitemap の lastmod がローカルより新しいときだけ
+                                再取得。ローカルに lastmod が無い旧記事は本文を
+                                再取得せず lastmod の付与だけ行う。
+      - それ以外               : 既存記事はスキップ
     """
     slug = slugify(url)
     articles_dir = output_dir / "articles"
@@ -226,24 +262,44 @@ def scrape_article(
         + list(articles_dir.glob(f"{slug}.md"))
     )
     if existing:
-        if not refresh:
+        if force:
+            print(f"[force-refresh] {existing[0].name}")
+            for f in existing:
+                f.unlink()
+        elif not refresh:
             print(f"[skip] already saved: {existing[0].name}")
             return "skip"
-        local_lastmod = _read_lastmod(existing[0])
-        # ローカルが lastmod 未保持 (旧バージョン) → refresh で1回だけ再取得し
-        # lastmod を埋める。それ以外は sitemap の方が新しい場合のみ再取得。
-        if local_lastmod and sitemap_lastmod and local_lastmod >= sitemap_lastmod:
-            print(
-                f"[skip-uptodate] {existing[0].name} (lastmod={local_lastmod})"
-            )
-            return "uptodate"
-        print(
-            f"[refresh] {existing[0].name} "
-            f"(lastmod {local_lastmod or '-'} -> {sitemap_lastmod or '-'})"
-        )
-        # 既存ファイルを削除して上書き保存できるようにする
-        for f in existing:
-            f.unlink()
+        else:
+            local_lastmod = _read_lastmod(existing[0])
+            # 旧バージョンで保存された記事は lastmod を持たない。sitemap に
+            # 値があるなら本文は再取得せず lastmod だけ埋めて、次回以降の
+            # 差分検知が機能するようにブートストラップする。
+            if not local_lastmod and sitemap_lastmod:
+                if _inject_lastmod(existing[0], sitemap_lastmod):
+                    print(
+                        f"[backfill-lastmod] {existing[0].name} "
+                        f"(lastmod={sitemap_lastmod})"
+                    )
+                    return "backfill"
+            # 両方の lastmod が揃っているケースだけ「新しいほうへ更新」と判定。
+            # ローカルが新しい・どちらかが空、の場合は安全側に倒してスキップ。
+            if (
+                local_lastmod
+                and sitemap_lastmod
+                and local_lastmod < sitemap_lastmod
+            ):
+                print(
+                    f"[refresh] {existing[0].name} "
+                    f"(lastmod {local_lastmod} -> {sitemap_lastmod})"
+                )
+                for f in existing:
+                    f.unlink()
+            else:
+                print(
+                    f"[skip-uptodate] {existing[0].name} "
+                    f"(local={local_lastmod or '-'} sitemap={sitemap_lastmod or '-'})"
+                )
+                return "uptodate"
 
     print(f"[scrape] {url}")
     html = fetch(url)
@@ -315,7 +371,6 @@ def main():
     )
     parser.add_argument("--output", default="medium_export")
     parser.add_argument("--urls-only", action="store_true", help="URL収集だけ実行")
-    parser.add_argument("--limit", type=int, default=0, help="最大記事数 (0=全件)")
     parser.add_argument(
         "--refresh",
         action="store_true",
@@ -372,22 +427,17 @@ def main():
     if args.urls_only:
         return
 
-    if args.limit > 0:
-        urls = urls[: args.limit]
-
     refresh_mode = args.refresh or args.refresh_all
     counts: dict = {}
     for i, url in enumerate(urls, 1):
         print(f"\n--- {i}/{len(urls)} ---")
         lastmod = sitemap_map.get(url, "")
-        # --refresh-all は lastmod 比較を無視して強制再取得するため、
-        # ローカルの lastmod とミスマッチさせるダミー値を渡す。
-        effective_lastmod = "9999-12-31" if args.refresh_all else lastmod
         result = scrape_article(
             url,
             output_dir,
-            sitemap_lastmod=effective_lastmod,
+            sitemap_lastmod=lastmod,
             refresh=refresh_mode,
+            force=args.refresh_all,
         )
         if result:
             counts[result] = counts.get(result, 0) + 1

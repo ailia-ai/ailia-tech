@@ -10,10 +10,10 @@ on:
         description: "既存記事の再取得モード"
         required: true
         type: choice
-        default: "off"
+        default: "updated"
         options:
-          - "off"        # 新着のみ取得 (cron既定動作)
-          - "updated"    # sitemap lastmod が新しい記事だけ再取得
+          - "off"        # 新着のみ取得 (lastmod差分は無視)
+          - "updated"    # sitemap lastmod が新しい記事だけ再取得 (cron既定)
           - "all"        # 全記事を強制的に再取得 (時間がかかる)
       only_url:
         description: "1記事だけ更新する場合の記事URL (Medium / tech.ailia.ai)"
@@ -43,9 +43,10 @@ jobs:
           rm -f medium_export/urls.txt
 
           refresh_mode="${{ github.event.inputs.refresh }}"
-          # cron実行時は inputs が空文字 → 既定値 "off" 扱い
+          # cron実行時は inputs が空文字 → 既定値 "updated" 扱い
+          # (lastmod を比較してMediumで編集された記事を自動的に再取得)
           if [[ -z "${refresh_mode}" ]]; then
-            refresh_mode="off"
+            refresh_mode="updated"
           fi
 
           flags=""

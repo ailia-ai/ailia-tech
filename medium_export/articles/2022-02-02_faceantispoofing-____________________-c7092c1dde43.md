@@ -2,6 +2,7 @@
 title: "FaceAntiSpoofing : 本物の顔かどうかを判定する機械学習モデル"
 author: "Kazuki Kyakuno"
 date: 2022-02-02
+lastmod: 2022-02-02
 original_url: https://tech.ailia.ai/faceantispoofing-本物の顔かどうかを判定する機械学習モデル-c7092c1dde43
 tags: [ailia-models]
 ---

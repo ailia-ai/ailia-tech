@@ -2,6 +2,7 @@
 title: "Grounding DINO : 任意の物体を検出できる物体検出モデル"
 author: "Kazuki Kyakuno"
 date: 2026-03-24
+lastmod: 2026-03-24
 original_url: https://tech.ailia.ai/grounding-dino-任意の物体を検出できる物体検出モデル-3cc87db64f0c
 tags: [ailia-models]
 ---

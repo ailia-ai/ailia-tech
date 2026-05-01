@@ -2,6 +2,7 @@
 title: "ailia AI Voiceとailia AI SpeechにPython APIを追加"
 author: "Kazuki Kyakuno"
 date: 2024-11-01
+lastmod: 2024-11-01
 original_url: https://tech.ailia.ai/ailia-ai-voiceとailia-ai-speechにpython-apiを追加-ddb17302e248
 tags: [ailia-sdk]
 ---

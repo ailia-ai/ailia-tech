@@ -2,6 +2,7 @@
 title: "FaceMeshV2 : BlendShapeも計算可能な顔のキーポイント検出モデル"
 author: "Kazuki Kyakuno"
 date: 2023-10-02
+lastmod: 2023-10-02
 original_url: https://tech.ailia.ai/facemeshv2-blendshapeも計算可能な顔のキーポイント検出モデル-3198898dccdd
 tags: [ailia-models]
 ---

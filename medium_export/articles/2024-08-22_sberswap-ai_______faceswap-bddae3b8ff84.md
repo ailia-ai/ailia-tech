@@ -2,6 +2,7 @@
 title: "SberSwap : AIによる高精度なFaceSwap"
 author: "Kazuki Kyakuno"
 date: 2024-08-22
+lastmod: 2024-08-22
 original_url: https://tech.ailia.ai/sberswap-aiによる高精度なfaceswap-bddae3b8ff84
 tags: [ailia-models]
 ---

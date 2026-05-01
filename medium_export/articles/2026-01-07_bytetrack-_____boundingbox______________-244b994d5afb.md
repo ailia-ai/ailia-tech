@@ -2,6 +2,7 @@
 title: "ByteTrack : 低い確度のBoundingBoxも考慮するトラッキングモデル"
 author: "Kazuki Kyakuno"
 date: 2026-01-07
+lastmod: 2026-01-07
 original_url: https://tech.ailia.ai/bytetrack-低い確度のboundingboxも考慮するトラッキングモデル-244b994d5afb
 tags: [ailia-models]
 ---
