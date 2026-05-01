@@ -323,6 +323,47 @@ def _inject_lastmod(md_path: Path, lastmod: str) -> bool:
     return True
 
 
+def _extract_apollo_dates(html_text: str, post_id: str) -> tuple:
+    """記事HTMLの ``window.__APOLLO_STATE__`` から (firstPublishedAt,
+    latestPublishedAt) を ISO 日付 (YYYY-MM-DD) で取り出す。
+    Mediumの ``article:published_time`` メタタグは latestPublishedAt を
+    返してしまうので、真の投稿日を取得する目的で Apollo state を直接見る。"""
+    m = re.search(
+        r"window\.__APOLLO_STATE__\s*=\s*(\{.+?\});?</script>",
+        html_text,
+        re.DOTALL,
+    )
+    if not m:
+        return "", ""
+    try:
+        data = json.loads(m.group(1))
+    except Exception:
+        return "", ""
+    post = data.get(f"Post:{post_id}") or {}
+    if not post:
+        # ID が分からない場合: 最初に見つかる Post:* エントリを使う
+        for k, v in data.items():
+            if k.startswith("Post:") and isinstance(v, dict):
+                post = v
+                break
+
+    def _to_iso(ts) -> str:
+        try:
+            from datetime import datetime, timezone
+
+            return (
+                datetime.fromtimestamp(int(ts) / 1000, tz=timezone.utc)
+                .date()
+                .isoformat()
+            )
+        except Exception:
+            return ""
+
+    first = _to_iso(post.get("firstPublishedAt")) if post.get("firstPublishedAt") else ""
+    latest = _to_iso(post.get("latestPublishedAt")) if post.get("latestPublishedAt") else ""
+    return first, latest
+
+
 def scrape_article(
     url: str,
     output_dir: Path,
@@ -402,7 +443,18 @@ def scrape_article(
     author = author_el["content"] if author_el else ""
 
     date_el = soup.find("meta", attrs={"property": "article:published_time"})
-    pub_date = date_el["content"][:10] if date_el else ""
+    meta_published = date_el["content"][:10] if date_el else ""
+
+    # Mediumの article:published_time メタは「最終更新日」(latestPublishedAt)
+    # を返すため、真の投稿日として Apollo state の firstPublishedAt を使う。
+    # 値が取れなかったときだけメタタグの値にフォールバック。
+    post_id_m = _HEX_ID_RE.search(url)
+    post_id = post_id_m.group()[1:] if post_id_m else ""
+    first_published, latest_published = _extract_apollo_dates(html, post_id)
+    pub_date = first_published or meta_published
+    # lastmod は: sitemap > Apollo latestPublishedAt > article:published_time の優先順
+    if not sitemap_lastmod:
+        sitemap_lastmod = latest_published or meta_published
 
     tags = extract_tags(soup)
 
