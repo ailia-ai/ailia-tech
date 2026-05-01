@@ -433,6 +433,24 @@ def _is_inline_noise(text: str) -> bool:
     return any(p.match(s) for p in _INLINE_NOISE_PATTERNS)
 
 
+def apply_substitutions(text: str) -> str:
+    """記事本文・タイトル中の旧社名・旧URL・旧GitHub組織名を現行表記に置き換える。
+    出力HTML/抜粋の両方で使用されるよう、markdownレベルで適用する。"""
+    if not text:
+        return text
+    text = text.replace("ax株式会社", "アイリア株式会社")
+    # axinc.jp はURL／表示テキストの両方に出るので一律置換。
+    text = text.replace("axinc.jp", "ailia.ai")
+    # axinc-ai (GitHub org) → ailia-ai。ただし "axinc-ailia" の様に
+    # 末尾が単語の途中である場合は置換しない。Pythonの \b は Unicode
+    # 文字 (日本語) と隣接する位置で word boundary を認識しないので、
+    # 明示的な lookbehind/lookahead を使う。
+    text = re.sub(
+        r"(?<![A-Za-z0-9_])axinc-ai(?![A-Za-z0-9_])", "ailia-ai", text
+    )
+    return text
+
+
 def clean_body(body: str) -> str:
     """先頭の重複H1 (Mediumは同タイトルを2回出力する) とバイラインブロック、
     本文中のMedium UIアーティファクトを取り除く。"""
@@ -547,7 +565,7 @@ def build(source: Path, output: Path) -> int:
         text = mdf.read_text(encoding="utf-8")
         fm, body = parse_front_matter(text)
 
-        title = fm.get("title") or mdf.stem
+        title = apply_substitutions(fm.get("title") or mdf.stem)
         date = fm.get("date", "")
         author = fm.get("author", "")
         original_url = fm.get("original_url", "")
@@ -558,7 +576,7 @@ def build(source: Path, output: Path) -> int:
             tags = [t.strip() for t in tags.split(",") if t.strip()]
 
         thumb_url = extract_thumbnail(body)
-        cleaned = clean_body(body)
+        cleaned = apply_substitutions(clean_body(body))
         excerpt = extract_excerpt(cleaned)
 
         body_html = md.convert(cleaned)

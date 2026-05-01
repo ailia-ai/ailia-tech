@@ -146,6 +146,7 @@ https://tech.ailia.ai/mmdetectionのモデルをonnxにエクスポートする-
 https://tech.ailia.ai/mmfashion-ファッションをセグメンテーションする機械学習モデル-c486af72fdb5
 https://tech.ailia.ai/mobilenetssd-高速に物体検出を行う機械学習モデル-be3ca37c411
 https://tech.ailia.ai/mobileobjectlocalizer-任意の物体を検出できる物体検出モデル-595b54cfab26
+https://tech.ailia.ai/moirai-salesforceが開発した時系列予測の基盤モデル-cad4a857f142
 https://tech.ailia.ai/motionportrait-llmと合わせて使えるaxのアバターソリューション-ea5d940ead03
 https://tech.ailia.ai/movenet-動きの激しい動画向け骨格検出モデル-d26d9e06126c
 https://tech.ailia.ai/multi-input-transformer-for-age-and-gender-estimation-年齢と性別を推定するためのマルチインプットトランスフォーマーモデル-8b77aa8c6dbc

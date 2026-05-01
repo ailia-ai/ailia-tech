@@ -59,6 +59,9 @@ def fetch_bytes(url: str) -> bytes:
         return b""
 
 
+_HEX_ID_RE = re.compile(r"-[a-f0-9]{10,14}$")
+
+
 def collect_urls_from_sitemap(custom_domain: str) -> list:
     """publicationのカスタムドメインのsitemap.xmlから記事URLを収集。"""
     sitemap_url = f"https://{custom_domain}/sitemap/sitemap.xml"
@@ -67,11 +70,36 @@ def collect_urls_from_sitemap(custom_domain: str) -> list:
     if not xml:
         return []
     locs = re.findall(r"<loc>([^<]+)</loc>", xml)
-    # 記事URLは末尾が -[12桁hex] (10〜14桁を許容)
-    pattern = re.compile(r"-[a-f0-9]{10,14}$")
-    articles = sorted({l for l in locs if pattern.search(l)})
+    articles = sorted({l for l in locs if _HEX_ID_RE.search(l)})
     print(f"[sitemap] found {len(articles)} article URLs (out of {len(locs)} total)")
     return articles
+
+
+def collect_urls_from_feed(publication: str) -> list:
+    """publicationのRSSフィードから最新10記事のURLを収集。
+    sitemap.xmlは反映が遅く最新記事を含まないことがあるため、
+    sitemapで取りこぼした新着URLをRSS経由で補完する。
+
+    sitemap.xmlは生の日本語slugを含むのに対しRSS<link>はURLエンコード
+    済みなので、unquote()で復号して文字列比較できる形に揃える。"""
+    from urllib.parse import unquote
+
+    feed_url = f"https://medium.com/feed/{publication}"
+    print(f"[feed]    {feed_url}")
+    xml = fetch(feed_url)
+    if not xml:
+        return []
+    items = re.findall(r"<item>(.*?)</item>", xml, re.DOTALL)
+    urls: list = []
+    for item in items:
+        m = re.search(r"<link>([^<]+)</link>", item)
+        if not m:
+            continue
+        url = unquote(m.group(1).split("?")[0].rstrip("/"))
+        if _HEX_ID_RE.search(url):
+            urls.append(url)
+    print(f"[feed]    found {len(urls)} article URLs in feed")
+    return urls
 
 
 def extract_tags(soup) -> list:
@@ -246,10 +274,17 @@ def main():
         if urls_file.exists()
         else set()
     )
-    urls = collect_urls_from_sitemap(args.custom_domain)
-    if not urls:
+    sitemap_urls = collect_urls_from_sitemap(args.custom_domain)
+    if not sitemap_urls:
         print("[warn] sitemap returned no URLs; aborting")
         return
+    # sitemap.xmlは更新が遅延し最新記事を取りこぼすことがあるため、RSSフィードから
+    # 直近10件を追加で取得してマージする (重複は集合で吸収)。
+    feed_urls = collect_urls_from_feed(args.publication)
+    urls = sorted(set(sitemap_urls) | set(feed_urls))
+    extra = len(set(feed_urls) - set(sitemap_urls))
+    if extra:
+        print(f"[info]    {extra} URL(s) only in feed (sitemap missed)")
     urls_file.write_text("\n".join(urls))
     new_urls = [u for u in urls if u not in previous]
     print(
