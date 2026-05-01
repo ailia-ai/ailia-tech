@@ -79,9 +79,6 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
 <main class="article-feed">
 {cards}
 </main>
-<footer class="site-footer">
-  <p>このサイトは {medium_url} のミラーです。各記事の権利は原著者に帰属します。</p>
-</footer>
 </body>
 </html>
 """
@@ -139,7 +136,7 @@ CSS = """:root {
   --hover: #fafafa;
 }
 * { box-sizing: border-box; }
-html { font-size: 16px; }
+html { font-size: 16px; overflow-x: hidden; }
 body {
   font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo,
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -149,7 +146,17 @@ body {
   line-height: 1.6;
   color: var(--fg);
   background: var(--bg);
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
+/* iOS Safari 等で長いURLや英単語が viewport をはみ出さないように */
+.post-body, .site-footer, .card-body, .pub-meta { min-width: 0; overflow-wrap: anywhere; }
+.post-body img, .post-body video, .post-body iframe {
+  max-width: 100%;
+  height: auto;
+}
+.post-body pre { white-space: pre-wrap; max-width: 100%; }
+.post-body table { display: block; max-width: 100%; overflow-x: auto; }
 a { color: inherit; text-decoration: none; }
 a:hover { text-decoration: underline; }
 
