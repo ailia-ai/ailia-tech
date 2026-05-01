@@ -532,17 +532,31 @@ def apply_substitutions(text: str) -> str:
 _INTERNAL_LINK_HEX_RE = re.compile(r"-[a-f0-9]{10,14}$")
 
 # Mediumのembed/cardレンダリングで生まれる複数行 `[...](url)` パターン:
-#   [## タイトル\n\n### サブタイトル\n\ndomain.com](url)
+#   [## タイトル\n\n### サブタイトル (...…)\n\ndomain.com](url)
 # 内部にH2/H3を含み厳密にはmarkdown不正なため、Python-Markdownでは
-# プレーンテキスト扱いになる。タイトル部分だけを取り出してシンプルな
-# `[タイトル](url)` に整形する。
-_CARD_LINK_RE = re.compile(
-    r"\[#+\s+(?P<title>[^\n]+?)\n[\s\S]*?\]\((?P<url>[^)]+)\)"
-)
+# プレーンテキスト扱いになる。タイトルと、(あれば) サブタイトルを残しつつ
+# シンプルな `[**タイトル** — サブタイトル](url)` に整形する。サブタイトルには
+# Mediumが付ける末尾の `…` などが含まれるため、これを残すことで関連記事の
+# プレビュー文が消えないようにする。
+_CARD_LINK_RE = re.compile(r"\[(#+\s+[\s\S]*?)\]\(([^)]+)\)")
+
+
+def _normalize_one_card(label_body: str, url: str) -> str:
+    headings = re.findall(r"^#+\s+(.+?)\s*$", label_body, re.M)
+    title = headings[0].strip() if headings else ""
+    subtitle = headings[1].strip() if len(headings) >= 2 else ""
+    if title and subtitle:
+        return f"[**{title}** — {subtitle}]({url})"
+    if title:
+        return f"[**{title}**]({url})"
+    # フォールバック: 元の文字列そのまま
+    return f"[{label_body.strip()}]({url})"
 
 
 def normalize_card_links(text: str) -> str:
-    return _CARD_LINK_RE.sub(lambda m: f"[{m.group('title').strip()}]({m.group('url')})", text)
+    return _CARD_LINK_RE.sub(
+        lambda m: _normalize_one_card(m.group(1), m.group(2)), text
+    )
 
 
 def _rewrite_internal_link_url(url: str) -> str:
