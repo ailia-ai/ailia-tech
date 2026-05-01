@@ -153,7 +153,6 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
   </div>
 </article>
 <footer class="site-footer">
-  <p>原文: <a href="{original_url}">{original_url}</a></p>
   <p><a href="../">&larr; 記事一覧へ</a></p>
 </footer>
 </body>
