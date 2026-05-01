@@ -488,6 +488,42 @@ a:hover { text-decoration: underline; }
 .post-body th, .post-body td { border: 1px solid var(--border); padding: 8px 12px; }
 .post-body a { color: var(--link); text-decoration: underline; text-decoration-thickness: 1px; }
 
+/* Mediumライクな関連リンクカード */
+.link-card {
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px 18px;
+  margin: 20px 0;
+  text-decoration: none !important;
+  color: var(--fg);
+  transition: background 0.15s, border-color 0.15s;
+}
+.link-card:hover { background: var(--hover); border-color: #d8d8d8; }
+.link-card-title {
+  display: block;
+  font-weight: 600;
+  font-size: 1em;
+  line-height: 1.35;
+  color: var(--fg);
+  margin-bottom: 4px;
+}
+.link-card-subtitle {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--fg-muted);
+  font-size: 0.9em;
+  line-height: 1.45;
+  margin-bottom: 6px;
+}
+.link-card-domain {
+  display: block;
+  color: var(--fg-muted);
+  font-size: 0.8em;
+}
+
 /* Footer */
 .site-footer {
   margin-top: 48px;
@@ -585,12 +621,34 @@ def _normalize_one_card(label_body: str, url: str) -> str:
     headings = re.findall(r"^#+\s+(.+?)\s*$", label_body, re.M)
     title = headings[0].strip() if headings else ""
     subtitle = headings[1].strip() if len(headings) >= 2 else ""
-    if title and subtitle:
-        return f"[**{title}** — {subtitle}]({url})"
-    if title:
-        return f"[**{title}**]({url})"
-    # フォールバック: 元の文字列そのまま
-    return f"[{label_body.strip()}]({url})"
+    # ドメイン名は最後の非見出し行 (非空白の素テキスト)
+    non_heading = [
+        l.strip()
+        for l in label_body.split("\n")
+        if l.strip() and not l.strip().startswith("#")
+    ]
+    domain = non_heading[-1] if non_heading else ""
+
+    rewritten_url = _rewrite_internal_link_url(url)
+
+    if not title:
+        return f"[{label_body.strip()}]({rewritten_url})"
+
+    parts = [f'<span class="link-card-title">{html.escape(title)}</span>']
+    if subtitle:
+        parts.append(
+            f'<span class="link-card-subtitle">{html.escape(subtitle)}</span>'
+        )
+    if domain:
+        parts.append(
+            f'<span class="link-card-domain">{html.escape(domain)}</span>'
+        )
+    inner = "".join(parts)
+    # Python-Markdown が <p> でくるまないよう、前後に空行を入れて block として扱わせる
+    return (
+        f'\n\n<a class="link-card" href="'
+        f'{html.escape(rewritten_url, quote=True)}">{inner}</a>\n\n'
+    )
 
 
 def normalize_card_links(text: str) -> str:
