@@ -3,6 +3,7 @@ title: "CrowdCounting : 画像から人数を計測する機械学習モデル"
 author: "Kazuki Kyakuno"
 date: 2021-05-06
 original_url: https://tech.ailia.ai/crowdcounting-画像から人数を計測する機械学習モデル-459e8b3fc184
+tags: [ailia-model]
 ---
 
 # CrowdCounting : 画像から人数を計測する機械学習モデル

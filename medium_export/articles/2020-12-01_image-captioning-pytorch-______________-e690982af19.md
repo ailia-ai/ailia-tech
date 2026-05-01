@@ -3,6 +3,7 @@ title: "Image Captioning Pytorch : 画像を説明する機械学習モデル"
 author: "Kazuki Kyakuno"
 date: 2020-12-01
 original_url: https://tech.ailia.ai/image-captioning-pytorch-画像を説明する機械学習モデル-e690982af19
+tags: [ailia-models]
 ---
 
 # Image Captioning Pytorch : 画像を説明する機械学習モデル

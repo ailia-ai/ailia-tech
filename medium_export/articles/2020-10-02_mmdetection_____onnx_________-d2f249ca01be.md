@@ -3,6 +3,7 @@ title: "MMDetectionのモデルをONNX形式にエクスポートする"
 author: "Satoshi Ooe"
 date: 2020-10-02
 original_url: https://tech.ailia.ai/mmdetectionのモデルをonnxにエクスポートする-d2f249ca01be
+tags: [ailia-technology]
 ---
 
 # MMDetectionのモデルをONNX形式にエクスポートする

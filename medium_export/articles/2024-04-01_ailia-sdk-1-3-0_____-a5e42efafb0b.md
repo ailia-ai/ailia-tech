@@ -3,6 +3,7 @@ title: "ailia SDK 1.3.0をリリース"
 author: "Kazuki Kyakuno"
 date: 2024-04-01
 original_url: https://tech.ailia.ai/ailia-sdk-1-3-0をリリース-a5e42efafb0b
+tags: [ailia-sdk]
 ---
 
 # ailia SDK 1.3.0をリリース

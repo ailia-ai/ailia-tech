@@ -3,6 +3,7 @@ title: "WhisperにおけるPrompt Engineering"
 author: "Kazuki Kyakuno"
 date: 2023-06-26
 original_url: https://tech.ailia.ai/whisperにおけるprompt-engineering-7d3bbdd22a46
+tags: [ailia-technology]
 ---
 
 # WhisperにおけるPrompt Engineering

@@ -3,6 +3,7 @@ title: "Vision Transformer：畳み込み演算を用いない最新画像識別
 author: "Taketo Kimura"
 date: 2024-02-26
 original_url: https://tech.ailia.ai/vision-transformer-畳み込み演算を用いない最新画像識別技術-84f06978a17f
+tags: [machine-learning, ailia-models, vision-transformer, vit, deep-learning]
 ---
 
 # Vision Transformer：畳み込み演算を用いない最新画像識別技術

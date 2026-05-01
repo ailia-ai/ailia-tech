@@ -3,6 +3,7 @@ title: "BlazeHand : 手のキーポイントを検出する機械学習モデル
 author: "Kazuki Kyakuno"
 date: 2021-07-02
 original_url: https://tech.ailia.ai/blazehand-手のキーポイントを検出する機械学習モデル-e84e011ef7bc
+tags: [ailia-models]
 ---
 
 # BlazeHand : 手のキーポイントを検出する機械学習モデル

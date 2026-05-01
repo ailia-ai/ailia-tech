@@ -3,6 +3,7 @@ title: "BertJapaneseTokenizer : 日本語BERT向けトークナイザ"
 author: "Kazuki Kyakuno"
 date: 2023-10-12
 original_url: https://tech.ailia.ai/bertjapanesetokenizer-日本語bert向けトークナイザ-7b54120aa245
+tags: [ailia-technology]
 ---
 
 # BertJapaneseTokenizer : 日本語BERT向けトークナイザ

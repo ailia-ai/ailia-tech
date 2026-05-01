@@ -3,6 +3,7 @@ title: "LangChainを使用して任意のドキュメントからChatGPTで回�
 author: "Kazuki Kyakuno"
 date: 2023-07-21
 original_url: https://tech.ailia.ai/langchainを使用して任意のドキュメントからchatgptで回答する-d7231d6f6574
+tags: [ailia-technology]
 ---
 
 # LangChainを使用して任意のドキュメントからChatGPTで回答する

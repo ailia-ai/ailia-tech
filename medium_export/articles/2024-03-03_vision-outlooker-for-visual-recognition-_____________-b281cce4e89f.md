@@ -3,6 +3,7 @@ title: "Vision Outlooker for Visual Recognition：視覚認識のための見通
 author: "Taketo Kimura"
 date: 2024-03-03
 original_url: https://tech.ailia.ai/vision-outlooker-for-visual-recognition-視覚認識のための見通し視覚-b281cce4e89f
+tags: [machine-learning, ailia-models, vision-transformer, deep-learning, volo]
 ---
 
 # Vision Outlooker for Visual Recognition：視覚認識のための見通し視覚

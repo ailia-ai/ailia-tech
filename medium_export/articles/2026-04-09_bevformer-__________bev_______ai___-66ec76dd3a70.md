@@ -3,6 +3,7 @@ title: "BEVFormer : マルチカメラ画像からBEV表現を生成するAIモ�
 author: "Kazuki Kyakuno"
 date: 2026-04-09
 original_url: https://tech.ailia.ai/bevformer-マルチカメラ画像からbev表現を生成するaiモデル-66ec76dd3a70
+tags: [ailia-models]
 ---
 
 # BEVFormer : マルチカメラ画像からBEV表現を生成するAIモデル

@@ -3,6 +3,7 @@ title: "VehicleAttributeRecognitionBarrier : 車の属性を検出する機械�
 author: "Kazuki Kyakuno"
 date: 2021-09-22
 original_url: https://tech.ailia.ai/vehicleattributerecognitionbarrier-車の属性を検出する機械学習モデル-ee26d1a3e00b
+tags: [ailia-models]
 ---
 
 # VehicleAttributeRecognitionBarrier : 車の属性を検出する機械学習モデル

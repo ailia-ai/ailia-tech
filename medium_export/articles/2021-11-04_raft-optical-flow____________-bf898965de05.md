@@ -3,6 +3,7 @@ title: "RAFT: Optical Flowを推定する機械学習モデル"
 author: "Taketo Kimura"
 date: 2021-11-04
 original_url: https://tech.ailia.ai/raft-optical-flowを推定する機械学習モデル-bf898965de05
+tags: [optical-flow, deep-learning, ailia-models, eccv-2020, stateoftheart]
 ---
 
 # RAFT: Optical Flowを推定する機械学習モデル

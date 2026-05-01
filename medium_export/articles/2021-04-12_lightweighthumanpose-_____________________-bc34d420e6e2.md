@@ -3,6 +3,7 @@ title: "LightWeightHumanPose : 高速に複数人の骨格を検出する機械�
 author: "Kazuki Kyakuno"
 date: 2021-04-12
 original_url: https://tech.ailia.ai/lightweighthumanpose-高速に複数人の骨格を検出する機械学習モデル-bc34d420e6e2
+tags: [ailia-models]
 ---
 
 # LightWeightHumanPose : 高速に複数人の骨格を検出する機械学習モデル

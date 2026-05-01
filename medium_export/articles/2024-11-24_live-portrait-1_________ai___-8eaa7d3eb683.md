@@ -3,6 +3,7 @@ title: "Live Portrait : 1枚の画像を動かせるAIモデル"
 author: "Kazuki Kyakuno"
 date: 2024-11-24
 original_url: https://tech.ailia.ai/live-portrait-1枚の画像を動かせるaiモデル-8eaa7d3eb683
+tags: [ailia-models]
 ---
 
 # Live Portrait : 1枚の画像を動かせるAIモデル

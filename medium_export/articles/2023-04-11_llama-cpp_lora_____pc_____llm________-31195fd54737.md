@@ -3,6 +3,7 @@ title: "Llama.cppとLoRAを使用してPC上で日本語LLMモデルを実行す
 author: "Kazuki Kyakuno"
 date: 2023-04-11
 original_url: https://tech.ailia.ai/llama-cppとloraを使用してpc上で日本語llmモデルを実行する-31195fd54737
+tags: [ailia-technology]
 ---
 
 # Llama.cppとLoRAを使用してPC上で日本語LLMモデルを実行する

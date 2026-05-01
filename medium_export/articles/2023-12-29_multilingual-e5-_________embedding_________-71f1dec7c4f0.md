@@ -3,6 +3,7 @@ title: "Multilingual E5 : 多言語のテキストをEmbeddingする機械学習
 author: "Kazuki Kyakuno"
 date: 2023-12-29
 original_url: https://tech.ailia.ai/multilingual-e5-多言語のテキストをembeddingする機械学習モデル-71f1dec7c4f0
+tags: [ailia-models]
 ---
 
 # Multilingual E5 : 多言語のテキストをEmbeddingする機械学習モデル

@@ -3,6 +3,7 @@ title: "Kerasのモデルをtfliteに変換する"
 author: "Kazuki Kyakuno"
 date: 2021-10-21
 original_url: https://tech.ailia.ai/kerasのモデルをtfliteに変換する-e8f5a1dd7ad5
+tags: [ailia-technology]
 ---
 
 # Kerasのモデルをtfliteに変換する

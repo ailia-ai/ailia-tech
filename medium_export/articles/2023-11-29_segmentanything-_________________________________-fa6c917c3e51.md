@@ -3,6 +3,7 @@ title: "SegmentAnything : セグメンテーションの対象を座標で指定
 author: "Kazuki Kyakuno"
 date: 2023-11-29
 original_url: https://tech.ailia.ai/segmentanything-セグメンテーションの対象を座標で指定できるセグメンテーションモデル-fa6c917c3e51
+tags: [ailia-models]
 ---
 
 # SegmentAnything : セグメンテーションの対象を座標で指定できるセグメンテーションモデル

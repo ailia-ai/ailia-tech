@@ -3,6 +3,7 @@ title: "StableDiffusion : テキストから画像を生成する機械学習モ
 author: "Kazuki Kyakuno"
 date: 2023-04-07
 original_url: https://tech.ailia.ai/stablediffusion-テキストから画像を生成する機械学習モデル-aa3676787a09
+tags: [ailia-models]
 ---
 
 # StableDiffusion : テキストから画像を生成する機械学習モデル

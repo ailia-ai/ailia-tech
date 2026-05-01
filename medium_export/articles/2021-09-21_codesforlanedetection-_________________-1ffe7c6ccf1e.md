@@ -3,6 +3,7 @@ title: "CodesForLaneDetection : 道路の白線を検出する機械学習モデ
 author: "Kazuki Kyakuno"
 date: 2021-09-21
 original_url: https://tech.ailia.ai/codesforlanedetection-道路の白線を検出する機械学習モデル-1ffe7c6ccf1e
+tags: [ailia-models]
 ---
 
 # CodesForLaneDetection : 道路の白線を検出する機械学習モデル

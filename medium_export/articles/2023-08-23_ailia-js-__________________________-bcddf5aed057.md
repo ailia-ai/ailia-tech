@@ -3,6 +3,7 @@ title: "ailia.js : ブラウザ上で機械学習モデルを実行可能にす�
 author: "Kazuki Kyakuno"
 date: 2023-08-23
 original_url: https://tech.ailia.ai/ailia-js-ブラウザ上で機械学習モデルを実行可能にするライブラリ-bcddf5aed057
+tags: [ailia-sdk]
 ---
 
 # ailia.js : ブラウザ上で機械学習モデルを実行可能にするライブラリ

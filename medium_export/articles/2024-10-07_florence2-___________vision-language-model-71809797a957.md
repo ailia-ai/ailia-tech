@@ -3,6 +3,7 @@ title: "Florence2 : 軽量でエッジ実装可能なVision Language Model"
 author: "Kazuki Kyakuno"
 date: 2024-10-07
 original_url: https://tech.ailia.ai/florence2-軽量でエッジ実装可能なvision-language-model-71809797a957
+tags: [ailia-models]
 ---
 
 # Florence2 : 軽量でエッジ実装可能なVision Language Model

@@ -3,6 +3,7 @@ title: "MatMulNBits : LLM/VLMをONNXで動かすための4bit量子化"
 author: "Kazuki Kyakuno"
 date: 2026-03-27
 original_url: https://tech.ailia.ai/matmulnbits-llm-vlmをonnxで動かすための4bit量子化-6cb572b43c19
+tags: [ailia-technology]
 ---
 
 # MatMulNBits : LLM/VLMをONNXで動かすための4bit量子化

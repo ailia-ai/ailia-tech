@@ -3,6 +3,7 @@ title: "SegmentAnyhing2 : 動画に対応した任意物体のセグメンテー
 author: "Kazuki Kyakuno"
 date: 2024-12-29
 original_url: https://tech.ailia.ai/segmentanyhing2-動画に対応した任意物体のセグメンテーションモデル-425ff2ae14a4
+tags: [ailia-model]
 ---
 
 # SegmentAnyhing2 : 動画に対応した任意物体のセグメンテーションモデル

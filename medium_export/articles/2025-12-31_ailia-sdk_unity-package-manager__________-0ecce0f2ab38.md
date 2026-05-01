@@ -3,6 +3,7 @@ title: "ailia SDKがUnity Package Managerでインストール可能に"
 author: "Kazuki Kyakuno"
 date: 2025-12-31
 original_url: https://tech.ailia.ai/ailia-sdkがunity-package-managerでインストール可能に-0ecce0f2ab38
+tags: [ailia-sdk]
 ---
 
 # ailia SDKがUnity Package Managerでインストール可能に

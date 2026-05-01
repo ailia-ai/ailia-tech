@@ -3,6 +3,7 @@ title: "Google Colaboratoryとailia MODELSを使用してブラウザだけでAI
 author: "Kazuki Kyakuno"
 date: 2024-04-23
 original_url: https://tech.ailia.ai/google-colaboratoryとailia-modelsを使用してブラウザだけでai処理を行う-230222eace55
+tags: [ailia-tutorial]
 ---
 
 # Google Colaboratoryとailia MODELSを使用してブラウザだけでAI処理を行う

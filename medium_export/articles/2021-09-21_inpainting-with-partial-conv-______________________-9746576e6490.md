@@ -3,6 +3,7 @@ title: "Inpainting With Partial Conv : 画像の欠損部分を予測して埋�
 author: "Kazuki Kyakuno"
 date: 2021-09-21
 original_url: https://tech.ailia.ai/inpainting-with-partial-conv-画像の欠損部分を予測して埋める機械学習モデル-9746576e6490
+tags: [ailia-models]
 ---
 
 # Inpainting With Partial Conv : 画像の欠損部分を予測して埋める機械学習モデル

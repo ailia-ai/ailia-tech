@@ -3,6 +3,7 @@ title: "ailia Tokenizer 1.3をリリース"
 author: "Kazuki Kyakuno"
 date: 2024-08-05
 original_url: https://tech.ailia.ai/ailia-tokenizer-1-3をリリース-75f4d98efe0b
+tags: [ailia-sdk]
 ---
 
 # ailia Tokenizer 1.3をリリース

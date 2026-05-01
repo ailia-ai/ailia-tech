@@ -3,6 +3,7 @@ title: "HumanPartSegmentation : 人物の部位をセグメンテーションす
 author: "Kazuki Kyakuno"
 date: 2021-05-07
 original_url: https://tech.ailia.ai/humanpartsegmentation-動画から体の部位をセグメンテーションする機械学習モデル-e8a0e405255
+tags: [ailia-models]
 ---
 
 # HumanPartSegmentation : 人物の部位をセグメンテーションする機械学習モデル

@@ -3,6 +3,7 @@ title: "CrnnSoundClassification : 音声を分類する機械学習モデル"
 author: "Kazuki Kyakuno"
 date: 2021-02-03
 original_url: https://tech.ailia.ai/crnnsoundclassification-音声を分類する機械学習モデル-2a35564dad42
+tags: [ailia-models]
 ---
 
 # CrnnSoundClassification : 音声を分類する機械学習モデル

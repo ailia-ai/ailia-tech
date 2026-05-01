@@ -3,6 +3,7 @@ title: "CoreMLでMixed Precisionを使用する"
 author: "Kazuki Kyakuno"
 date: 2025-08-20
 original_url: https://tech.ailia.ai/coremlでmixed-precisionを使用する-b6e5c0bce9da
+tags: [ailia-technology]
 ---
 
 # CoreMLでMixed Precisionを使用する

@@ -3,6 +3,7 @@ title: "ailia TFLite Runtime : NonOSやRTOSにAIを実装できるランタイ�
 author: "Kazuki Kyakuno"
 date: 2023-03-31
 original_url: https://tech.ailia.ai/ailia-tflite-runtime-nonosやrtosにaiを実装できるランタイム-db089c961547
+tags: [ailia-sdk]
 ---
 
 # ailia TFLite Runtime : NonOSやRTOSにAIを実装できるランタイム
