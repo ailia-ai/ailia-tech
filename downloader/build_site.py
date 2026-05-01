@@ -76,23 +76,56 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
     <p class="pub-source">Mirror of <a href="{medium_url}">medium.com/axinc</a> · {count} articles</p>
   </div>
 </header>
+<nav class="tag-filter" role="tablist" aria-label="タグで絞り込み">
+{tag_chips}
+</nav>
 <main class="article-feed">
 {cards}
 </main>
+<script>
+(function() {{
+  var chips = document.querySelectorAll('.tag-chip');
+  var cards = document.querySelectorAll('.card');
+  function apply(tag) {{
+    chips.forEach(function(c) {{ c.classList.toggle('active', c.dataset.tag === tag); }});
+    cards.forEach(function(card) {{
+      var tags = (card.dataset.tags || '').split(' ').filter(Boolean);
+      card.style.display = (!tag || tags.indexOf(tag) !== -1) ? '' : 'none';
+    }});
+    if (history.replaceState) {{
+      var url = tag ? '?tag=' + encodeURIComponent(tag) : location.pathname;
+      history.replaceState(null, '', url);
+    }}
+  }}
+  chips.forEach(function(c) {{ c.addEventListener('click', function() {{ apply(c.dataset.tag); }}); }});
+  // Apply initial filter from URL ?tag=...
+  var m = location.search.match(/[?&]tag=([^&]+)/);
+  if (m) apply(decodeURIComponent(m[1]));
+}})();
+</script>
 </body>
 </html>
 """
 
-ARTICLE_CARD = """<article class="card">
+ARTICLE_CARD = """<article class="card" data-tags="{tags_attr}">
   <a class="card-link" href="{slug}/">
     <div class="card-body">
       <h2 class="card-title">{title}</h2>
       <p class="card-excerpt">{excerpt}</p>
-      <p class="card-meta"><span class="card-author">{author}</span><span class="card-date">{date}</span></p>
+      <p class="card-meta"><span class="card-author">{author}</span><span class="card-date">{date}</span>{tag_pills}</p>
     </div>
     {thumb_html}
   </a>
 </article>"""
+
+# Mediumのpublication navで使われている主要トピック (表示順 / 表示名)
+PRIMARY_TAGS = [
+    ("", "All"),
+    ("ailia-models", "ailia MODELS"),
+    ("ailia-sdk", "ailia SDK"),
+    ("ailia-tutorial", "ailia Tutorial"),
+    ("ailia-technology", "ailia Technology"),
+]
 
 ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <html lang="ja">
@@ -185,6 +218,52 @@ a:hover { text-decoration: underline; }
 .pub-tagline { margin: 0 0 6px; color: var(--fg); font-size: 1em; }
 .pub-source { margin: 0; color: var(--fg-muted); font-size: 0.85em; }
 .pub-source a { color: var(--link); }
+
+/* Tag filter (publication-wide topic chips) */
+.tag-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px 0 4px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.tag-chip {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--fg);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.85em;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.tag-chip:hover { background: var(--hover); }
+.tag-chip.active {
+  background: var(--fg);
+  color: #fff;
+  border-color: var(--fg);
+}
+
+/* Inline tag pills shown next to author/date on each card */
+.card-tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-left: 4px;
+}
+.card-tags::before { content: "·"; margin-right: 4px; color: var(--fg-muted); }
+.card-tag {
+  font-size: 0.78em;
+  color: var(--fg-muted);
+  background: var(--border);
+  padding: 1px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
 
 /* Article feed (cards) */
 .article-feed { display: flex; flex-direction: column; }
@@ -406,7 +485,8 @@ def extract_thumbnail(body: str) -> str:
 
 
 def parse_front_matter(text: str) -> tuple[dict, str]:
-    """medium_publication.pyが書き出すYAMLフロントマターを簡易パース。"""
+    """medium_publication.pyが書き出すYAMLフロントマターを簡易パース。
+    インラインリスト記法 ``tags: [a, b, c]`` のみサポート。"""
     if not text.startswith("---\n"):
         return {}, text
     end = text.find("\n---\n", 4)
@@ -419,7 +499,17 @@ def parse_front_matter(text: str) -> tuple[dict, str]:
         if ":" not in line:
             continue
         key, val = line.split(":", 1)
-        fm[key.strip()] = val.strip().strip('"')
+        key = key.strip()
+        val = val.strip()
+        if val.startswith("[") and val.endswith("]"):
+            inner = val[1:-1]
+            fm[key] = [
+                item.strip().strip('"').strip("'")
+                for item in inner.split(",")
+                if item.strip()
+            ]
+        else:
+            fm[key] = val.strip('"')
     return fm, body
 
 
@@ -464,6 +554,10 @@ def build(source: Path, output: Path) -> int:
         original_url = fm.get("original_url", "")
         slug = medium_slug_from_url(original_url) or mdf.stem
 
+        tags = fm.get("tags") or []
+        if isinstance(tags, str):
+            tags = [t.strip() for t in tags.split(",") if t.strip()]
+
         thumb_url = extract_thumbnail(body)
         cleaned = clean_body(body)
         excerpt = extract_excerpt(cleaned)
@@ -495,10 +589,22 @@ def build(source: Path, output: Path) -> int:
                 "slug": slug,
                 "excerpt": excerpt,
                 "thumb": thumb_url,
+                "tags": tags,
             }
         )
 
     posts.sort(key=lambda p: p["date"], reverse=True)
+
+    def _tag_pills(tags: list) -> str:
+        # 主要タグだけインラインpillとしてカードに表示する
+        primary = {t for t, _ in PRIMARY_TAGS if t}
+        shown = [t for t in tags if t in primary]
+        if not shown:
+            return ""
+        items = "".join(
+            f'<span class="card-tag">{html.escape(t)}</span>' for t in shown
+        )
+        return f'<span class="card-tags">{items}</span>'
 
     cards = "\n".join(
         ARTICLE_CARD.format(
@@ -508,8 +614,19 @@ def build(source: Path, output: Path) -> int:
             author=html.escape(p["author"]),
             date=html.escape(p["date"] or ""),
             thumb_html=thumb_html_for(p["thumb"], p["title"]),
+            tags_attr=html.escape(" ".join(p["tags"]), quote=True),
+            tag_pills=_tag_pills(p["tags"]),
         )
         for p in posts
+    )
+
+    tag_chips_html = "\n".join(
+        '<button type="button" class="tag-chip{active}" data-tag="{tag}">{label}</button>'.format(
+            tag=html.escape(tag, quote=True),
+            label=html.escape(label),
+            active=" active" if tag == "" else "",
+        )
+        for tag, label in PRIMARY_TAGS
     )
 
     index_html = INDEX_TEMPLATE.format(
@@ -518,6 +635,7 @@ def build(source: Path, output: Path) -> int:
         logo=html.escape(PUBLICATION_LOGO, quote=True),
         medium_url=html.escape(MEDIUM_PUBLICATION_URL, quote=True),
         cards=cards,
+        tag_chips=tag_chips_html,
         count=len(posts),
         gtm_head=GTM_HEAD,
         gtm_body=GTM_BODY,

@@ -74,6 +74,20 @@ def collect_urls_from_sitemap(custom_domain: str) -> list:
     return articles
 
 
+def extract_tags(soup) -> list:
+    """Mediumの記事HTMLからtag slugの一覧を抽出。"""
+    tags: list = []
+    seen = set()
+    for a in soup.find_all("a", href=True):
+        m = re.search(r"medium\.com/tag/([A-Za-z0-9_-]+)", a["href"])
+        if m:
+            t = m.group(1).lower()
+            if t not in seen:
+                seen.add(t)
+                tags.append(t)
+    return tags
+
+
 def slugify(url: str) -> str:
     """URLから安全なファイル名を生成 (英数字とハイフンのみ)。"""
     slug = url.rstrip("/").split("/")[-1]
@@ -169,6 +183,8 @@ def scrape_article(url: str, output_dir: Path):
     date_el = soup.find("meta", attrs={"property": "article:published_time"})
     pub_date = date_el["content"][:10] if date_el else ""
 
+    tags = extract_tags(soup)
+
     article = soup.find("article")
     if not article:
         print(f"  [warn] no <article> tag: {url}")
@@ -196,6 +212,8 @@ def scrape_article(url: str, output_dir: Path):
             f.write(f'author: "{author}"\n')
         if pub_date:
             f.write(f"date: {pub_date}\n")
+        if tags:
+            f.write("tags: [" + ", ".join(tags) + "]\n")
         f.write(f"original_url: {url}\n")
         f.write("---\n\n")
         f.write(f"# {title}\n\n")
