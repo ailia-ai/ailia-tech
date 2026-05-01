@@ -31,7 +31,7 @@ ailia AI VoiceはクロスプラットフォームでAIを使用した高精度�
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ailia-ai-voice___________-b704fc4f81a8/image_001.png)
 
 ailia AI Voice
 
@@ -129,7 +129,7 @@ github.com](https://github.com/RVC-Boss/GPT-SoVITS/blob/main/GPT_SoVITS/text/ja_
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ailia-ai-voice___________-b704fc4f81a8/image_002.png)
 
 ユーザ辞書の内部
 

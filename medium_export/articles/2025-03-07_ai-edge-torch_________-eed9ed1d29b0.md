@@ -31,7 +31,7 @@ ai-edge-torchではtorchのグラフをpt2eで量子化した後、tfliteに変�
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ai-edge-torch_________-eed9ed1d29b0/image_001.png)
 
 ai-edge-torch（出展：<https://developers.googleblog.com/ja/ai-edge-torch-high-performance-inference-of-pytorch-models-on-mobile-devices/>）
 
@@ -56,7 +56,7 @@ with_quantizer.export("resnet18_int8.tflite")
 
 このスクリプトの内部で実行されるフローは、torchのpt2eの変換フローに準拠しています。torchの動的グラフに対して、prepare\_pt2eを呼び出して作成した静的グラフにキャリブレーションし、convert\_pt2eで量子化モデルを作成、Loweringでデバイスモデルを生成します。
 
-![]()
+![](../images/ai-edge-torch_________-eed9ed1d29b0/image_002.png)
 
 pt2eの動作（出展：<https://pytorch.org/tutorials/prototype/pt2e_quant_ptq.html>）
 
@@ -88,7 +88,7 @@ convertを呼ぶと、Exported Program形式からtorch\_xlaを使用して、St
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ai-edge-torch_________-eed9ed1d29b0/image_003.png)
 
 StableHLOの概要（出展：<https://github.com/openxla/stablehlo>）
 
@@ -102,7 +102,7 @@ pt2e (PyTorch 2 Export) はtorchの第二世代のモデルエクスポータで
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ai-edge-torch_________-eed9ed1d29b0/image_004.png)
 
 pt2e（出展：<https://pytorch.org/tutorials/prototype/pt2e_quantizer.html>）
 
@@ -222,7 +222,7 @@ github.com](https://github.com/google-ai-edge/ai-edge-torch/blob/main/ai_edge_to
 
 FXグラフのノードは下記のメンバを持ちます。targetにノードのオペレータが、argsにノードへの入力が入ります。
 
-![]()
+![](../images/ai-edge-torch_________-eed9ed1d29b0/image_005.png)
 
 出典：<https://pytorch.org/docs/stable/fx.html>
 
@@ -407,7 +407,7 @@ QuantizationAnnotation(input_qspec_map={arg1_1: QuantizationSpec(dtype=torch.flo
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ai-edge-torch_________-eed9ed1d29b0/image_006.png)
 
 通常のエクスポート
 
@@ -415,7 +415,7 @@ quantization\_annotationを書き換えるとConvはFloatで出力されます�
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ai-edge-torch_________-eed9ed1d29b0/image_007.png)
 
 ConvにFloatのAnnotationを指定したエクスポート
 
@@ -470,13 +470,13 @@ quantizer = PT2EQuantizer2().set_global(
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ai-edge-torch_________-eed9ed1d29b0/image_008.png)
 
 通常のエクスポート
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ai-edge-torch_________-eed9ed1d29b0/image_009.png)
 
 Int8のアノテーションを行ったエクスポート
 

@@ -47,7 +47,7 @@ huggingface.co](https://huggingface.co/blog/gaussian-splatting?source=post_page-
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/3d-gaussian-splatting-_________3d___________-273ce61200a8/image_001.png)
 
 ポリゴン（出典：<https://huggingface.co/blog/gaussian-splatting>）
 
@@ -55,13 +55,13 @@ Press enter or click to view image in full size
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/3d-gaussian-splatting-_________3d___________-273ce61200a8/image_002.jpeg)
 
 NERFの概要（出典：<https://github.com/bmild/nerf>）
 
 NERFを高速化する手法として、事前に複数の方向でレイを飛ばした結果をボリュームテクスチャにベイクしておくことで、リアルタイム処理可能にした[MERF](https://arxiv.org/abs/2302.12249)が提案されています。しかし、MERFは512x512x512などのボリュームテクスチャと2048x2048の高解像度テクスチャにベイクするため、細かい形状が失われるという問題があります。
 
-![]()
+![](../images/3d-gaussian-splatting-_________3d___________-273ce61200a8/image_003.png)
 
 MERFの概要（出典：<https://arxiv.org/pdf/2302.12249.pdf>）
 
@@ -69,7 +69,7 @@ MERFの概要（出典：<https://arxiv.org/pdf/2302.12249.pdf>）
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/3d-gaussian-splatting-_________3d___________-273ce61200a8/image_004.png)
 
 ガウシアン（出典：<https://huggingface.co/blog/gaussian-splatting>）
 
@@ -77,7 +77,7 @@ Press enter or click to view image in full size
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/3d-gaussian-splatting-_________3d___________-273ce61200a8/image_005.png)
 
 ガウシアンのレンダリング（出典：<https://huggingface.co/blog/gaussian-splatting>）
 
@@ -87,7 +87,7 @@ Press enter or click to view image in full size
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/3d-gaussian-splatting-_________3d___________-273ce61200a8/image_006.png)
 
 アーキテクチャ（出典：<https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/3d_gaussian_splatting_low.pdf>）
 
@@ -95,7 +95,7 @@ Press enter or click to view image in full size
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/3d-gaussian-splatting-_________3d___________-273ce61200a8/image_007.png)
 
 ポイントクラウド（出典：<https://huggingface.co/blog/gaussian-splatting>）
 
@@ -112,7 +112,7 @@ Press enter or click to view image in full size
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/3d-gaussian-splatting-_________3d___________-273ce61200a8/image_008.png)
 
 レンダリング画像（出典：<https://huggingface.co/blog/gaussian-splatting>）
 
@@ -120,7 +120,7 @@ Press enter or click to view image in full size
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/3d-gaussian-splatting-_________3d___________-273ce61200a8/image_009.png)
 
 不透明レンダリング画像（出典：<https://huggingface.co/blog/gaussian-splatting>）
 
@@ -128,7 +128,7 @@ Press enter or click to view image in full size
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/3d-gaussian-splatting-_________3d___________-273ce61200a8/image_010.png)
 
 イテレーション回数と精度（出典：<https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/3d_gaussian_splatting_low.pdf>）
 
@@ -218,7 +218,7 @@ ffmpeg -i face.MOV %06d.jpg
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/3d-gaussian-splatting-_________3d___________-273ce61200a8/image_011.png)
 
 学習用データセット
 

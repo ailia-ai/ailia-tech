@@ -31,7 +31,7 @@ ai-edge-torchはGoogleが開発し、2024年5月に公開された、Pytorchか�
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ai-edge-torch_pytorch__tflite_____-376be7dc5619/image_001.png)
 
 出典：<https://developers.googleblog.com/ja/ai-edge-torch-high-performance-inference-of-pytorch-models-on-mobile-devices/>
 
@@ -80,7 +80,7 @@ edge_model.export("resnet18.tflite")
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ai-edge-torch_pytorch__tflite_____-376be7dc5619/image_002.png)
 
 推論例です。正しく、時計を認識することができます。
 
@@ -164,7 +164,7 @@ github.com](https://github.com/google-ai-edge/ai-edge-torch/blob/main/test/test_
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ai-edge-torch_pytorch__tflite_____-376be7dc5619/image_003.png)
 
 推論例です。Floatと同様に、時計を正しく時計と認識可能です。
 
@@ -227,15 +227,15 @@ Floatの出力です。tfliteはLeakyReluをサポートしていないので、
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ai-edge-torch_pytorch__tflite_____-376be7dc5619/image_004.png)
 
 torch.randnはSTABLEHLO\_RNG\_BIT\_GENERATORという新しいオペレータに変換されます。そのため、TensorFlow 2.12.0だとエラーになります。TensorFlow 2.17.0だと正常に推論可能です。
 
-![]()
+![](../images/ai-edge-torch_pytorch__tflite_____-376be7dc5619/image_005.png)
 
 GFPGANの入力画像（テスト画像：<https://github.com/TencentARC/GFPGAN/blob/master/inputs/whole_imgs/10045.png>）
 
-![]()
+![](../images/ai-edge-torch_pytorch__tflite_____-376be7dc5619/image_006.jpeg)
 
 GFPGANの出力画像（テスト画像：<https://github.com/TencentARC/GFPGAN/blob/master/inputs/whole_imgs/10045.png>）
 
@@ -337,13 +337,13 @@ tfl_fullint_model.export('layernorm.tflite')
 
 torchで量子化すると、layer\_normの前後にDequantize、Quantizeが挟まり、Floatで実行されます。
 
-![]()
+![](../images/ai-edge-torch_pytorch__tflite_____-376be7dc5619/image_007.png)
 
 torchでlayer\_normを量子化
 
 TensorFlowで量子化すると、全てInt8のモデルを構築することが可能です。
 
-![]()
+![](../images/ai-edge-torch_pytorch__tflite_____-376be7dc5619/image_008.png)
 
 TensorFlowでlayer\_normを量子化
 
@@ -406,7 +406,7 @@ Expecting input to have dtype torch.float32, but got dtype: torch.int64
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ai-edge-torch_pytorch__tflite_____-376be7dc5619/image_009.png)
 
 そのため、torch.arrangeの出力に対して演算をした結果をfloat32に変換してfloat32の定数として持つことで問題を解消することができます。
 

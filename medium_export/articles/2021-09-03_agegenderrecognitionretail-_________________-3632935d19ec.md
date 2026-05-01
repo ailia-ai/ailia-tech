@@ -27,7 +27,7 @@ AgeGenderRecognitionRetailはIntelが開発した年齢と性別を識別する�
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/agegenderrecognitionretail-_________________-3632935d19ec/image_001.png)
 
 出典：<https://pixabay.com/ja/videos/%E3%82%AB%E3%83%83%E3%83%97%E3%83%AB-%E8%8B%A5%E3%81%84%E3%81%A7%E3%81%99-%E9%9B%BB%E8%A9%B1-50020/>
 
@@ -41,7 +41,7 @@ github.com](https://github.com/openvinotoolkit/open_model_zoo/tree/master/models
 
 AgeGenderRecognitionRetailは62x62ピクセルの顔画像を入力として、性別と年齢を出力します。性別は2次元の確率ベクトル、年齢は1次元の数値として出力されます。
 
-![]()
+![](../images/agegenderrecognitionretail-_________________-3632935d19ec/image_002.png)
 
 出典：<https://github.com/openvinotoolkit/open_model_zoo/tree/master/models/intel/age-gender-recognition-retail-0013>
 
@@ -49,7 +49,7 @@ AgeGenderRecognitionRetailは62x62ピクセルの顔画像を入力として、�
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/agegenderrecognitionretail-_________________-3632935d19ec/image_003.png)
 
 出典：<https://github.com/openvinotoolkit/open_model_zoo/blob/master/demos/interactive_face_detection_demo/cpp/detectors.cpp>
 
@@ -57,7 +57,7 @@ Press enter or click to view image in full size
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/agegenderrecognitionretail-_________________-3632935d19ec/image_004.png)
 
 AgeGenderRecognitionRetailはIntelの20000枚のInternalデータセットを使用して学習されています。このモデルは18〜75歳までを認識可能です。子供の画像は含まれていないため、子供の年齢の識別を行うことはできません。
 
@@ -73,19 +73,19 @@ Remember me for faster sign in
 
 顔の角度は45度まで対応しています。できるだけ正面顔の方が精度が高くなるため、HopeNetなどの顔向き検出モデルの併用が望ましいと考えています。
 
-![]()
+![](../images/agegenderrecognitionretail-_________________-3632935d19ec/image_005.png)
 
 出典：<https://github.com/openvinotoolkit/open_model_zoo/tree/master/models/intel/age-gender-recognition-retail-0013>
 
 精度は年齢の誤差が6.99 years、性別の精度で95.80%です。
 
-![]()
+![](../images/agegenderrecognitionretail-_________________-3632935d19ec/image_006.png)
 
 出典：<https://github.com/openvinotoolkit/open_model_zoo/tree/master/models/intel/age-gender-recognition-retail-0013>
 
 また、公式のデモアプリでは、動画に適用する場合に、顔をトラッキングして複数フレームの結果を平滑化しています。年齢は5%ずつ更新、性別は確率値の総和で計算しています。
 
-![]()
+![](../images/agegenderrecognitionretail-_________________-3632935d19ec/image_007.png)
 
 出典：<https://github.com/openvinotoolkit/open_model_zoo/blob/master/demos/interactive_face_detection_demo/cpp/face.cpp>
 
@@ -93,7 +93,7 @@ Remember me for faster sign in
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/agegenderrecognitionretail-_________________-3632935d19ec/image_008.png)
 
 出典：<https://pixabay.com/ja/photos/%e7%9c%8b%e8%ad%b7%e5%a9%a6-%e3%83%9e%e3%82%b9%e3%82%af%e3%82%b5%e3%83%bc%e3%82%b8%e3%82%ab%e3%83%ab%e3%83%9e%e3%82%b9%e3%82%af-4962034/>
 

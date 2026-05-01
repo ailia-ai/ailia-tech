@@ -31,7 +31,7 @@ ailia AI Voiceは、AIを使用した音声合成を行うためのライブラ�
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ailia-ai-voice-unity_c-_______ai_________-586e17aa717a/image_001.png)
 
 ailia AI Voice
 
@@ -65,7 +65,7 @@ ailia AI Voiceでは、音声合成のアルゴリズムに[Tacotron2](https://g
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ailia-ai-voice-unity_c-_______ai_________-586e17aa717a/image_002.png)
 
 アーキテクチャ
 
@@ -185,7 +185,7 @@ axip-console.appspot.com](https://axip-console.appspot.com/binary/download/ndb_M
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ailia-ai-voice-unity_c-_______ai_________-586e17aa717a/image_003.png)
 
 デモアプリの実行例
 
@@ -203,7 +203,7 @@ ailia AI Voiceの評価版にはUnity Packageが含まれています。Unity Pa
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ailia-ai-voice-unity_c-_______ai_________-586e17aa717a/image_004.png)
 
 ailia AI Voiceのサンプルプログラム
 
@@ -227,7 +227,7 @@ https://github.com/ailia-ai/ailia-audio-unity.git
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ailia-ai-voice-unity_c-_______ai_________-586e17aa717a/image_005.png)
 
 ailia SDKとailia AudioをPackage Managerに追加
 
@@ -248,13 +248,13 @@ github.com](https://github.com/axinc-ai/ailia-models-unity?source=post_page-----
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ailia-ai-voice-unity_c-_______ai_________-586e17aa717a/image_006.png)
 
 ailia MODELS Unityの中のTextToSpeech.scene
 
 ailia MODELS Unityの場合、Tacotron2とGPT-SoVITSはInspectorで切り替え可能です。また、ref\_clipに声質のリファレンスとなる音源を設定可能です。「水をマレーシアから買わなくてはならない。」と喋っている音声を与えることで、その声質を利用可能です。その他のテキストの音声で声質を設定する場合は、AiliaVoiceSample.csのテキストを喋っているテキストで書き換えてください。
 
-![]()
+![](../images/ailia-ai-voice-unity_c-_______ai_________-586e17aa717a/image_007.png)
 
 Reference Clipの設定
 
@@ -264,7 +264,7 @@ ailia AI Voiceの使用にはailia SDK 1.4.0以降が必要です。実行時に
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ailia-ai-voice-unity_c-_______ai_________-586e17aa717a/image_008.png)
 
 ### C++から使用する
 

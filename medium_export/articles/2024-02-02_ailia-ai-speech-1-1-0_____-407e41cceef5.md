@@ -27,7 +27,7 @@ ailia AI SpeechはAI音声認識を簡単に実装できるライブラリです
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ailia-ai-speech-1-1-0_____-407e41cceef5/image_001.png)
 
 ailia AI Speech公式サイト：<https://www.ailia.ai/speech>
 
@@ -45,7 +45,7 @@ Whisper Large V2と、Whisper Large V3に対応しました。より高精度な
 
 APIの呼び出しフローは下記となります。ailiaSpeechTranscribe APIを呼び出した後、ailiaSpeechPostProcess APIを呼び出すことで、後処理として自然言語処理のAIモデルを実行可能です。
 
-![]()
+![](../images/ailia-ai-speech-1-1-0_____-407e41cceef5/image_002.png)
 
 PostProcess APIの呼び出しフロー
 
@@ -83,7 +83,7 @@ www.ailia.ai](https://www.ailia.ai/speech?source=post_page-----407e41cceef5-----
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/ailia-ai-speech-1-1-0_____-407e41cceef5/image_003.png)
 
 デモアプリで翻訳を行う設定
 

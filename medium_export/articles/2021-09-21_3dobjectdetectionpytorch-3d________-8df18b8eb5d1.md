@@ -27,7 +27,7 @@ Share
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/3dobjectdetectionpytorch-3d________-8df18b8eb5d1/image_001.png)
 
 出典：Objectronデータセット
 
@@ -59,7 +59,7 @@ Remember me for faster sign in
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/3dobjectdetectionpytorch-3d________-8df18b8eb5d1/image_002.png)
 
 出典：<https://github.com/google-research-datasets/Objectron>
 
@@ -73,7 +73,7 @@ ObjectronデータセットはAR向けに開発されたデータセットで、
 
 Press enter or click to view image in full size
 
-![]()
+![](../images/3dobjectdetectionpytorch-3d________-8df18b8eb5d1/image_003.png)
 
 出典：<https://github.com/google-research-datasets/Objectron>
 
