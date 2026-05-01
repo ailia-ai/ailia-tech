@@ -605,6 +605,18 @@ def rewrite_internal_links(text: str) -> str:
     return re.sub(r"\]\(([^)]+)\)", repl, text)
 
 
+def inject_company_separator(text: str) -> str:
+    """既存スクレイプ済みの記事は ``<div role="separator">`` がmarkdownify
+    時点で読み飛ばされて ``---`` が残っていない。末尾に必ず登場するアイリア
+    株式会社の定型パラグラフの直前に ``---`` を1本注入する事でこの取りこぼし
+    を救う。新規スクレイプでは medium_publication.py が事前に <hr> へ差し替え
+    るため、既に ``---`` がある場合は二重挿入しない。"""
+    pattern = re.compile(
+        r"(?<!---\n)\n+(アイリア株式会社はAIを実用化する会社として)"
+    )
+    return pattern.sub(r"\n\n---\n\n\1", text, count=1)
+
+
 def clean_body(body: str) -> str:
     """先頭の重複H1 (Mediumは同タイトルを2回出力する) とバイラインブロック、
     本文中のMedium UIアーティファクトを取り除く。"""
@@ -731,7 +743,9 @@ def build(source: Path, output: Path) -> int:
 
         thumb_url = extract_thumbnail(body)
         cleaned = rewrite_internal_links(
-            apply_substitutions(normalize_card_links(clean_body(body)))
+            inject_company_separator(
+                apply_substitutions(normalize_card_links(clean_body(body)))
+            )
         )
         excerpt = extract_excerpt(cleaned)
 

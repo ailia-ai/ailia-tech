@@ -464,6 +464,11 @@ def scrape_article(
         return "no-article"
 
     normalize_pictures(article)
+    # Mediumは <hr> ではなく装飾された <div role="separator"> でセクション
+    # 区切りを表現する。markdownify は空の div として読み飛ばしてしまうので
+    # ここで <hr> に差し替えて、出力markdownに `---` が残るようにする。
+    for sep in article.find_all(attrs={"role": "separator"}):
+        sep.replace_with(BeautifulSoup("<hr/>", "html.parser"))
 
     image_dir = output_dir / "images" / slug
     image_map = download_images(article, image_dir)
