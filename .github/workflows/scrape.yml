@@ -22,7 +22,10 @@ jobs:
       - run: pip install curl-cffi beautifulsoup4 markdownify
 
       - name: Scrape Medium
+        # urls.txt が残っているとそのキャッシュが再利用され、新着URLが
+        # sitemap から取り込まれなくなるため、毎回削除してから実行する。
         run: |
+          rm -f medium_export/urls.txt
           python downloader/medium_publication.py \
             --publication axinc \
             --custom-domain tech.ailia.ai
