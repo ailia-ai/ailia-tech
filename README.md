@@ -4,6 +4,8 @@
 カスタムドメイン `tech.ailia.ai`) の全記事をスクレイピングし、
 GitHub Pages でホスティングするためのリポジトリ。
 
+公開URL: <https://ailia-ai.github.io/ailia-tech/>
+
 ## ディレクトリ構成
 
 ```
