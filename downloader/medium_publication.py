@@ -82,6 +82,40 @@ def slugify(url: str) -> str:
     return slug[:120]
 
 
+_MIRO_IMG_ID = re.compile(r"/(\d+\*[A-Za-z0-9_-]+\.[A-Za-z0-9]+)(?:[?#].*)?$")
+
+
+def normalize_pictures(article_soup) -> None:
+    """<picture>内の<img>はsrc未設定のことが多いので、<source srcset>から
+    オリジナル解像度のmiro URLを推定して<img src>にセットする。"""
+    for picture in article_soup.find_all("picture"):
+        img = picture.find("img")
+        if img is None or img.get("src"):
+            continue
+        candidate_url = None
+        for source in picture.find_all("source"):
+            srcset = source.get("srcset", "")
+            for entry in srcset.split(","):
+                entry = entry.strip()
+                if not entry:
+                    continue
+                url = entry.split()[0]
+                # webpはマスター画像でないことが多いので、後で見つかった非webpを優先
+                if "format:webp" in url and candidate_url:
+                    continue
+                candidate_url = url
+                if "format:webp" not in url:
+                    break
+            if candidate_url and "format:webp" not in candidate_url:
+                break
+        if not candidate_url:
+            continue
+        m = _MIRO_IMG_ID.search(candidate_url)
+        img["src"] = (
+            f"https://miro.medium.com/v2/{m.group(1)}" if m else candidate_url
+        )
+
+
 def download_images(article_soup, image_dir: Path) -> dict:
     """記事内の画像を一括DL。元URL→ローカルパスのdictを返す。"""
     image_dir.mkdir(parents=True, exist_ok=True)
@@ -139,6 +173,8 @@ def scrape_article(url: str, output_dir: Path):
     if not article:
         print(f"  [warn] no <article> tag: {url}")
         return
+
+    normalize_pictures(article)
 
     image_dir = output_dir / "images" / slug
     image_map = download_images(article, image_dir)
