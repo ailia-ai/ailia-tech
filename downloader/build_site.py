@@ -78,35 +78,82 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
 <nav class="tag-filter" role="tablist" aria-label="タグで絞り込み">
 {tag_chips}
 </nav>
+<div class="search-bar">
+  <input type="search" id="search-input" placeholder="キーワードで検索 (タイトル / 本文抜粋 / 著者 / タグ)" autocomplete="off">
+  <p id="search-hits" class="search-hits" aria-live="polite"></p>
+</div>
 <main class="article-feed">
 {cards}
 </main>
+<p id="empty-state" class="empty-state" hidden>該当する記事がありません</p>
 <script>
 (function() {{
   var chips = document.querySelectorAll('.tag-chip');
   var cards = document.querySelectorAll('.card');
-  function apply(tag) {{
-    chips.forEach(function(c) {{ c.classList.toggle('active', c.dataset.tag === tag); }});
+  var input = document.getElementById('search-input');
+  var hits = document.getElementById('search-hits');
+  var empty = document.getElementById('empty-state');
+  var activeTag = '';
+  var activeQuery = '';
+
+  function syncURL() {{
+    if (!history.replaceState) return;
+    var params = [];
+    if (activeTag) params.push('tag=' + encodeURIComponent(activeTag));
+    if (activeQuery) params.push('q=' + encodeURIComponent(activeQuery));
+    var qs = params.length ? '?' + params.join('&') : '';
+    history.replaceState(null, '', location.pathname + qs);
+  }}
+
+  function applyFilters() {{
+    var q = activeQuery.toLowerCase();
+    var visible = 0;
     cards.forEach(function(card) {{
       var tags = (card.dataset.tags || '').split(' ').filter(Boolean);
-      card.style.display = (!tag || tags.indexOf(tag) !== -1) ? '' : 'none';
+      var hay = card.dataset.search || '';
+      var tagMatch = !activeTag || tags.indexOf(activeTag) !== -1;
+      var queryMatch = !q || hay.indexOf(q) !== -1;
+      var show = tagMatch && queryMatch;
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
     }});
-    if (history.replaceState) {{
-      var url = tag ? '?tag=' + encodeURIComponent(tag) : location.pathname;
-      history.replaceState(null, '', url);
+    chips.forEach(function(c) {{ c.classList.toggle('active', c.dataset.tag === activeTag); }});
+    if (empty) empty.hidden = visible !== 0;
+    if (hits) {{
+      hits.textContent = (activeQuery || activeTag)
+        ? visible + ' / ' + cards.length + ' 件'
+        : '';
     }}
+    syncURL();
   }}
-  chips.forEach(function(c) {{ c.addEventListener('click', function() {{ apply(c.dataset.tag); }}); }});
-  // Apply initial filter from URL ?tag=...
-  var m = location.search.match(/[?&]tag=([^&]+)/);
-  if (m) apply(decodeURIComponent(m[1]));
+
+  chips.forEach(function(c) {{
+    c.addEventListener('click', function() {{
+      activeTag = c.dataset.tag;
+      applyFilters();
+    }});
+  }});
+
+  if (input) {{
+    input.addEventListener('input', function() {{
+      activeQuery = input.value.trim();
+      applyFilters();
+    }});
+  }}
+
+  // Apply initial filters from URL ?tag=...&q=...
+  var params = new URLSearchParams(location.search);
+  activeTag = params.get('tag') || '';
+  activeQuery = params.get('q') || '';
+  if (input && activeQuery) input.value = activeQuery;
+  applyFilters();
 }})();
 </script>
 </body>
 </html>
 """
 
-ARTICLE_CARD = """<article class="card" data-tags="{tags_attr}">
+ARTICLE_CARD = """<article class="card" data-tags="{tags_attr}" data-search="{search_attr}">
   <a class="card-link" href="{slug}/">
     <div class="card-body">
       <h2 class="card-title">{title}</h2>
@@ -245,6 +292,27 @@ a:hover { text-decoration: underline; }
   color: #fff;
   border-color: var(--fg);
 }
+
+/* Keyword search */
+.search-bar { padding: 12px 0 4px; }
+.search-bar input[type="search"] {
+  width: 100%;
+  padding: 9px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.95em;
+  font-family: inherit;
+  color: var(--fg);
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.search-bar input[type="search"]:focus {
+  border-color: var(--fg);
+  box-shadow: 0 0 0 1px var(--fg);
+}
+.search-hits { margin: 6px 4px 0; color: var(--fg-muted); font-size: 0.82em; min-height: 1em; }
+.empty-state { padding: 32px 0; color: var(--fg-muted); text-align: center; }
 
 /* Inline tag pills shown next to author/date on each card */
 .card-tags {
@@ -632,6 +700,17 @@ def build(source: Path, output: Path) -> int:
         )
         return f'<span class="card-tags">{items}</span>'
 
+    def _search_haystack(p: dict) -> str:
+        # 検索対象は (タイトル | 抜粋 | 著者 | タグ) を小文字化して結合。
+        # JS側で input.value.toLowerCase() と部分一致させる。
+        parts = [
+            p.get("title", ""),
+            p.get("excerpt", ""),
+            p.get("author", ""),
+            " ".join(p.get("tags") or []),
+        ]
+        return " ".join(parts).lower()
+
     cards = "\n".join(
         ARTICLE_CARD.format(
             slug=html.escape(p["slug"], quote=True),
@@ -642,6 +721,7 @@ def build(source: Path, output: Path) -> int:
             thumb_html=thumb_html_for(p["thumb"], p["title"]),
             tags_attr=html.escape(" ".join(p["tags"]), quote=True),
             tag_pills=_tag_pills(p["tags"]),
+            search_attr=html.escape(_search_haystack(p), quote=True),
         )
         for p in posts
     )
