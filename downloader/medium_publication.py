@@ -25,10 +25,11 @@ Mediumのpublication全記事をMarkdownでダウンロードするスクリプ�
 """
 
 import argparse
+import json
 import re
 import time
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 from bs4 import BeautifulSoup
 from curl_cffi import requests
@@ -92,8 +93,6 @@ def collect_urls_from_feed(publication: str) -> list:
 
     sitemap.xmlは生の日本語slugを含むのに対しRSS<link>はURLエンコード
     済みなので、unquote()で復号して文字列比較できる形に揃える。"""
-    from urllib.parse import unquote
-
     feed_url = f"https://medium.com/feed/{publication}"
     print(f"[feed]    {feed_url}")
     xml = fetch(feed_url)
@@ -109,6 +108,94 @@ def collect_urls_from_feed(publication: str) -> list:
         if _HEX_ID_RE.search(url):
             urls.append(url)
     print(f"[feed]    found {len(urls)} article URLs in feed")
+    return urls
+
+
+def _resolve_post_id(post_id: str) -> str:
+    """medium.com/p/<id> のリダイレクトを辿り、canonical URLを取得する。"""
+    try:
+        r = requests.get(
+            f"https://medium.com/p/{post_id}",
+            impersonate=IMPERSONATE,
+            timeout=30,
+            allow_redirects=False,
+        )
+        loc = r.headers.get("location", "")
+        if not loc:
+            return ""
+        url = unquote(loc.split("?")[0].rstrip("/"))
+        return url if _HEX_ID_RE.search(url) else ""
+    except Exception:
+        return ""
+
+
+def collect_urls_from_references(
+    articles_dir: Path, custom_domain: str, known: set
+) -> list:
+    """既にダウンロードした記事 markdown 内の内部リンクから、未知の記事URLを発見する。
+    sitemap/feed/Apolloで取りこぼした古い記事 (publication初期の関連記事カード等) を
+    クロスリファレンス経由で救済する。"""
+    if not articles_dir.exists():
+        return []
+    found: set = set()
+    for mdf in articles_dir.glob("*.md"):
+        text = mdf.read_text(encoding="utf-8")
+        # 絶対 URL: medium.com/axinc/<encoded-slug-with-hex>
+        for m in re.finditer(r"https?://medium\.com/axinc/([^?\s)\"<>]+)", text):
+            slug = unquote(m.group(1).rstrip("/"))
+            if _HEX_ID_RE.search(slug):
+                found.add(f"https://{custom_domain}/{slug}")
+        # 相対 URL: ](/<encoded-slug-with-hex>?source=...)
+        for m in re.finditer(r"\]\(/([^?\s)\"<>]+)", text):
+            slug = unquote(m.group(1).rstrip("/"))
+            if _HEX_ID_RE.search(slug):
+                found.add(f"https://{custom_domain}/{slug}")
+    new = sorted(found - known)
+    print(f"[refs]    found {len(new)} new URL(s) referenced from existing articles")
+    return new
+
+
+def collect_urls_from_apollo(custom_domain: str, known_ids: set = None) -> list:
+    """publicationトップページのApollo state を解析し、Post の ID 一覧を
+    medium.com/p/<id> リダイレクトで canonical URL に解決する。
+    sitemap.xml が時々取りこぼす中堅記事 (古いチュートリアル等) の救済用。
+
+    ``known_ids`` を渡すとそれに含まれるIDは解決をスキップして時間を節約する。
+    """
+    home_url = f"https://{custom_domain}/"
+    print(f"[apollo]  {home_url}")
+    html_text = fetch(home_url)
+    if not html_text:
+        return []
+    m = re.search(
+        r"window\.__APOLLO_STATE__\s*=\s*(\{.+?\});?</script>",
+        html_text,
+        re.DOTALL,
+    )
+    if not m:
+        print("[apollo]  no Apollo state found")
+        return []
+    try:
+        data = json.loads(m.group(1))
+    except Exception as e:
+        print(f"[apollo]  json parse failed: {e}")
+        return []
+
+    post_ids = sorted(
+        {k.split(":", 1)[1] for k in data.keys() if k.startswith("Post:")}
+    )
+    print(f"[apollo]  found {len(post_ids)} post IDs in Apollo state")
+    known = known_ids or set()
+    unresolved = [pid for pid in post_ids if pid not in known]
+    print(f"[apollo]  resolving {len(unresolved)} new IDs via /p/<id>")
+
+    urls: list = []
+    for pid in unresolved:
+        url = _resolve_post_id(pid)
+        if url:
+            urls.append(url)
+        time.sleep(0.2)
+    print(f"[apollo]  resolved {len(urls)} canonical URLs")
     return urls
 
 
@@ -401,16 +488,35 @@ def main():
     if not sitemap_map:
         print("[warn] sitemap returned no URLs; aborting")
         return
-    # sitemap.xmlは更新が遅延し最新記事を取りこぼすことがあるため、RSSフィードから
-    # 直近10件を追加で取得してマージする (重複は集合で吸収)。
+    # sitemap.xmlは反映遅延だけでなく、それ以前の中堅記事も取りこぼすことが
+    # あるため、(a) RSSフィードの直近10件 (b) publication ホームページの
+    # Apollo state (Post:<id> 由来) の2つから補完する。重複は集合で吸収。
     feed_urls = collect_urls_from_feed(args.publication)
-    extra = len(set(feed_urls) - set(sitemap_map))
-    if extra:
-        print(f"[info]    {extra} URL(s) only in feed (sitemap missed)")
-    # feed-only URLは lastmod 未知なので空文字 (= 強制スキップ判定にならず、
-    # 既存があれば skip / 無ければ scrape)
+    extra_feed = len(set(feed_urls) - set(sitemap_map))
+    if extra_feed:
+        print(f"[info]    {extra_feed} URL(s) only in feed (sitemap missed)")
     for u in feed_urls:
         sitemap_map.setdefault(u, "")
+
+    known_ids = set()
+    for url in sitemap_map.keys():
+        m = _HEX_ID_RE.search(url)
+        if m:
+            known_ids.add(m.group()[1:])
+    apollo_urls = collect_urls_from_apollo(args.custom_domain, known_ids=known_ids)
+    extra_apollo = len(set(apollo_urls) - set(sitemap_map))
+    if extra_apollo:
+        print(f"[info]    {extra_apollo} URL(s) only in Apollo state (sitemap+feed missed)")
+    for u in apollo_urls:
+        sitemap_map.setdefault(u, "")
+
+    # 既存scrape済み記事の本文から、まだ未知のURLをクロスリファレンスで救済する。
+    ref_urls = collect_urls_from_references(
+        output_dir / "articles", args.custom_domain, set(sitemap_map.keys())
+    )
+    for u in ref_urls:
+        sitemap_map.setdefault(u, "")
+
     urls = sorted(sitemap_map.keys())
     urls_file.write_text("\n".join(urls))
     new_urls = [u for u in urls if u not in previous]

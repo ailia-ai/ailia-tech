@@ -529,6 +529,61 @@ def apply_substitutions(text: str) -> str:
     return text
 
 
+_INTERNAL_LINK_HEX_RE = re.compile(r"-[a-f0-9]{10,14}$")
+
+# Mediumのembed/cardレンダリングで生まれる複数行 `[...](url)` パターン:
+#   [## タイトル\n\n### サブタイトル\n\ndomain.com](url)
+# 内部にH2/H3を含み厳密にはmarkdown不正なため、Python-Markdownでは
+# プレーンテキスト扱いになる。タイトル部分だけを取り出してシンプルな
+# `[タイトル](url)` に整形する。
+_CARD_LINK_RE = re.compile(
+    r"\[#+\s+(?P<title>[^\n]+?)\n[\s\S]*?\]\((?P<url>[^)]+)\)"
+)
+
+
+def normalize_card_links(text: str) -> str:
+    return _CARD_LINK_RE.sub(lambda m: f"[{m.group('title').strip()}]({m.group('url')})", text)
+
+
+def _rewrite_internal_link_url(url: str) -> str:
+    """1つのリンクURLを判定し、本ミラー内の記事を指していれば ``/<slug>/``
+    形式に書き換える。それ以外はそのまま返す。"""
+    from urllib.parse import unquote as _unq
+
+    url = url.strip()
+    # 絶対URL: medium.com/axinc/<slug>
+    m = re.match(r"https?://medium\.com/axinc/([^?\s#)]+)", url)
+    if m:
+        slug = m.group(1).rstrip("/")
+    elif url.startswith("/") and not url.startswith("//"):
+        # /<slug>?source=...   (Mediumが本文中の関連記事カードに使う形式)
+        m = re.match(r"^/([^?\s#)]+)", url)
+        if not m:
+            return url
+        slug = m.group(1).rstrip("/")
+    else:
+        return url
+    if not _INTERNAL_LINK_HEX_RE.search(slug):
+        return url
+    return f"/{_unq(slug)}/"
+
+
+def rewrite_internal_links(text: str) -> str:
+    """記事markdown中の Medium 記事URLを本ミラー内の相対URLに書き換える。
+
+    対象は ``[text](url)`` 形式の絶対URL ``medium.com/axinc/<slug>`` と
+    Mediumがレンダリングで使う相対形式 ``/<slug>?source=...`` のみ。
+    本ミラーに無い ``kyakuno.medium.com`` 等の外部リンクはそのまま残す。
+    画像リンク ``![alt](url)`` の URL も処理対象になるが、画像URLは
+    記事スラグ形式でないため _rewrite_internal_link_url が unchanged を返す。
+    """
+
+    def repl(m: re.Match) -> str:
+        return f"]({_rewrite_internal_link_url(m.group(1))})"
+
+    return re.sub(r"\]\(([^)]+)\)", repl, text)
+
+
 def clean_body(body: str) -> str:
     """先頭の重複H1 (Mediumは同タイトルを2回出力する) とバイラインブロック、
     本文中のMedium UIアーティファクトを取り除く。"""
@@ -654,7 +709,9 @@ def build(source: Path, output: Path) -> int:
             tags = [t.strip() for t in tags.split(",") if t.strip()]
 
         thumb_url = extract_thumbnail(body)
-        cleaned = apply_substitutions(clean_body(body))
+        cleaned = rewrite_internal_links(
+            apply_substitutions(normalize_card_links(clean_body(body)))
+        )
         excerpt = extract_excerpt(cleaned)
 
         body_html = md.convert(cleaned)
