@@ -429,6 +429,12 @@ def _is_byline_paragraph(text: str) -> bool:
 
 _INLINE_NOISE_PATTERNS = [
     re.compile(r"^Press enter or click to view image in full size$", re.I),
+    # Mediumが本文中に差し込む購読CTA。"## Get X's stories in your inbox"
+    # 見出し + その下の4段落がワンセットで挿入される。
+    re.compile(r"^#+\s+Get\s+.+?\s+stories\s+in\s+your\s+inbox\s*$", re.I),
+    re.compile(r"^Join\s+Medium\s+for\s+free", re.I),
+    re.compile(r"^Subscribe\s*$", re.I),
+    re.compile(r"^Remember\s+me\s+for\s+faster\s+sign\s+in\s*$", re.I),
 ]
 
 
