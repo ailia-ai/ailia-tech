@@ -821,6 +821,52 @@ def thumb_html_for(thumb_url: str, alt: str) -> str:
     return f'<img src="{html.escape(thumb_url, quote=True)}" alt="{html.escape(alt)}" class="card-thumb" loading="lazy">'
 
 
+# GitHub Pages の公開ホスト名 + project basepath。sitemap.xml / robots.txt
+# のloc絶対URLを組み立てるのに使う。CDN置換時はここを差し替える。
+SITE_BASE_URL = "https://ailia-ai.github.io/ailia-tech/"
+
+
+def _write_sitemap(posts: list, output: Path) -> None:
+    """sitemap.xml を生成。index と全記事ページを <urlset> に列挙する。"""
+    from urllib.parse import quote as _q
+
+    lines = ['<?xml version="1.0" encoding="UTF-8"?>']
+    lines.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
+    # index ページは最頻 (priority 1.0)
+    lines.append("  <url>")
+    lines.append(f"    <loc>{html.escape(SITE_BASE_URL)}</loc>")
+    if posts:
+        # index の lastmod は最も新しい記事の lastmod を採用
+        latest = max(p.get("lastmod") or p.get("date") or "" for p in posts)
+        if latest:
+            lines.append(f"    <lastmod>{latest}</lastmod>")
+    lines.append("    <changefreq>daily</changefreq>")
+    lines.append("    <priority>1.0</priority>")
+    lines.append("  </url>")
+    for p in posts:
+        slug_q = _q(p["slug"], safe="-_")
+        loc = f"{SITE_BASE_URL}{slug_q}/"
+        lastmod = p.get("lastmod") or p.get("date") or ""
+        lines.append("  <url>")
+        lines.append(f"    <loc>{html.escape(loc)}</loc>")
+        if lastmod:
+            lines.append(f"    <lastmod>{lastmod}</lastmod>")
+        lines.append("    <priority>0.7</priority>")
+        lines.append("  </url>")
+    lines.append("</urlset>")
+    (output / "sitemap.xml").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _write_robots(output: Path) -> None:
+    """robots.txt から sitemap.xml を案内する。"""
+    body = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        f"Sitemap: {SITE_BASE_URL}sitemap.xml\n"
+    )
+    (output / "robots.txt").write_text(body, encoding="utf-8")
+
+
 def build(source: Path, output: Path) -> int:
     if output.exists():
         shutil.rmtree(output)
@@ -840,6 +886,7 @@ def build(source: Path, output: Path) -> int:
 
         title = apply_substitutions(fm.get("title") or mdf.stem)
         date = fm.get("date", "")
+        lastmod = fm.get("lastmod", "") or date
         author = fm.get("author", "")
         original_url = fm.get("original_url", "")
         slug = medium_slug_from_url(original_url) or mdf.stem
@@ -878,6 +925,7 @@ def build(source: Path, output: Path) -> int:
             {
                 "title": title,
                 "date": date,
+                "lastmod": lastmod,
                 "author": author,
                 "slug": slug,
                 "excerpt": excerpt,
@@ -946,6 +994,8 @@ def build(source: Path, output: Path) -> int:
     )
     (output / "index.html").write_text(index_html, encoding="utf-8")
     (output / "style.css").write_text(CSS, encoding="utf-8")
+    _write_sitemap(posts, output)
+    _write_robots(output)
     return len(posts)
 
 
