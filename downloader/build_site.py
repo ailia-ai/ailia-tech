@@ -7,24 +7,48 @@ written by medium_publication.py), renders them to HTML, and copies the
 referenced images. The output directory layout is::
 
     _site/
-      ├── index.html             # Article list, sorted by date desc
+      ├── index.html               # Article list, sorted by date desc
       ├── style.css
-      ├── articles/
-      │   └── <slug>.html
+      ├── <medium-slug>/
+      │   └── index.html           # one per article (slug == original Medium URL slug)
       └── images/
-          └── <slug>/
+          └── <safe-slug>/
               └── image_NNN.<ext>
 
-Image references in the source markdown use ``../images/<slug>/...`` which
-already resolves correctly from ``_site/articles/`` to ``_site/images/``.
+URL mapping:
+    https://medium.com/axinc/<slug>          (Medium)
+    https://<github-pages-host>/<repo>/<slug>/   (GitHub Pages)
+
+i.e. replacing the prefix ``medium.com/axinc/`` with the GitHub Pages base
+URL produces the corresponding mirror URL.
+
+Image references in the source markdown use ``../images/<safe-slug>/...``
+which resolves correctly from ``_site/<slug>/`` to ``_site/images/``.
 """
 
 import argparse
 import html
+import re
 import shutil
 from pathlib import Path
+from urllib.parse import urlparse
 
 import markdown
+
+GTM_ID = "GTM-5Q579RMM"
+
+GTM_HEAD = f"""<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':
+new Date().getTime(),event:'gtm.js'}});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+}})(window,document,'script','dataLayer','{GTM_ID}');</script>
+<!-- End Google Tag Manager -->"""
+
+GTM_BODY = f"""<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id={GTM_ID}"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->"""
 
 INDEX_TEMPLATE = """<!DOCTYPE html>
 <html lang="ja">
@@ -33,8 +57,10 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title}</title>
 <link rel="stylesheet" href="style.css">
+{gtm_head}
 </head>
 <body>
+{gtm_body}
 <header class="site-header">
   <h1>{title}</h1>
   <p class="subtitle">{subtitle}</p>
@@ -58,8 +84,11 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{title} | ailia Tech BLOG (Mirror)</title>
 <link rel="stylesheet" href="../style.css">
+<link rel="canonical" href="{original_url}">
+{gtm_head}
 </head>
 <body>
+{gtm_body}
 <header class="site-header">
   <p><a href="../">&larr; 記事一覧</a></p>
   <h1>{title}</h1>
@@ -114,7 +143,7 @@ th, td { border: 1px solid var(--border); padding: 6px 10px; }
 
 
 def parse_front_matter(text: str) -> tuple[dict, str]:
-    """医療export形式のYAMLフロントマターを簡易パース。"""
+    """medium_publication.pyが書き出すYAMLフロントマターを簡易パース。"""
     if not text.startswith("---\n"):
         return {}, text
     end = text.find("\n---\n", 4)
@@ -131,6 +160,13 @@ def parse_front_matter(text: str) -> tuple[dict, str]:
     return fm, body
 
 
+def medium_slug_from_url(url: str) -> str:
+    """元記事URL末尾のスラグ部を返す (例: '...axinc/foo-bar-deadbeef1234' -> 'foo-bar-deadbeef1234')。"""
+    if not url:
+        return ""
+    return urlparse(url).path.rstrip("/").split("/")[-1]
+
+
 def build(source: Path, output: Path) -> int:
     if output.exists():
         shutil.rmtree(output)
@@ -141,9 +177,6 @@ def build(source: Path, output: Path) -> int:
         shutil.copytree(src_images, output / "images")
 
     articles_dir = source / "articles"
-    out_articles_dir = output / "articles"
-    out_articles_dir.mkdir()
-
     md = markdown.Markdown(extensions=["fenced_code", "tables", "sane_lists"])
 
     posts = []
@@ -155,7 +188,7 @@ def build(source: Path, output: Path) -> int:
         date = fm.get("date", "")
         author = fm.get("author", "")
         original_url = fm.get("original_url", "")
-        slug = mdf.stem
+        slug = medium_slug_from_url(original_url) or mdf.stem
 
         body_html = md.convert(body)
         md.reset()
@@ -168,15 +201,19 @@ def build(source: Path, output: Path) -> int:
             meta=meta,
             content=body_html,
             original_url=html.escape(original_url, quote=True),
+            gtm_head=GTM_HEAD,
+            gtm_body=GTM_BODY,
         )
-        (out_articles_dir / f"{slug}.html").write_text(out_html, encoding="utf-8")
+        article_dir = output / slug
+        article_dir.mkdir(parents=True, exist_ok=True)
+        (article_dir / "index.html").write_text(out_html, encoding="utf-8")
         posts.append({"title": title, "date": date, "slug": slug})
 
     posts.sort(key=lambda p: p["date"], reverse=True)
 
     items = "\n".join(
         '<li><span class="date">{date}</span>'
-        '<a href="articles/{slug}.html">{title}</a></li>'.format(
+        '<a href="{slug}/">{title}</a></li>'.format(
             date=html.escape(p["date"] or "----------"),
             slug=html.escape(p["slug"], quote=True),
             title=html.escape(p["title"]),
@@ -189,6 +226,8 @@ def build(source: Path, output: Path) -> int:
         subtitle="medium.com/axinc から取得した記事のミラー",
         items=items,
         count=len(posts),
+        gtm_head=GTM_HEAD,
+        gtm_body=GTM_BODY,
     )
     (output / "index.html").write_text(index_html, encoding="utf-8")
     (output / "style.css").write_text(CSS, encoding="utf-8")

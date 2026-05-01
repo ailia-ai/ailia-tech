@@ -223,15 +223,21 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
 
     urls_file = output_dir / "urls.txt"
-    if urls_file.exists():
-        print(f"[info] reusing existing URL list: {urls_file}")
-        urls = sorted(set(urls_file.read_text().strip().splitlines()))
-    else:
-        urls = collect_urls_from_sitemap(args.custom_domain)
-        urls_file.write_text("\n".join(urls))
-        print(f"[info] saved {len(urls)} URLs to {urls_file}")
-
-    print(f"\n[info] total unique articles: {len(urls)}\n")
+    previous = (
+        set(urls_file.read_text().strip().splitlines())
+        if urls_file.exists()
+        else set()
+    )
+    urls = collect_urls_from_sitemap(args.custom_domain)
+    if not urls:
+        print("[warn] sitemap returned no URLs; aborting")
+        return
+    urls_file.write_text("\n".join(urls))
+    new_urls = [u for u in urls if u not in previous]
+    print(
+        f"[info] total: {len(urls)} articles "
+        f"({len(new_urls)} new since last run, {len(previous)} previously known)\n"
+    )
 
     if args.urls_only:
         return
