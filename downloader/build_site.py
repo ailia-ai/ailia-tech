@@ -184,7 +184,7 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <link rel="canonical" href="{original_url}">
 {gtm_head}
 </head>
-<body>
+<body class="page-article">
 {gtm_body}
 <header class="post-nav">
   <a href="../"><img src="{logo}" alt="{pub_title}" class="post-nav-logo">{pub_title}</a>
@@ -218,7 +218,7 @@ html { font-size: 16px; overflow-x: hidden; }
 body {
   font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo,
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  max-width: 728px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 24px 24px 64px;
   line-height: 1.6;
@@ -408,7 +408,12 @@ a:hover { text-decoration: underline; }
   padding: 16px 0;
   border-bottom: 1px solid var(--border);
   margin-bottom: 32px;
+  max-width: 728px;
+  margin-left: auto;
+  margin-right: auto;
 }
+/* 記事の本文は可読性のため index より狭めの 728px に制限する */
+.post { max-width: 728px; margin: 0 auto; }
 .post-nav a { display: flex; align-items: center; gap: 10px; color: var(--fg); font-weight: 600; }
 .post-nav-logo { width: 36px; height: 36px; border-radius: 50%; }
 .post-header { margin-bottom: 28px; }
@@ -460,6 +465,8 @@ a:hover { text-decoration: underline; }
 }
 .site-footer p { margin: 6px 0; }
 .site-footer a { color: var(--link); }
+/* 記事ページの footer も 728px に揃える */
+body.page-article .site-footer { max-width: 728px; margin-left: auto; margin-right: auto; }
 """
 
 
