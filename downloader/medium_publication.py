@@ -123,6 +123,10 @@ def _resolve_post_id(post_id: str) -> str:
         loc = r.headers.get("location", "")
         if not loc:
             return ""
+        # Medium のリダイレクト先は環境によって絶対 URL だったり / から
+        # 始まる相対パスだったりするので medium.com に正規化する。
+        if loc.startswith("/"):
+            loc = "https://medium.com" + loc
         url = unquote(loc.split("?")[0].rstrip("/"))
         return url if _HEX_ID_RE.search(url) else ""
     except Exception:
@@ -130,39 +134,51 @@ def _resolve_post_id(post_id: str) -> str:
 
 
 def collect_urls_from_references(
-    articles_dir: Path, custom_domain: str, known: set
+    articles_dir: Path, ref_domain: str, publication: str, known: set
 ) -> list:
     """既にダウンロードした記事 markdown 内の内部リンクから、未知の記事URLを発見する。
     sitemap/feed/Apolloで取りこぼした古い記事 (publication初期の関連記事カード等) を
-    クロスリファレンス経由で救済する。"""
+    クロスリファレンス経由で救済する。
+
+    ``ref_domain`` は発見した URL を組み立てる時のホスト名 (独自ドメイン or
+    medium.com)。``publication`` は medium.com/<pub>/ 形式の URL を組む際の
+    publicationスラグ。"""
     if not articles_dir.exists():
         return []
     found: set = set()
+    medium_pub_re = re.compile(
+        r"https?://medium\.com/" + re.escape(publication) + r"/([^?\s)\"<>]+)"
+    )
     for mdf in articles_dir.glob("*.md"):
         text = mdf.read_text(encoding="utf-8")
-        # 絶対 URL: medium.com/axinc/<encoded-slug-with-hex>
-        for m in re.finditer(r"https?://medium\.com/axinc/([^?\s)\"<>]+)", text):
+        # 絶対 URL: medium.com/<publication>/<encoded-slug-with-hex>
+        for m in medium_pub_re.finditer(text):
             slug = unquote(m.group(1).rstrip("/"))
             if _HEX_ID_RE.search(slug):
-                found.add(f"https://{custom_domain}/{slug}")
+                if ref_domain == "medium.com":
+                    found.add(f"https://medium.com/{publication}/{slug}")
+                else:
+                    found.add(f"https://{ref_domain}/{slug}")
         # 相対 URL: ](/<encoded-slug-with-hex>?source=...)
         for m in re.finditer(r"\]\(/([^?\s)\"<>]+)", text):
             slug = unquote(m.group(1).rstrip("/"))
             if _HEX_ID_RE.search(slug):
-                found.add(f"https://{custom_domain}/{slug}")
+                if ref_domain == "medium.com":
+                    found.add(f"https://medium.com/{publication}/{slug}")
+                else:
+                    found.add(f"https://{ref_domain}/{slug}")
     new = sorted(found - known)
     print(f"[refs]    found {len(new)} new URL(s) referenced from existing articles")
     return new
 
 
-def collect_urls_from_apollo(custom_domain: str, known_ids: set = None) -> list:
+def collect_urls_from_apollo(home_url: str, known_ids: set = None) -> list:
     """publicationトップページのApollo state を解析し、Post の ID 一覧を
     medium.com/p/<id> リダイレクトで canonical URL に解決する。
     sitemap.xml が時々取りこぼす中堅記事 (古いチュートリアル等) の救済用。
 
     ``known_ids`` を渡すとそれに含まれるIDは解決をスキップして時間を節約する。
     """
-    home_url = f"https://{custom_domain}/"
     print(f"[apollo]  {home_url}")
     html_text = fetch(home_url)
     if not html_text:
@@ -199,8 +215,12 @@ def collect_urls_from_apollo(custom_domain: str, known_ids: set = None) -> list:
     return urls
 
 
-def extract_tags(soup) -> list:
-    """Mediumの記事HTMLからtag slugの一覧を抽出。"""
+def extract_tags(soup, html_text: str = "") -> list:
+    """Mediumの記事HTMLからtag slugの一覧を抽出。
+
+    日本語版は ``<a href="medium.com/tag/<name>">`` リンクが本文末尾に
+    出力されるが、英語版ではそれが省かれているケースがあるため、
+    Apollo state の ``Tag:<name>`` エントリをフォールバックとして使う。"""
     tags: list = []
     seen = set()
     for a in soup.find_all("a", href=True):
@@ -210,6 +230,26 @@ def extract_tags(soup) -> list:
             if t not in seen:
                 seen.add(t)
                 tags.append(t)
+    if tags:
+        return tags
+    # Apollo state にしか tag 情報が無いケース (en記事など) の救済
+    if html_text:
+        m = re.search(
+            r"window\.__APOLLO_STATE__\s*=\s*(\{.+?\});?</script>",
+            html_text,
+            re.DOTALL,
+        )
+        if m:
+            try:
+                data = json.loads(m.group(1))
+                for k in data.keys():
+                    if k.startswith("Tag:"):
+                        t = k.split(":", 1)[1].lower()
+                        if t not in seen:
+                            seen.add(t)
+                            tags.append(t)
+            except Exception:
+                pass
     return tags
 
 
@@ -456,7 +496,7 @@ def scrape_article(
     if not sitemap_lastmod:
         sitemap_lastmod = latest_published or meta_published
 
-    tags = extract_tags(soup)
+    tags = extract_tags(soup, html)
 
     article = soup.find("article")
     if not article:
@@ -506,14 +546,21 @@ def scrape_article(
 
 def main():
     parser = argparse.ArgumentParser(description="Medium publication scraper")
-    parser.add_argument("--publication", required=True, help="例: axinc")
+    parser.add_argument("--publication", required=True, help="例: axinc / axinc-ai")
     parser.add_argument(
         "--custom-domain",
-        required=True,
+        default="",
         help="publicationのカスタムドメイン (例: tech.ailia.ai)。"
-        "sitemap.xmlから記事URL一覧を取得するために使用。",
+        "指定すると sitemap.xml と Apollo state を独自ドメイン側から取得する。"
+        "未指定なら medium.com/<publication> を使用 (sitemap.xmlは存在しないため Apollo+RSF+ref のみで発見)。",
     )
     parser.add_argument("--output", default="medium_export")
+    parser.add_argument(
+        "--reference-domain",
+        default="",
+        help="既存記事のクロスリファレンス展開時の補完ドメイン (例: tech.ailia.ai)。"
+        "未指定なら --custom-domain がフォールバック、それも無ければ medium.com。",
+    )
     parser.add_argument("--urls-only", action="store_true", help="URL収集だけ実行")
     parser.add_argument(
         "--refresh",
@@ -541,13 +588,15 @@ def main():
         if urls_file.exists()
         else set()
     )
-    sitemap_map = collect_urls_from_sitemap(args.custom_domain)
-    if not sitemap_map:
-        print("[warn] sitemap returned no URLs; aborting")
-        return
+    sitemap_map: dict = {}
+    if args.custom_domain:
+        sitemap_map = collect_urls_from_sitemap(args.custom_domain)
+        if not sitemap_map:
+            print("[warn] sitemap returned no URLs (will rely on feed + Apollo)")
     # sitemap.xmlは反映遅延だけでなく、それ以前の中堅記事も取りこぼすことが
     # あるため、(a) RSSフィードの直近10件 (b) publication ホームページの
-    # Apollo state (Post:<id> 由来) の2つから補完する。重複は集合で吸収。
+    # Apollo state (Post:<id> 由来) の2つから補完する。独自ドメインが無い場合
+    # (en) は sitemap が無いのでこの2つが主要な発見経路となる。
     feed_urls = collect_urls_from_feed(args.publication)
     extra_feed = len(set(feed_urls) - set(sitemap_map))
     if extra_feed:
@@ -560,7 +609,12 @@ def main():
         m = _HEX_ID_RE.search(url)
         if m:
             known_ids.add(m.group()[1:])
-    apollo_urls = collect_urls_from_apollo(args.custom_domain, known_ids=known_ids)
+    apollo_home = (
+        f"https://{args.custom_domain}/"
+        if args.custom_domain
+        else f"https://medium.com/{args.publication}/"
+    )
+    apollo_urls = collect_urls_from_apollo(apollo_home, known_ids=known_ids)
     extra_apollo = len(set(apollo_urls) - set(sitemap_map))
     if extra_apollo:
         print(f"[info]    {extra_apollo} URL(s) only in Apollo state (sitemap+feed missed)")
@@ -568,11 +622,19 @@ def main():
         sitemap_map.setdefault(u, "")
 
     # 既存scrape済み記事の本文から、まだ未知のURLをクロスリファレンスで救済する。
+    ref_domain = args.reference_domain or args.custom_domain or "medium.com"
     ref_urls = collect_urls_from_references(
-        output_dir / "articles", args.custom_domain, set(sitemap_map.keys())
+        output_dir / "articles",
+        ref_domain,
+        args.publication,
+        set(sitemap_map.keys()),
     )
     for u in ref_urls:
         sitemap_map.setdefault(u, "")
+
+    if not sitemap_map:
+        print("[warn] no URLs discovered from any source; aborting")
+        return
 
     urls = sorted(sitemap_map.keys())
     urls_file.write_text("\n".join(urls))

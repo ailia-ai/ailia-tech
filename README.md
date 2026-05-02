@@ -1,83 +1,102 @@
 # ailia-tech
 
-[ailia Tech BLOG](https://medium.com/axinc) (Medium publication `axinc`,
-カスタムドメイン `tech.ailia.ai`) の全記事をスクレイピングし、
-GitHub Pages でホスティングするためのリポジトリ。
+ailia Tech BLOG の記事ミラー。Medium の2つの publication をスクレイプし、
+独自ドメイン `tech.ailia.ai` で GitHub Pages から配信する。
 
-公開URL: <https://ailia-ai.github.io/ailia-tech/>
+| 言語 | Medium 元 publication                  | 公開URL                       |
+| ---- | -------------------------------------- | ----------------------------- |
+| 日本語 | <https://medium.com/axinc>            | <https://tech.ailia.ai/>      |
+| 英語   | <https://medium.com/axinc-ai>         | <https://tech.ailia.ai/en/>   |
 
 ## ディレクトリ構成
 
 ```
 .
 ├── downloader/
-│   ├── medium_publication.py       # スクレイパー (curl_cffi + sitemap.xml)
+│   ├── medium_publication.py       # Mediumスクレイパー (curl_cffi で Cloudflare 回避)
 │   └── build_site.py               # 静的サイトジェネレータ (Markdown → HTML)
 ├── medium_export/
-│   ├── urls.txt                    # スクレイプ対象URL一覧
-│   ├── articles/                   # YAMLフロントマター付きMarkdown
-│   └── images/                     # 記事内画像
+│   ├── ja/                         # 日本語 (axinc) スクレイプ結果
+│   │   ├── urls.txt
+│   │   ├── articles/               # YAMLフロントマター付きMarkdown
+│   │   └── images/                 # 記事内画像
+│   └── en/                         # 英語 (axinc-ai) スクレイプ結果
+│       ├── urls.txt
+│       ├── articles/
+│       └── images/
 └── .github/workflows/
     ├── pages.yml                   # GitHub Pagesビルド & デプロイ
-    └── scrape.yml                  # 1日1回新着記事を取得 → 自動コミット
+    └── scrape.yml                  # 1日1回 ja/en 両方の新着記事を取得 → 自動コミット
 ```
 
 ## URLマッピング
 
-公開サイトのURLは Medium 側の slug を保持しているため、ホスト名部分の
-置換だけで相互変換できる。
+各記事は元 Medium スラグを保持しているため、`medium.com/<publication>/<slug>`
+の publication 部分を `tech.ailia.ai/[en/]` に置き換えるだけで本ミラーへ
+切り替わる。記事ページには `<link rel="canonical">` で本ミラーURLを、
+`<link rel="alternate" hreflang>` で各言語のホームを指す。
 
-| 種別          | URL例                                                                         |
-| ------------- | ----------------------------------------------------------------------------- |
-| Medium        | `https://medium.com/axinc/<slug>`                                             |
-| カスタムドメイン | `https://tech.ailia.ai/<slug>`                                                |
-| 本ミラー       | `https://ailia-ai.github.io/ailia-tech/<slug>/`                              |
-
-例えば `medium.com/axinc/` を `ailia-ai.github.io/ailia-tech/` に置き換える
-だけで対応する記事へリンクが切り替わる。各記事ページには
-`<link rel="canonical">` で元記事URLを指している。
+| 種別          | 例                                                                |
+| ------------- | ----------------------------------------------------------------- |
+| Medium ja    | `https://medium.com/axinc/<slug>`                                  |
+| Medium en    | `https://medium.com/axinc-ai/<slug>`                               |
+| ミラー ja     | `https://tech.ailia.ai/<slug>/`                                    |
+| ミラー en     | `https://tech.ailia.ai/en/<slug>/`                                 |
 
 ## 記事をスクレイピング
 
 ```bash
 pip install curl-cffi beautifulsoup4 markdownify
-python downloader/medium_publication.py \
-    --publication axinc \
-    --custom-domain tech.ailia.ai
+
+# 日本語
+python downloader/medium_publication.py --publication axinc    --output medium_export/ja
+# 英語
+python downloader/medium_publication.py --publication axinc-ai --output medium_export/en
 ```
 
-スクレイパーは毎回 `tech.ailia.ai/sitemap/sitemap.xml` を取得し、
-新着URLを検出する。既にダウンロード済みの記事はスキップされる。
+URL収集は (1) Apollo state from `medium.com/<publication>/`、(2) RSSフィード、
+(3) 既存記事のクロスリファレンス の3経路。独自ドメインの sitemap は
+ミラー側 (= 自分自身) を指すようになったため使用しない。
 
 ## サイトをローカルでビルド
 
 ```bash
 pip install markdown
 python downloader/build_site.py --source medium_export --output _site
-# _site/index.html をブラウザで開く
+# _site/index.html (ja)、_site/en/index.html (en)
 ```
+
+`build_site.py` は `medium_export/<lang>/` を順番に読み、`_site/[<lang_path>]`
+に出力する。各記事のリンクには相対パス (`../<slug>/`) を使うので、ホスト名
+変更時もリンク切れしない。
 
 ## GitHub Pagesでホスティング
 
 1. リポジトリの **Settings → Pages** を開く
 2. **Build and deployment → Source** を **GitHub Actions** に設定
-3. ブランチへの push、または日次cron (`scrape.yml`) からの自動コミットで
+3. **Settings → Pages → Custom domain** に `tech.ailia.ai` を設定
+4. ブランチへの push、または日次cron (`scrape.yml`) からの自動コミットで
    `pages.yml` ワークフローが起動し、`_site/` がデプロイされる
-4. 手動デプロイは Actions タブから "Deploy GitHub Pages" を選択して
+5. 手動デプロイは Actions タブから "Deploy GitHub Pages" を選択して
    **Run workflow** でも可能
+
+`build_site.py` はビルド時に `_site/CNAME` (= `tech.ailia.ai`) を出力する
+ので、Actions デプロイでも独自ドメインが維持される。
 
 ## 自動更新 (1日1回)
 
 `.github/workflows/scrape.yml` が毎日 01:00 UTC (10:00 JST) に実行される。
+ja と en の両方が同一ジョブで処理される (`run_one ja axinc` →
+`run_one en axinc-ai`)。
 
-1. sitemap.xml から URL と `<lastmod>` を取得 (RSSフィードでも補完)
-2. **新着記事**: ローカルに無いものを新規スクレイピング
-3. **更新された記事**: sitemap の `<lastmod>` がローカル保存値より新しい
-   記事は本文・画像を再取得して上書き
-4. 旧バージョンで保存された `lastmod` 未保持の記事は本文を再取得せず
-   sitemap の値だけ埋めてブートストラップ (`backfill-lastmod`)
-5. 差分があれば `medium_export/` を `github-actions[bot]` がコミット & push
-6. push を検知して `pages.yml` がサイトを再ビルド & 再デプロイ
+1. Medium publication ホームの Apollo state から最新 ~99 記事の ID を取得
+2. RSSフィード (直近10件) でも補完
+3. 既存記事の本文中リンクから未知URLを発見 (cross-reference)
+4. **新着記事**: ローカルに無いものを新規スクレイピング
+5. **更新された記事**: Apollo の `latestPublishedAt` がローカル保存値より
+   新しい記事は本文・画像を再取得して上書き
+6. 差分があれば `medium_export/` を `github-actions[bot]` がコミット & push
+7. push を検知して `pages.yml` がサイトを再ビルド & 再デプロイ
 
 > 注意: GitHub Actions の `schedule` イベントはデフォルトブランチ上の
 > ワークフローのみ実行される。フィーチャーブランチでは
@@ -92,34 +111,40 @@ Medium上で過去記事を編集した場合、デフォルトの cron では�
 
 Actions タブ → **Daily scrape** → **Run workflow** で以下の入力を選ぶ:
 
-| `refresh` | 動作                                                       |
-| --------- | ---------------------------------------------------------- |
-| `off`     | 新着のみ取得 (cron既定動作)                                |
-| `updated` | sitemap の `<lastmod>` がローカルより新しい記事を再取得    |
-| `all`     | 全記事を強制再取得 (時間がかかる)                          |
-
-`only_url` を指定すると、その記事1本だけを `--refresh` 付きで再取得できる。
+| 入力       | 動作                                                                  |
+| ---------- | --------------------------------------------------------------------- |
+| `refresh`  | `off` / `updated` (Apollo の lastmod 比較) / `all` (強制全件再取得)    |
+| `only_url` | 1記事だけ `--refresh` 付きで再取得 (medium.com の URL を指定)          |
+| `lang`     | 空 (両方) / `ja` / `en`                                                |
 
 ### CLIから
 
 ```bash
-# sitemap の lastmod が新しい記事だけ再取得
-python downloader/medium_publication.py \
-    --publication axinc --custom-domain tech.ailia.ai --refresh
+# 更新された記事だけ再取得
+python downloader/medium_publication.py --publication axinc    --output medium_export/ja --refresh
+python downloader/medium_publication.py --publication axinc-ai --output medium_export/en --refresh
 
 # 全記事を強制再取得
-python downloader/medium_publication.py \
-    --publication axinc --custom-domain tech.ailia.ai --refresh-all
+python downloader/medium_publication.py --publication axinc --output medium_export/ja --refresh-all
 
 # 1記事だけ更新
-python downloader/medium_publication.py \
-    --publication axinc --custom-domain tech.ailia.ai \
-    --only-url "https://tech.ailia.ai/<slug>" --refresh
+python downloader/medium_publication.py --publication axinc --output medium_export/ja \
+    --only-url "https://medium.com/axinc/<slug>" --refresh
 ```
 
-スクレイパーは sitemap.xml の `<lastmod>` を各記事の YAMLフロントマターに
-`lastmod: YYYY-MM-DD` として保存し、次回以降の `--refresh` で
-ローカル値より新しい場合のみ再取得する。
+各記事の YAMLフロントマターに `lastmod: YYYY-MM-DD` として保存され、次回
+以降の `--refresh` でローカル値より新しい場合のみ再取得される。
+
+## SEO
+
+- 各ページに `<meta name="robots" content="index, follow,
+  max-image-preview:large, max-snippet:-1">`
+- 自己参照 canonical (記事ごと、index ごと)
+- `hreflang` (ja / en / x-default)
+- Open Graph + Twitter Card (記事は `summary_large_image`、index は `summary`)
+- JSON-LD (`BlogPosting`)
+- 全言語をまとめた `sitemap.xml` を `tech.ailia.ai/sitemap.xml` に出力
+- `robots.txt` から sitemap を案内
 
 ## アナリティクス
 

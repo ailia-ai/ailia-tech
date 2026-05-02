@@ -43,6 +43,42 @@ PUBLICATION_LOGO = (
     "https://miro.medium.com/v2/resize:fill:160:160/1*5yfBcdCERuuQ1y98iuvhAg.png"
 )
 
+# 言語別の設定。site_url_path は SITE_BASE_URL からの相対 (空 or "en/" 等)、
+# articles_label は記事カウント表記、search_placeholder は検索ボックスの
+# プレースホルダ文。ヘッダーの言語切替リンクで参照される。
+LANGUAGES = [
+    {
+        "code": "ja",
+        "label": "JA",
+        "html_lang": "ja",
+        "source_dir": "ja",
+        "site_path": "",
+        "articles_label": "{n} articles",
+        "search_placeholder": "キーワードで検索 (タイトル / 本文抜粋 / 著者 / タグ)",
+        "tag_filter_aria": "タグで絞り込み",
+        "all_label": "すべて",
+        "back_to_index": "← 記事一覧",
+        "empty_state": "該当する記事がありません",
+        "footer_back": "← 記事一覧へ",
+        "publication": "axinc",
+    },
+    {
+        "code": "en",
+        "label": "EN",
+        "html_lang": "en",
+        "source_dir": "en",
+        "site_path": "en/",
+        "articles_label": "{n} articles",
+        "search_placeholder": "Search by keyword (title / excerpt / author / tags)",
+        "tag_filter_aria": "Filter by tag",
+        "all_label": "All",
+        "back_to_index": "← All posts",
+        "empty_state": "No matching articles",
+        "footer_back": "← All posts",
+        "publication": "axinc-ai",
+    },
+]
+
 GTM_HEAD = f"""<!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){{w[l]=w[l]||[];w[l].push({{'gtm.start':
 new Date().getTime(),event:'gtm.js'}});var f=d.getElementsByTagName(s)[0],
@@ -57,7 +93,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->"""
 
 INDEX_TEMPLATE = """<!DOCTYPE html>
-<html lang="ja">
+<html lang="{html_lang}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -65,6 +101,7 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
 <meta name="description" content="{tagline}">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <link rel="canonical" href="{site_url}">
+{hreflang_links}
 <meta property="og:type" content="website">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{tagline}">
@@ -75,30 +112,31 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
 <meta name="twitter:title" content="{title}">
 <meta name="twitter:description" content="{tagline}">
 <meta name="twitter:image" content="{logo}">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="/style.css">
 {gtm_head}
 </head>
 <body>
 {gtm_body}
+<nav class="lang-switch" aria-label="Language">{lang_switch}</nav>
 <header class="pub-header">
   <img src="{logo}" alt="{title}" class="pub-logo">
   <div class="pub-meta">
     <h1>{title}</h1>
     <p class="pub-tagline">{tagline}</p>
-    <p class="pub-source"><a href="https://ailia.ai/">ailia.ai</a> · {count} articles</p>
+    <p class="pub-source"><a href="https://ailia.ai/">ailia.ai</a> · {articles_label}</p>
   </div>
 </header>
-<nav class="tag-filter" role="tablist" aria-label="タグで絞り込み">
+<nav class="tag-filter" role="tablist" aria-label="{tag_filter_aria}">
 {tag_chips}
 </nav>
 <div class="search-bar">
-  <input type="search" id="search-input" placeholder="キーワードで検索 (タイトル / 本文抜粋 / 著者 / タグ)" autocomplete="off">
+  <input type="search" id="search-input" placeholder="{search_placeholder}" autocomplete="off">
   <p id="search-hits" class="search-hits" aria-live="polite"></p>
 </div>
 <main class="article-feed">
 {cards}
 </main>
-<p id="empty-state" class="empty-state" hidden>該当する記事がありません</p>
+<p id="empty-state" class="empty-state" hidden>{empty_state}</p>
 <script>
 (function() {{
   var chips = document.querySelectorAll('.tag-chip');
@@ -187,7 +225,7 @@ PRIMARY_TAGS = [
 ]
 
 ARTICLE_TEMPLATE = """<!DOCTYPE html>
-<html lang="ja">
+<html lang="{html_lang}">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -195,6 +233,7 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <meta name="description" content="{excerpt}">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <link rel="canonical" href="{page_url}">
+{hreflang_links}
 <meta property="og:type" content="article">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{excerpt}">
@@ -209,11 +248,12 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <meta name="twitter:description" content="{excerpt}">
 <meta name="twitter:image" content="{og_image}">
 <script type="application/ld+json">{ld_json}</script>
-<link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="/style.css">
 {gtm_head}
 </head>
 <body class="page-article">
 {gtm_body}
+<nav class="lang-switch" aria-label="Language">{lang_switch}</nav>
 <header class="post-nav">
   <a href="../"><img src="{logo}" alt="{pub_title}" class="post-nav-logo">{pub_title}</a>
 </header>
@@ -227,7 +267,7 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
   </div>
 </article>
 <footer class="site-footer">
-  <p><a href="../">&larr; 記事一覧へ</a></p>
+  <p><a href="../">{footer_back}</a></p>
 </footer>
 </body>
 </html>
@@ -265,6 +305,24 @@ body {
 .post-body table { display: block; max-width: 100%; overflow-x: auto; }
 a { color: inherit; text-decoration: none; }
 a:hover { text-decoration: underline; }
+
+/* Language switcher */
+.lang-switch {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  font-size: 0.85em;
+  padding: 4px 0 0;
+}
+.lang-switch a {
+  color: var(--fg-muted);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+.lang-switch a.active { color: var(--fg); border-color: var(--border); }
+.lang-switch a:hover { background: var(--hover); }
 
 /* Publication header (index page) */
 .pub-header {
@@ -620,7 +678,15 @@ def apply_substitutions(text: str) -> str:
     出力HTML/抜粋の両方で使用されるよう、markdownレベルで適用する。"""
     if not text:
         return text
+    # 日本語表記
     text = text.replace("ax株式会社", "アイリア株式会社")
+    # 英語表記。"ax Inc." / "ax Inc" 両方拾う。前後にalphanumericが無いことを
+    # lookahead/lookbehindで確認して "max Inc" のような単語境界誤マッチを防ぐ。
+    text = re.sub(
+        r"(?<![A-Za-z0-9_])ax\s+Inc\.?(?![A-Za-z0-9_])",
+        lambda m: "ailia Inc." if m.group().rstrip().endswith(".") else "ailia Inc",
+        text,
+    )
     # axinc.jp はURL／表示テキストの両方に出るので一律置換。
     text = text.replace("axinc.jp", "ailia.ai")
     # axinc-ai (GitHub org) → ailia-ai。ただし "axinc-ailia" の様に
@@ -645,7 +711,7 @@ _INTERNAL_LINK_HEX_RE = re.compile(r"-[a-f0-9]{10,14}$")
 _CARD_LINK_RE = re.compile(r"\[(#+\s+[\s\S]*?)\]\(([^)]+)\)")
 
 
-def _normalize_one_card(label_body: str, url: str) -> str:
+def _normalize_one_card(label_body: str, url: str, lang_pub: str = "axinc") -> str:
     headings = re.findall(r"^#+\s+(.+?)\s*$", label_body, re.M)
     title = headings[0].strip() if headings else ""
     subtitle = headings[1].strip() if len(headings) >= 2 else ""
@@ -657,7 +723,7 @@ def _normalize_one_card(label_body: str, url: str) -> str:
     ]
     domain = non_heading[-1] if non_heading else ""
 
-    rewritten_url = _rewrite_internal_link_url(url)
+    rewritten_url = _rewrite_internal_link_url(url, lang_pub)
 
     if not title:
         return f"[{label_body.strip()}]({rewritten_url})"
@@ -679,32 +745,39 @@ def _normalize_one_card(label_body: str, url: str) -> str:
     )
 
 
-def normalize_card_links(text: str) -> str:
+def normalize_card_links(text: str, lang_pub: str = "axinc") -> str:
     return _CARD_LINK_RE.sub(
-        lambda m: _normalize_one_card(m.group(1), m.group(2)), text
+        lambda m: _normalize_one_card(m.group(1), m.group(2), lang_pub), text
     )
 
 
-def _rewrite_internal_link_url(url: str) -> str:
-    """1つのリンクURLを判定し、本ミラー内の記事を指していれば記事ページから
-    見た相対パス ``../<slug>/`` に書き換える。独自ドメインで basepath が
-    無いため、絶対パス ``/<slug>/`` でも問題なく動くが、相対パスにしておけば
-    ホスティング先を変えてもリンク切れが起きない。"""
+def _rewrite_internal_link_url(url: str, lang_pub: str = "axinc") -> str:
+    """1つのリンクURLを判定し、現在処理中の言語に属する記事を指していれば
+    記事ページから見た相対パス ``../<slug>/`` に書き換える。
+
+    ``lang_pub`` には現在のpublicationスラグ (``axinc`` / ``axinc-ai``) を
+    渡す。違う publication の URL は cross-language リンク扱いで Medium URL
+    のまま残す。tech.ailia.ai/<slug> は ja 専用の表記だったので axinc 扱い。"""
     from urllib.parse import unquote as _unq
 
     url = url.strip()
-    # 絶対URL: medium.com/axinc/<slug> または tech.ailia.ai/<slug>
+    # 絶対URL: medium.com/<lang_pub>/<slug>
     m = re.match(
-        r"https?://(?:medium\.com/axinc|tech\.ailia\.ai)/([^?\s#)]+)", url
+        rf"https?://medium\.com/{re.escape(lang_pub)}/([^?\s#)]+)", url
     )
     if m:
         slug = m.group(1).rstrip("/")
+    # tech.ailia.ai は ja の旧Medium custom domain。axinc の同義として処理。
+    elif lang_pub == "axinc" and re.match(
+        r"https?://tech\.ailia\.ai/([^?\s#)]+)", url
+    ):
+        m2 = re.match(r"https?://tech\.ailia\.ai/([^?\s#)]+)", url)
+        slug = m2.group(1).rstrip("/")
     elif url.startswith("/") and not url.startswith("//"):
-        # /<slug>?source=...   (Mediumが本文中の関連記事カードに使う形式)
-        m = re.match(r"^/([^?\s#)]+)", url)
-        if not m:
+        m2 = re.match(r"^/([^?\s#)]+)", url)
+        if not m2:
             return url
-        slug = m.group(1).rstrip("/")
+        slug = m2.group(1).rstrip("/")
     else:
         return url
     if not _INTERNAL_LINK_HEX_RE.search(slug):
@@ -712,18 +785,15 @@ def _rewrite_internal_link_url(url: str) -> str:
     return f"../{_unq(slug)}/"
 
 
-def rewrite_internal_links(text: str) -> str:
+def rewrite_internal_links(text: str, lang_pub: str = "axinc") -> str:
     """記事markdown中の Medium 記事URLを本ミラー内の相対URLに書き換える。
 
-    対象は ``[text](url)`` 形式の絶対URL ``medium.com/axinc/<slug>`` と
+    対象は ``[text](url)`` 形式の絶対URL ``medium.com/<lang_pub>/<slug>`` と
     Mediumがレンダリングで使う相対形式 ``/<slug>?source=...`` のみ。
-    本ミラーに無い ``kyakuno.medium.com`` 等の外部リンクはそのまま残す。
-    画像リンク ``![alt](url)`` の URL も処理対象になるが、画像URLは
-    記事スラグ形式でないため _rewrite_internal_link_url が unchanged を返す。
-    """
+    本ミラーに無い ``kyakuno.medium.com`` 等の外部リンクはそのまま残す。"""
 
     def repl(m: re.Match) -> str:
-        return f"]({_rewrite_internal_link_url(m.group(1))})"
+        return f"]({_rewrite_internal_link_url(m.group(1), lang_pub)})"
 
     return re.sub(r"\]\(([^)]+)\)", repl, text)
 
@@ -837,12 +907,12 @@ def medium_slug_from_url(url: str) -> str:
 def thumb_html_for(thumb_url: str, alt: str) -> str:
     if not thumb_url:
         return '<div class="card-thumb-placeholder" aria-hidden="true"></div>'
-    # 記事カード上のサムネイルは、index.htmlからの相対パスに整える。
-    # 本文markdown中のパスは "../images/<safe>/..." なので、index.html (output直下)
-    # からは "images/<safe>/..." に書き換える必要がある。
+    # index.html は各言語ディレクトリの直下 (例: _site/ または _site/en/) で、
+    # その隣にある images/ を参照させたい。本文markdown中のパスは
+    # "../images/<safe>/..." なので、index.html位置からは "images/<safe>/..."
+    # に書き換える必要がある。
     if thumb_url.startswith("../images/"):
-        thumb_url = thumb_url[3:]  # "../images/" -> "/images/" -> remove leading
-        thumb_url = thumb_url.lstrip("/")
+        thumb_url = thumb_url[len("../"):]
     return f'<img src="{html.escape(thumb_url, quote=True)}" alt="{html.escape(alt)}" class="card-thumb" loading="lazy">'
 
 
@@ -854,33 +924,34 @@ SITE_BASE_URL = "https://tech.ailia.ai/"
 SITE_HOST = "tech.ailia.ai"
 
 
-def _write_sitemap(posts: list, output: Path) -> None:
-    """sitemap.xml を生成。index と全記事ページを <urlset> に列挙する。"""
+def _write_sitemap_combined(all_posts: list, output: Path) -> None:
+    """全言語の index + 記事をまとめた sitemap.xml を生成する。
+    ``all_posts`` は ``[(lang_dict, posts_list), ...]`` 形式。"""
     from urllib.parse import quote as _q
 
     lines = ['<?xml version="1.0" encoding="UTF-8"?>']
     lines.append('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
-    # index ページは最頻 (priority 1.0)
-    lines.append("  <url>")
-    lines.append(f"    <loc>{html.escape(SITE_BASE_URL)}</loc>")
-    if posts:
-        # index の lastmod は最も新しい記事の lastmod を採用
-        latest = max(p.get("lastmod") or p.get("date") or "" for p in posts)
-        if latest:
-            lines.append(f"    <lastmod>{latest}</lastmod>")
-    lines.append("    <changefreq>daily</changefreq>")
-    lines.append("    <priority>1.0</priority>")
-    lines.append("  </url>")
-    for p in posts:
-        slug_q = _q(p["slug"], safe="-_")
-        loc = f"{SITE_BASE_URL}{slug_q}/"
-        lastmod = p.get("lastmod") or p.get("date") or ""
+    for lang, posts in all_posts:
+        index_url = f"{SITE_BASE_URL}{lang['site_path']}"
         lines.append("  <url>")
-        lines.append(f"    <loc>{html.escape(loc)}</loc>")
-        if lastmod:
-            lines.append(f"    <lastmod>{lastmod}</lastmod>")
-        lines.append("    <priority>0.7</priority>")
+        lines.append(f"    <loc>{html.escape(index_url)}</loc>")
+        if posts:
+            latest = max(p.get("lastmod") or p.get("date") or "" for p in posts)
+            if latest:
+                lines.append(f"    <lastmod>{latest}</lastmod>")
+        lines.append("    <changefreq>daily</changefreq>")
+        lines.append("    <priority>1.0</priority>")
         lines.append("  </url>")
+        for p in posts:
+            slug_q = _q(p["slug"], safe="-_")
+            loc = f"{SITE_BASE_URL}{lang['site_path']}{slug_q}/"
+            lastmod = p.get("lastmod") or p.get("date") or ""
+            lines.append("  <url>")
+            lines.append(f"    <loc>{html.escape(loc)}</loc>")
+            if lastmod:
+                lines.append(f"    <lastmod>{lastmod}</lastmod>")
+            lines.append("    <priority>0.7</priority>")
+            lines.append("  </url>")
     lines.append("</urlset>")
     (output / "sitemap.xml").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -895,18 +966,51 @@ def _write_robots(output: Path) -> None:
     (output / "robots.txt").write_text(body, encoding="utf-8")
 
 
-def build(source: Path, output: Path) -> int:
-    if output.exists():
-        shutil.rmtree(output)
-    output.mkdir(parents=True)
+def _hreflang_links(current_lang_code: str) -> str:
+    """全言語の <link rel="alternate" hreflang> を生成。
+    どのページからも各言語のホームに導けるようにする。"""
+    parts = []
+    for l in LANGUAGES:
+        href = f"{SITE_BASE_URL}{l['site_path']}"
+        parts.append(
+            f'<link rel="alternate" hreflang="{l["html_lang"]}" href="{html.escape(href, quote=True)}">'
+        )
+    # x-default はデフォルト言語 (ja) のホーム
+    default_href = f"{SITE_BASE_URL}{LANGUAGES[0]['site_path']}"
+    parts.append(
+        f'<link rel="alternate" hreflang="x-default" href="{html.escape(default_href, quote=True)}">'
+    )
+    return "\n".join(parts)
+
+
+def _lang_switch_html(current_lang_code: str) -> str:
+    """ヘッダー右上の言語切替リンク。各言語のホームへ飛ぶ。"""
+    parts = []
+    for l in LANGUAGES:
+        href = f"{SITE_BASE_URL}{l['site_path']}"
+        cls = "active" if l["code"] == current_lang_code else ""
+        parts.append(
+            f'<a href="{html.escape(href, quote=True)}" '
+            f'class="{cls}" hreflang="{l["html_lang"]}">{html.escape(l["label"])}</a>'
+        )
+    return "".join(parts)
+
+
+def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
+    """1言語分の記事と index ページをビルドし、posts (sitemap用) を返す。"""
+    out = output_root / lang["site_path"].rstrip("/") if lang["site_path"] else output_root
+    out.mkdir(parents=True, exist_ok=True)
 
     src_images = source / "images"
     if src_images.exists():
-        shutil.copytree(src_images, output / "images")
+        if (out / "images").exists():
+            shutil.rmtree(out / "images")
+        shutil.copytree(src_images, out / "images")
 
     articles_dir = source / "articles"
-    md = markdown.Markdown(extensions=["fenced_code", "tables", "sane_lists"])
-
+    if not articles_dir.exists():
+        print(f"[{lang['code']}] no articles directory; skipping")
+        return []
     posts = []
     for mdf in sorted(articles_dir.glob("*.md")):
         text = mdf.read_text(encoding="utf-8")
@@ -919,7 +1023,8 @@ def build(source: Path, output: Path) -> int:
         original_url = fm.get("original_url", "")
         slug = medium_slug_from_url(original_url) or mdf.stem
         from urllib.parse import quote as _q
-        page_url = f"{SITE_BASE_URL}{_q(slug, safe='-_')}/"
+        slug_q = _q(slug, safe='-_')
+        page_url = f"{SITE_BASE_URL}{lang['site_path']}{slug_q}/"
 
         tags = fm.get("tags") or []
         if isinstance(tags, str):
@@ -928,8 +1033,11 @@ def build(source: Path, output: Path) -> int:
         thumb_url = extract_thumbnail(body)
         cleaned = rewrite_internal_links(
             inject_company_separator(
-                apply_substitutions(normalize_card_links(clean_body(body)))
-            )
+                apply_substitutions(
+                    normalize_card_links(clean_body(body), lang["publication"])
+                )
+            ),
+            lang["publication"],
         )
         excerpt = extract_excerpt(cleaned)
 
@@ -940,7 +1048,7 @@ def build(source: Path, output: Path) -> int:
         # 解決されないため、本文中の miro.medium.com 画像 URL があればそちらを
         # 優先し、無ければ自サイトのアバター画像を使う。
         og_image = thumb_url if (thumb_url and thumb_url.startswith("http")) else (
-            f"{SITE_BASE_URL}images/{_q(slug, safe='-_')}/image_001.png"
+            f"{SITE_BASE_URL}{lang['site_path']}images/{slug_q}/image_001.png"
             if thumb_url else PUBLICATION_LOGO
         )
 
@@ -963,6 +1071,7 @@ def build(source: Path, output: Path) -> int:
         }, ensure_ascii=False, separators=(",", ":"))
 
         out_html = ARTICLE_TEMPLATE.format(
+            html_lang=lang["html_lang"],
             title=html.escape(title),
             pub_title=html.escape(PUBLICATION_TITLE),
             author=html.escape(author),
@@ -974,10 +1083,13 @@ def build(source: Path, output: Path) -> int:
             og_image=html.escape(og_image, quote=True),
             ld_json=ld_json,
             logo=html.escape(PUBLICATION_LOGO, quote=True),
+            hreflang_links=_hreflang_links(lang["code"]),
+            lang_switch=_lang_switch_html(lang["code"]),
+            footer_back=html.escape(lang["footer_back"]),
             gtm_head=GTM_HEAD,
             gtm_body=GTM_BODY,
         )
-        article_dir = output / slug
+        article_dir = out / slug
         article_dir.mkdir(parents=True, exist_ok=True)
         (article_dir / "index.html").write_text(out_html, encoding="utf-8")
         posts.append(
@@ -1035,35 +1147,64 @@ def build(source: Path, output: Path) -> int:
     tag_chips_html = "\n".join(
         '<button type="button" class="tag-chip{active}" data-tag="{tag}">{label}</button>'.format(
             tag=html.escape(tag, quote=True),
-            label=html.escape(label),
+            label=html.escape(lang["all_label"] if tag == "" else label),
             active=" active" if tag == "" else "",
         )
         for tag, label in PRIMARY_TAGS
     )
 
+    index_url = f"{SITE_BASE_URL}{lang['site_path']}"
+    articles_label = lang["articles_label"].format(n=len(posts))
     index_html = INDEX_TEMPLATE.format(
+        html_lang=lang["html_lang"],
         title=html.escape(PUBLICATION_TITLE),
         tagline=html.escape(PUBLICATION_TAGLINE),
         logo=html.escape(PUBLICATION_LOGO, quote=True),
-        site_url=html.escape(SITE_BASE_URL, quote=True),
+        site_url=html.escape(index_url, quote=True),
         cards=cards,
         tag_chips=tag_chips_html,
-        count=len(posts),
+        articles_label=html.escape(articles_label),
+        search_placeholder=html.escape(lang["search_placeholder"], quote=True),
+        tag_filter_aria=html.escape(lang["tag_filter_aria"], quote=True),
+        empty_state=html.escape(lang["empty_state"]),
+        hreflang_links=_hreflang_links(lang["code"]),
+        lang_switch=_lang_switch_html(lang["code"]),
         gtm_head=GTM_HEAD,
         gtm_body=GTM_BODY,
     )
-    (output / "index.html").write_text(index_html, encoding="utf-8")
+    (out / "index.html").write_text(index_html, encoding="utf-8")
+    return posts
+
+
+def build(source_root: Path, output: Path) -> int:
+    if output.exists():
+        shutil.rmtree(output)
+    output.mkdir(parents=True)
+
+    md = markdown.Markdown(extensions=["fenced_code", "tables", "sane_lists"])
+    all_posts: list = []  # [(lang_dict, posts_list), ...]
+    for lang in LANGUAGES:
+        src = source_root / lang["source_dir"]
+        posts = _build_language(lang, src, output, md)
+        if posts:
+            all_posts.append((lang, posts))
+
+    # 共有アセット
     (output / "style.css").write_text(CSS, encoding="utf-8")
-    _write_sitemap(posts, output)
-    _write_robots(output)
-    # GitHub Pages 用の独自ドメイン指定
     (output / "CNAME").write_text(SITE_HOST + "\n", encoding="utf-8")
-    return len(posts)
+    _write_sitemap_combined(all_posts, output)
+    _write_robots(output)
+
+    return sum(len(posts) for _, posts in all_posts)
 
 
 def main():
     parser = argparse.ArgumentParser(description="Build static site from scraped articles")
-    parser.add_argument("--source", default="medium_export", help="入力ディレクトリ")
+    parser.add_argument(
+        "--source",
+        default="medium_export",
+        help="入力ディレクトリ (この下に ja/, en/ といった言語別サブディレクトリが必要)",
+    )
     parser.add_argument("--output", default="_site", help="出力ディレクトリ")
     args = parser.parse_args()
 
