@@ -825,13 +825,14 @@ def inject_company_separator(text: str) -> str:
 
 
 def _escape_inline_hash(body: str) -> str:
-    """blockquote内のコードコメント ``> #x = ...`` をH1誤認識から救う。
+    """blockquote内の ``#`` をH1誤認識から救う。
 
     Python-Markdown の atx heading パーサは空白の有無を問わないので
-    ``#x`` でも H1 として扱われ、ローカルでは超巨大な見出しになってしまう。
-    Medium が出力するコメント付きコード片の先頭の ``#`` をバックスラッシュで
-    エスケープしてプレーンテキストとしてレンダリングさせる。"""
-    return re.sub(r"^(\s*>+\s*)#(?!\s|#)", r"\1\\#", body, flags=re.M)
+    ``> #x`` でも ``> # comment`` でも H1 として扱われ、ローカルでは超巨大な
+    見出しになってしまう。Mediumのblockquoteはコード片や引用文として
+    使われ、内部にmarkdownの見出しを意図することはまず無いので、
+    blockquote先頭の ``#`` は一律バックスラッシュでエスケープする。"""
+    return re.sub(r"^(\s*>+\s*)#", r"\1\\#", body, flags=re.M)
 
 
 def clean_body(body: str) -> str:
