@@ -678,7 +678,15 @@ def apply_substitutions(text: str) -> str:
     出力HTML/抜粋の両方で使用されるよう、markdownレベルで適用する。"""
     if not text:
         return text
+    # 日本語表記
     text = text.replace("ax株式会社", "アイリア株式会社")
+    # 英語表記。"ax Inc." / "ax Inc" 両方拾う。前後にalphanumericが無いことを
+    # lookahead/lookbehindで確認して "max Inc" のような単語境界誤マッチを防ぐ。
+    text = re.sub(
+        r"(?<![A-Za-z0-9_])ax\s+Inc\.?(?![A-Za-z0-9_])",
+        lambda m: "ailia Inc." if m.group().rstrip().endswith(".") else "ailia Inc",
+        text,
+    )
     # axinc.jp はURL／表示テキストの両方に出るので一律置換。
     text = text.replace("axinc.jp", "ailia.ai")
     # axinc-ai (GitHub org) → ailia-ai。ただし "axinc-ailia" の様に
