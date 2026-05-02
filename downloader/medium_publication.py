@@ -5,44 +5,44 @@ Medium Publication Scraper
 Mediumのpublication全記事をMarkdownでダウンロードするスクリプト。
 
 使い方:
-    pip install requests beautifulsoup4 markdownify
-    python medium_scraper.py --publication axinc --start-year 2018 --end-year 2026
+    pip install curl-cffi beautifulsoup4 markdownify
+    python medium_publication.py --publication axinc --custom-domain tech.ailia.ai
 
 出力:
     medium_export/
-      ├── urls.txt              # 全記事URL一覧
+      ├── urls.txt              # 全記事URL一覧 (sitemap.xmlから取得)
       ├── articles/             # Markdown化された各記事
-      │   ├── article-slug-1.md
-      │   └── article-slug-2.md
+      │   ├── YYYY-MM-DD_article-slug-1.md
+      │   └── YYYY-MM-DD_article-slug-2.md
       └── images/               # 各記事の画像
           ├── article-slug-1/
           └── article-slug-2/
+
+備考:
+    Mediumは現在Cloudflareで保護されているため、curl_cffiでブラウザ
+    フィンガープリントを偽装してアクセスする。記事URL一覧はpublicationの
+    カスタムドメインのsitemap.xmlから取得する (例: tech.ailia.ai)。
 """
 
 import argparse
+import json
 import re
 import time
 from pathlib import Path
-from urllib.parse import urljoin, urlparse
+from urllib.parse import unquote, urlparse
 
-import requests
 from bs4 import BeautifulSoup
+from curl_cffi import requests
 from markdownify import markdownify as html_to_md
 
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/120.0.0.0 Safari/537.36"
-    )
-}
+IMPERSONATE = "chrome120"
 DELAY = 2  # サーバ負荷を避けるための待機秒数
 
 
 def fetch(url: str) -> str:
     """URLをGETしてHTMLを返す。エラー時は空文字。"""
     try:
-        r = requests.get(url, headers=HEADERS, timeout=30)
+        r = requests.get(url, impersonate=IMPERSONATE, timeout=30)
         r.raise_for_status()
         return r.text
     except Exception as e:
@@ -50,56 +50,209 @@ def fetch(url: str) -> str:
         return ""
 
 
-def extract_article_urls(html: str, publication: str) -> set:
-    """HTMLからMedium記事URLを抽出。"""
-    urls = set()
-    soup = BeautifulSoup(html, "html.parser")
-    # Medium記事URLの末尾は -[12桁hex]
-    pattern = re.compile(r"-[a-f0-9]{10,14}(?:[/?#].*)?$")
-    for a in soup.find_all("a", href=True):
-        href = a["href"].split("?")[0].rstrip("/")
-        # publication配下の記事のみ対象
-        if f"/{publication}/" in href and pattern.search(href):
-            if href.startswith("/"):
-                href = "https://medium.com" + href
-            urls.add(href)
+def fetch_bytes(url: str) -> bytes:
+    try:
+        r = requests.get(url, impersonate=IMPERSONATE, timeout=30)
+        r.raise_for_status()
+        return r.content
+    except Exception as e:
+        print(f"  [warn] fetch failed: {url} ({e})")
+        return b""
+
+
+_HEX_ID_RE = re.compile(r"-[a-f0-9]{10,14}$")
+
+
+def collect_urls_from_sitemap(custom_domain: str) -> dict:
+    """publicationのカスタムドメインのsitemap.xmlから記事URLとlastmodを収集。
+    返り値は {url: lastmod_date_str} の dict。lastmodはMediumが記事を編集
+    すると更新されるため、ローカル保存版との差分検知に使う。"""
+    sitemap_url = f"https://{custom_domain}/sitemap/sitemap.xml"
+    print(f"[sitemap] {sitemap_url}")
+    xml = fetch(sitemap_url)
+    if not xml:
+        return {}
+    result: dict = {}
+    for block in re.findall(r"<url>(.*?)</url>", xml, re.DOTALL):
+        loc_m = re.search(r"<loc>([^<]+)</loc>", block)
+        if not loc_m:
+            continue
+        url = loc_m.group(1)
+        if not _HEX_ID_RE.search(url):
+            continue
+        lastmod_m = re.search(r"<lastmod>([^<]+)</lastmod>", block)
+        result[url] = lastmod_m.group(1)[:10] if lastmod_m else ""
+    print(f"[sitemap] found {len(result)} article URLs")
+    return result
+
+
+def collect_urls_from_feed(publication: str) -> list:
+    """publicationのRSSフィードから最新10記事のURLを収集。
+    sitemap.xmlは反映が遅く最新記事を含まないことがあるため、
+    sitemapで取りこぼした新着URLをRSS経由で補完する。
+
+    sitemap.xmlは生の日本語slugを含むのに対しRSS<link>はURLエンコード
+    済みなので、unquote()で復号して文字列比較できる形に揃える。"""
+    feed_url = f"https://medium.com/feed/{publication}"
+    print(f"[feed]    {feed_url}")
+    xml = fetch(feed_url)
+    if not xml:
+        return []
+    items = re.findall(r"<item>(.*?)</item>", xml, re.DOTALL)
+    urls: list = []
+    for item in items:
+        m = re.search(r"<link>([^<]+)</link>", item)
+        if not m:
+            continue
+        url = unquote(m.group(1).split("?")[0].rstrip("/"))
+        if _HEX_ID_RE.search(url):
+            urls.append(url)
+    print(f"[feed]    found {len(urls)} article URLs in feed")
     return urls
 
 
-def collect_all_urls(publication: str, start_year: int, end_year: int) -> set:
-    """publicationの全記事URLを年別アーカイブから収集。"""
-    all_urls = set()
-    for year in range(start_year, end_year + 1):
-        year_url = f"https://medium.com/{publication}/archive/{year}"
-        print(f"[archive] {year_url}")
-        year_html = fetch(year_url)
-        if not year_html:
-            continue
+def _resolve_post_id(post_id: str) -> str:
+    """medium.com/p/<id> のリダイレクトを辿り、canonical URLを取得する。"""
+    try:
+        r = requests.get(
+            f"https://medium.com/p/{post_id}",
+            impersonate=IMPERSONATE,
+            timeout=30,
+            allow_redirects=False,
+        )
+        loc = r.headers.get("location", "")
+        if not loc:
+            return ""
+        url = unquote(loc.split("?")[0].rstrip("/"))
+        return url if _HEX_ID_RE.search(url) else ""
+    except Exception:
+        return ""
 
-        # 年ページから直接記事URLを取れる場合もある
-        all_urls |= extract_article_urls(year_html, publication)
 
-        # 月ページも巡回 (取りこぼし対策)
-        for month in range(1, 13):
-            for day in range(1, 32):
-                day_url = f"https://medium.com/{publication}/archive/{year}/{month:02d}/{day:02d}"
-                day_html = fetch(day_url)
-                if not day_html:
-                    continue
-                found = extract_article_urls(day_html, publication)
-                if found:
-                    print(f"  {year}/{month:02d}/{day:02d}: {len(found)} articles")
-                    all_urls |= found
-                time.sleep(0.3)
-        time.sleep(DELAY)
-    return all_urls
+def collect_urls_from_references(
+    articles_dir: Path, custom_domain: str, known: set
+) -> list:
+    """既にダウンロードした記事 markdown 内の内部リンクから、未知の記事URLを発見する。
+    sitemap/feed/Apolloで取りこぼした古い記事 (publication初期の関連記事カード等) を
+    クロスリファレンス経由で救済する。"""
+    if not articles_dir.exists():
+        return []
+    found: set = set()
+    for mdf in articles_dir.glob("*.md"):
+        text = mdf.read_text(encoding="utf-8")
+        # 絶対 URL: medium.com/axinc/<encoded-slug-with-hex>
+        for m in re.finditer(r"https?://medium\.com/axinc/([^?\s)\"<>]+)", text):
+            slug = unquote(m.group(1).rstrip("/"))
+            if _HEX_ID_RE.search(slug):
+                found.add(f"https://{custom_domain}/{slug}")
+        # 相対 URL: ](/<encoded-slug-with-hex>?source=...)
+        for m in re.finditer(r"\]\(/([^?\s)\"<>]+)", text):
+            slug = unquote(m.group(1).rstrip("/"))
+            if _HEX_ID_RE.search(slug):
+                found.add(f"https://{custom_domain}/{slug}")
+    new = sorted(found - known)
+    print(f"[refs]    found {len(new)} new URL(s) referenced from existing articles")
+    return new
+
+
+def collect_urls_from_apollo(custom_domain: str, known_ids: set = None) -> list:
+    """publicationトップページのApollo state を解析し、Post の ID 一覧を
+    medium.com/p/<id> リダイレクトで canonical URL に解決する。
+    sitemap.xml が時々取りこぼす中堅記事 (古いチュートリアル等) の救済用。
+
+    ``known_ids`` を渡すとそれに含まれるIDは解決をスキップして時間を節約する。
+    """
+    home_url = f"https://{custom_domain}/"
+    print(f"[apollo]  {home_url}")
+    html_text = fetch(home_url)
+    if not html_text:
+        return []
+    m = re.search(
+        r"window\.__APOLLO_STATE__\s*=\s*(\{.+?\});?</script>",
+        html_text,
+        re.DOTALL,
+    )
+    if not m:
+        print("[apollo]  no Apollo state found")
+        return []
+    try:
+        data = json.loads(m.group(1))
+    except Exception as e:
+        print(f"[apollo]  json parse failed: {e}")
+        return []
+
+    post_ids = sorted(
+        {k.split(":", 1)[1] for k in data.keys() if k.startswith("Post:")}
+    )
+    print(f"[apollo]  found {len(post_ids)} post IDs in Apollo state")
+    known = known_ids or set()
+    unresolved = [pid for pid in post_ids if pid not in known]
+    print(f"[apollo]  resolving {len(unresolved)} new IDs via /p/<id>")
+
+    urls: list = []
+    for pid in unresolved:
+        url = _resolve_post_id(pid)
+        if url:
+            urls.append(url)
+        time.sleep(0.2)
+    print(f"[apollo]  resolved {len(urls)} canonical URLs")
+    return urls
+
+
+def extract_tags(soup) -> list:
+    """Mediumの記事HTMLからtag slugの一覧を抽出。"""
+    tags: list = []
+    seen = set()
+    for a in soup.find_all("a", href=True):
+        m = re.search(r"medium\.com/tag/([A-Za-z0-9_-]+)", a["href"])
+        if m:
+            t = m.group(1).lower()
+            if t not in seen:
+                seen.add(t)
+                tags.append(t)
+    return tags
 
 
 def slugify(url: str) -> str:
-    """URLからファイル名を生成。"""
+    """URLから安全なファイル名を生成 (英数字とハイフンのみ)。"""
     slug = url.rstrip("/").split("/")[-1]
-    slug = re.sub(r"[^\w\-]", "_", slug)
+    # 日本語など非ASCIIを_に置換しつつ、末尾のhex IDは保持
+    slug = re.sub(r"[^\w\-]", "_", slug, flags=re.ASCII)
     return slug[:120]
+
+
+_MIRO_IMG_ID = re.compile(r"/(\d+\*[A-Za-z0-9_-]+\.[A-Za-z0-9]+)(?:[?#].*)?$")
+
+
+def normalize_pictures(article_soup) -> None:
+    """<picture>内の<img>はsrc未設定のことが多いので、<source srcset>から
+    オリジナル解像度のmiro URLを推定して<img src>にセットする。"""
+    for picture in article_soup.find_all("picture"):
+        img = picture.find("img")
+        if img is None or img.get("src"):
+            continue
+        candidate_url = None
+        for source in picture.find_all("source"):
+            srcset = source.get("srcset", "")
+            for entry in srcset.split(","):
+                entry = entry.strip()
+                if not entry:
+                    continue
+                url = entry.split()[0]
+                # webpはマスター画像でないことが多いので、後で見つかった非webpを優先
+                if "format:webp" in url and candidate_url:
+                    continue
+                candidate_url = url
+                if "format:webp" not in url:
+                    break
+            if candidate_url and "format:webp" not in candidate_url:
+                break
+        if not candidate_url:
+            continue
+        m = _MIRO_IMG_ID.search(candidate_url)
+        img["src"] = (
+            f"https://miro.medium.com/v2/{m.group(1)}" if m else candidate_url
+        )
 
 
 def download_images(article_soup, image_dir: Path) -> dict:
@@ -110,62 +263,213 @@ def download_images(article_soup, image_dir: Path) -> dict:
         src = img.get("src") or img.get("data-src")
         if not src or not src.startswith("http"):
             continue
-        try:
-            r = requests.get(src, headers=HEADERS, timeout=30)
-            r.raise_for_status()
-            ext = Path(urlparse(src).path).suffix or ".jpg"
-            filename = f"image_{i:03d}{ext}"
-            local_path = image_dir / filename
-            local_path.write_bytes(r.content)
-            url_to_local[src] = f"images/{image_dir.name}/{filename}"
-            time.sleep(0.5)
-        except Exception as e:
-            print(f"  [warn] image failed: {src} ({e})")
+        if src in url_to_local:
+            continue
+        data = fetch_bytes(src)
+        if not data:
+            continue
+        ext = Path(urlparse(src).path).suffix or ".jpg"
+        filename = f"image_{i:03d}{ext}"
+        local_path = image_dir / filename
+        local_path.write_bytes(data)
+        url_to_local[src] = f"images/{image_dir.name}/{filename}"
+        time.sleep(0.3)
     return url_to_local
 
 
-def scrape_article(url: str, output_dir: Path):
-    """記事1本をMarkdownで保存。ファイル名は YYYY-MM-DD_slug.md 形式。"""
+def _read_lastmod(md_path: Path) -> str:
+    """既存記事の YAML フロントマターから lastmod の値を取り出す。"""
+    try:
+        text = md_path.read_text(encoding="utf-8")
+    except Exception:
+        return ""
+    if not text.startswith("---\n"):
+        return ""
+    end = text.find("\n---\n", 4)
+    fm = text[4:end] if end != -1 else text[4:]
+    m = re.search(r"^lastmod:\s*(.+)$", fm, re.M)
+    return m.group(1).strip() if m else ""
+
+
+def _inject_lastmod(md_path: Path, lastmod: str) -> bool:
+    """フロントマターに ``lastmod: <date>`` を挿入する。
+    本文の再取得が不要な既存記事 (旧バージョンで保存された記事) に
+    sitemap の lastmod を後付けするために使う。"""
+    text = md_path.read_text(encoding="utf-8")
+    if not text.startswith("---\n"):
+        return False
+    end = text.find("\n---\n", 4)
+    if end == -1:
+        return False
+    fm = text[4:end]
+    body = text[end + 5 :]
+    if re.search(r"^lastmod:", fm, re.M):
+        return False
+    # date: の直後に挿入。date: が無ければ original_url: の前に置く。
+    new_fm, n = re.subn(
+        r"^(date:.*\n)", r"\1lastmod: " + lastmod + "\n", fm, count=1, flags=re.M
+    )
+    if n == 0:
+        new_fm, n = re.subn(
+            r"^(original_url:)",
+            "lastmod: " + lastmod + "\n" + r"\1",
+            fm,
+            count=1,
+            flags=re.M,
+        )
+    if n == 0:
+        new_fm = fm.rstrip() + f"\nlastmod: {lastmod}\n"
+    md_path.write_text(f"---\n{new_fm}\n---\n{body}", encoding="utf-8")
+    return True
+
+
+def _extract_apollo_dates(html_text: str, post_id: str) -> tuple:
+    """記事HTMLの ``window.__APOLLO_STATE__`` から (firstPublishedAt,
+    latestPublishedAt) を ISO 日付 (YYYY-MM-DD) で取り出す。
+    Mediumの ``article:published_time`` メタタグは latestPublishedAt を
+    返してしまうので、真の投稿日を取得する目的で Apollo state を直接見る。"""
+    m = re.search(
+        r"window\.__APOLLO_STATE__\s*=\s*(\{.+?\});?</script>",
+        html_text,
+        re.DOTALL,
+    )
+    if not m:
+        return "", ""
+    try:
+        data = json.loads(m.group(1))
+    except Exception:
+        return "", ""
+    post = data.get(f"Post:{post_id}") or {}
+    if not post:
+        # ID が分からない場合: 最初に見つかる Post:* エントリを使う
+        for k, v in data.items():
+            if k.startswith("Post:") and isinstance(v, dict):
+                post = v
+                break
+
+    def _to_iso(ts) -> str:
+        try:
+            from datetime import datetime, timezone
+
+            return (
+                datetime.fromtimestamp(int(ts) / 1000, tz=timezone.utc)
+                .date()
+                .isoformat()
+            )
+        except Exception:
+            return ""
+
+    first = _to_iso(post.get("firstPublishedAt")) if post.get("firstPublishedAt") else ""
+    latest = _to_iso(post.get("latestPublishedAt")) if post.get("latestPublishedAt") else ""
+    return first, latest
+
+
+def scrape_article(
+    url: str,
+    output_dir: Path,
+    sitemap_lastmod: str = "",
+    refresh: bool = False,
+    force: bool = False,
+) -> str:
+    """記事1本をMarkdownで保存。ファイル名は YYYY-MM-DD_slug.md 形式。
+
+    挙動:
+      - ``force=True``        : 既存記事を必ず再取得 (--refresh-all)
+      - ``refresh=True``      : sitemap の lastmod がローカルより新しいときだけ
+                                再取得。ローカルに lastmod が無い旧記事は本文を
+                                再取得せず lastmod の付与だけ行う。
+      - それ以外               : 既存記事はスキップ
+    """
     slug = slugify(url)
     articles_dir = output_dir / "articles"
     articles_dir.mkdir(parents=True, exist_ok=True)
 
-    # 既存ファイルチェック (日付prefix有無の両方に対応)
     existing = (
         list(articles_dir.glob(f"????-??-??_{slug}.md"))
         + list(articles_dir.glob(f"unknown-date_{slug}.md"))
         + list(articles_dir.glob(f"{slug}.md"))
     )
     if existing:
-        print(f"[skip] already saved: {existing[0].name}")
-        return
+        if force:
+            print(f"[force-refresh] {existing[0].name}")
+            for f in existing:
+                f.unlink()
+        elif not refresh:
+            print(f"[skip] already saved: {existing[0].name}")
+            return "skip"
+        else:
+            local_lastmod = _read_lastmod(existing[0])
+            # 旧バージョンで保存された記事は lastmod を持たない。sitemap に
+            # 値があるなら本文は再取得せず lastmod だけ埋めて、次回以降の
+            # 差分検知が機能するようにブートストラップする。
+            if not local_lastmod and sitemap_lastmod:
+                if _inject_lastmod(existing[0], sitemap_lastmod):
+                    print(
+                        f"[backfill-lastmod] {existing[0].name} "
+                        f"(lastmod={sitemap_lastmod})"
+                    )
+                    return "backfill"
+            # 両方の lastmod が揃っているケースだけ「新しいほうへ更新」と判定。
+            # ローカルが新しい・どちらかが空、の場合は安全側に倒してスキップ。
+            if (
+                local_lastmod
+                and sitemap_lastmod
+                and local_lastmod < sitemap_lastmod
+            ):
+                print(
+                    f"[refresh] {existing[0].name} "
+                    f"(lastmod {local_lastmod} -> {sitemap_lastmod})"
+                )
+                for f in existing:
+                    f.unlink()
+            else:
+                print(
+                    f"[skip-uptodate] {existing[0].name} "
+                    f"(local={local_lastmod or '-'} sitemap={sitemap_lastmod or '-'})"
+                )
+                return "uptodate"
 
     print(f"[scrape] {url}")
     html = fetch(url)
     if not html:
-        return
+        return "fetch-failed"
 
     soup = BeautifulSoup(html, "html.parser")
 
-    # タイトル取得
     title_el = soup.find("h1")
     title = title_el.get_text(strip=True) if title_el else slug
 
-    # 著者取得 (任意)
     author_el = soup.find("meta", attrs={"name": "author"})
     author = author_el["content"] if author_el else ""
 
-    # 公開日取得
     date_el = soup.find("meta", attrs={"property": "article:published_time"})
-    pub_date = date_el["content"][:10] if date_el else ""
+    meta_published = date_el["content"][:10] if date_el else ""
 
-    # 本文取得
+    # Mediumの article:published_time メタは「最終更新日」(latestPublishedAt)
+    # を返すため、真の投稿日として Apollo state の firstPublishedAt を使う。
+    # 値が取れなかったときだけメタタグの値にフォールバック。
+    post_id_m = _HEX_ID_RE.search(url)
+    post_id = post_id_m.group()[1:] if post_id_m else ""
+    first_published, latest_published = _extract_apollo_dates(html, post_id)
+    pub_date = first_published or meta_published
+    # lastmod は: sitemap > Apollo latestPublishedAt > article:published_time の優先順
+    if not sitemap_lastmod:
+        sitemap_lastmod = latest_published or meta_published
+
+    tags = extract_tags(soup)
+
     article = soup.find("article")
     if not article:
         print(f"  [warn] no <article> tag: {url}")
-        return
+        return "no-article"
 
-    # 画像をローカルにDL & URLを置換
+    normalize_pictures(article)
+    # Mediumは <hr> ではなく装飾された <div role="separator"> でセクション
+    # 区切りを表現する。markdownify は空の div として読み飛ばしてしまうので
+    # ここで <hr> に差し替えて、出力markdownに `---` が残るようにする。
+    for sep in article.find_all(attrs={"role": "separator"}):
+        sep.replace_with(BeautifulSoup("<hr/>", "html.parser"))
+
     image_dir = output_dir / "images" / slug
     image_map = download_images(article, image_dir)
     for img in article.find_all("img"):
@@ -173,16 +477,12 @@ def scrape_article(url: str, output_dir: Path):
         if src in image_map:
             img["src"] = "../" + image_map[src]
 
-    # MarkdownへConvert
     markdown = html_to_md(str(article), heading_style="ATX", bullets="-")
-    # 連続改行を整理
     markdown = re.sub(r"\n{3,}", "\n\n", markdown).strip()
 
-    # ファイル名: YYYY-MM-DD_slug.md (日付不明時は unknown-date_slug.md)
     date_prefix = pub_date if pub_date else "unknown-date"
     md_path = articles_dir / f"{date_prefix}_{slug}.md"
 
-    # フロントマター付きで保存
     with open(md_path, "w", encoding="utf-8") as f:
         f.write("---\n")
         f.write(f'title: "{title}"\n')
@@ -190,6 +490,10 @@ def scrape_article(url: str, output_dir: Path):
             f.write(f'author: "{author}"\n')
         if pub_date:
             f.write(f"date: {pub_date}\n")
+        if sitemap_lastmod:
+            f.write(f"lastmod: {sitemap_lastmod}\n")
+        if tags:
+            f.write("tags: [" + ", ".join(tags) + "]\n")
         f.write(f"original_url: {url}\n")
         f.write("---\n\n")
         f.write(f"# {title}\n\n")
@@ -197,42 +501,114 @@ def scrape_article(url: str, output_dir: Path):
 
     print(f"  [saved] {md_path.name}")
     time.sleep(DELAY)
+    return "saved"
 
 
 def main():
     parser = argparse.ArgumentParser(description="Medium publication scraper")
     parser.add_argument("--publication", required=True, help="例: axinc")
+    parser.add_argument(
+        "--custom-domain",
+        required=True,
+        help="publicationのカスタムドメイン (例: tech.ailia.ai)。"
+        "sitemap.xmlから記事URL一覧を取得するために使用。",
+    )
     parser.add_argument("--output", default="medium_export")
-    parser.add_argument("--start-year", type=int, default=2018)
-    parser.add_argument("--end-year", type=int, default=2026)
     parser.add_argument("--urls-only", action="store_true", help="URL収集だけ実行")
+    parser.add_argument(
+        "--refresh",
+        action="store_true",
+        help="既存記事もsitemap lastmodと比較して、更新されていれば再取得する",
+    )
+    parser.add_argument(
+        "--refresh-all",
+        action="store_true",
+        help="既存記事を強制的にすべて再取得する",
+    )
+    parser.add_argument(
+        "--only-url",
+        default="",
+        help="指定したURLのみを (再) 取得する。--refresh と併用で1記事だけ更新可能。",
+    )
     args = parser.parse_args()
 
     output_dir = Path(args.output)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # 1. URL一覧を収集
     urls_file = output_dir / "urls.txt"
-    if urls_file.exists():
-        print(f"[info] reusing existing URL list: {urls_file}")
-        urls = set(urls_file.read_text().strip().splitlines())
-    else:
-        print(f"[info] collecting URLs from medium.com/{args.publication}")
-        urls = collect_all_urls(args.publication, args.start_year, args.end_year)
-        urls_file.write_text("\n".join(sorted(urls)))
-        print(f"[info] saved {len(urls)} URLs to {urls_file}")
+    previous = (
+        set(urls_file.read_text().strip().splitlines())
+        if urls_file.exists()
+        else set()
+    )
+    sitemap_map = collect_urls_from_sitemap(args.custom_domain)
+    if not sitemap_map:
+        print("[warn] sitemap returned no URLs; aborting")
+        return
+    # sitemap.xmlは反映遅延だけでなく、それ以前の中堅記事も取りこぼすことが
+    # あるため、(a) RSSフィードの直近10件 (b) publication ホームページの
+    # Apollo state (Post:<id> 由来) の2つから補完する。重複は集合で吸収。
+    feed_urls = collect_urls_from_feed(args.publication)
+    extra_feed = len(set(feed_urls) - set(sitemap_map))
+    if extra_feed:
+        print(f"[info]    {extra_feed} URL(s) only in feed (sitemap missed)")
+    for u in feed_urls:
+        sitemap_map.setdefault(u, "")
 
-    print(f"\n[info] total unique articles: {len(urls)}\n")
+    known_ids = set()
+    for url in sitemap_map.keys():
+        m = _HEX_ID_RE.search(url)
+        if m:
+            known_ids.add(m.group()[1:])
+    apollo_urls = collect_urls_from_apollo(args.custom_domain, known_ids=known_ids)
+    extra_apollo = len(set(apollo_urls) - set(sitemap_map))
+    if extra_apollo:
+        print(f"[info]    {extra_apollo} URL(s) only in Apollo state (sitemap+feed missed)")
+    for u in apollo_urls:
+        sitemap_map.setdefault(u, "")
+
+    # 既存scrape済み記事の本文から、まだ未知のURLをクロスリファレンスで救済する。
+    ref_urls = collect_urls_from_references(
+        output_dir / "articles", args.custom_domain, set(sitemap_map.keys())
+    )
+    for u in ref_urls:
+        sitemap_map.setdefault(u, "")
+
+    urls = sorted(sitemap_map.keys())
+    urls_file.write_text("\n".join(urls))
+    new_urls = [u for u in urls if u not in previous]
+    print(
+        f"[info] total: {len(urls)} articles "
+        f"({len(new_urls)} new since last run, {len(previous)} previously known)\n"
+    )
+
+    if args.only_url:
+        if args.only_url not in sitemap_map:
+            sitemap_map[args.only_url] = ""
+        urls = [args.only_url]
 
     if args.urls_only:
         return
 
-    # 2. 各記事をスクレイピング
-    for i, url in enumerate(sorted(urls), 1):
+    refresh_mode = args.refresh or args.refresh_all
+    counts: dict = {}
+    for i, url in enumerate(urls, 1):
         print(f"\n--- {i}/{len(urls)} ---")
-        scrape_article(url, output_dir)
+        lastmod = sitemap_map.get(url, "")
+        result = scrape_article(
+            url,
+            output_dir,
+            sitemap_lastmod=lastmod,
+            refresh=refresh_mode,
+            force=args.refresh_all,
+        )
+        if result:
+            counts[result] = counts.get(result, 0) + 1
 
     print(f"\n[done] export complete: {output_dir}")
+    if counts:
+        summary = ", ".join(f"{k}={v}" for k, v in sorted(counts.items()))
+        print(f"[summary] {summary}")
 
 
 if __name__ == "__main__":
