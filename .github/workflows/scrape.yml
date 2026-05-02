@@ -13,13 +13,22 @@ on:
         default: "updated"
         options:
           - "off"        # 新着のみ取得 (lastmod差分は無視)
-          - "updated"    # sitemap lastmod が新しい記事だけ再取得 (cron既定)
+          - "updated"    # Apollo latestPublishedAt が新しい記事だけ再取得 (cron既定)
           - "all"        # 全記事を強制的に再取得 (時間がかかる)
       only_url:
-        description: "1記事だけ更新する場合の記事URL (Medium / tech.ailia.ai)"
+        description: "1記事だけ更新する場合の記事URL (medium.com)"
         required: false
         type: string
         default: ""
+      lang:
+        description: "対象言語 (空 = ja+en 両方)"
+        required: false
+        type: choice
+        default: ""
+        options:
+          - ""
+          - "ja"
+          - "en"
 
 permissions:
   contents: write
@@ -37,14 +46,10 @@ jobs:
       - run: pip install curl-cffi beautifulsoup4 markdownify
 
       - name: Scrape Medium
-        # urls.txt が残っているとそのキャッシュが再利用され、新着URLが
-        # sitemap から取り込まれなくなるため、毎回削除してから実行する。
         run: |
-          rm -f medium_export/urls.txt
-
           refresh_mode="${{ github.event.inputs.refresh }}"
           # cron実行時は inputs が空文字 → 既定値 "updated" 扱い
-          # (lastmod を比較してMediumで編集された記事を自動的に再取得)
+          # (Apollo の latestPublishedAt を比較して Medium で編集された記事を自動再取得)
           if [[ -z "${refresh_mode}" ]]; then
             refresh_mode="updated"
           fi
@@ -60,10 +65,27 @@ jobs:
             flags="${flags} --only-url ${only_url} --refresh"
           fi
 
-          python downloader/medium_publication.py \
-            --publication axinc \
-            --custom-domain tech.ailia.ai \
-            ${flags}
+          target_lang="${{ github.event.inputs.lang }}"
+
+          run_one() {
+            local lang="$1"
+            local pub="$2"
+            echo "::group::scrape $lang ($pub)"
+            # urls.txt が残っているとキャッシュが再利用されるので毎回削除
+            rm -f "medium_export/${lang}/urls.txt"
+            python downloader/medium_publication.py \
+              --publication "$pub" \
+              --output "medium_export/${lang}" \
+              ${flags}
+            echo "::endgroup::"
+          }
+
+          if [[ -z "${target_lang}" || "${target_lang}" == "ja" ]]; then
+            run_one ja axinc
+          fi
+          if [[ -z "${target_lang}" || "${target_lang}" == "en" ]]; then
+            run_one en axinc-ai
+          fi
 
       - name: Commit & push if there are new articles
         run: |
@@ -74,8 +96,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add medium_export/
-          added=$(git diff --cached --name-status -- 'medium_export/articles/*.md' | grep -c '^A' || true)
-          modified=$(git diff --cached --name-status -- 'medium_export/articles/*.md' | grep -c '^M' || true)
+          added=$(git diff --cached --name-status -- 'medium_export/*/articles/*.md' | grep -c '^A' || true)
+          modified=$(git diff --cached --name-status -- 'medium_export/*/articles/*.md' | grep -c '^M' || true)
           if [[ "${added}" -gt 0 && "${modified}" -gt 0 ]]; then
             msg="Auto-scrape: ${added} new + ${modified} updated article(s) on $(date -u +%Y-%m-%d)"
           elif [[ "${added}" -gt 0 ]]; then
