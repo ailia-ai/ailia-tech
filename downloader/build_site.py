@@ -49,7 +49,7 @@ PUBLICATION_LOGO = (
 LANGUAGES = [
     {
         "code": "ja",
-        "label": "日本語",
+        "label": "JA",
         "html_lang": "ja",
         "source_dir": "ja",
         "site_path": "",
@@ -64,7 +64,7 @@ LANGUAGES = [
     },
     {
         "code": "en",
-        "label": "English",
+        "label": "EN",
         "html_lang": "en",
         "source_dir": "en",
         "site_path": "en/",
