@@ -61,6 +61,7 @@ LANGUAGES = [
         "empty_state": "該当する記事がありません",
         "footer_back": "← 記事一覧へ",
         "publication": "axinc",
+        "ailia_url": "https://ailia.ai/",
     },
     {
         "code": "en",
@@ -76,6 +77,7 @@ LANGUAGES = [
         "empty_state": "No matching articles",
         "footer_back": "← All posts",
         "publication": "axinc-ai",
+        "ailia_url": "https://ailia.ai/en/",
     },
 ]
 
@@ -123,7 +125,7 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
   <div class="pub-meta">
     <h1>{title}</h1>
     <p class="pub-tagline">{tagline}</p>
-    <p class="pub-source"><a href="https://ailia.ai/">ailia.ai</a> · {articles_label}</p>
+    <p class="pub-source"><a href="{ailia_url}">ailia.ai</a> · {articles_label}</p>
   </div>
 </header>
 <nav class="tag-filter" role="tablist" aria-label="{tag_filter_aria}">
@@ -638,6 +640,9 @@ _BYLINE_PATTERNS = [
         r"^(?:Just now|Yesterday|\d+\s+(?:second|minute|hour|day|week|month)s?\s+ago)$",
         re.I,
     ),
+    # 拍手数 ("2", "10", "1.2K", "10K", "1M" など) - 英語版だと
+    # 著者バイラインの直後に剥き出しの数字パラグラフとして出る。
+    re.compile(r"^\d+(?:\.\d+)?[KMm]?$"),
 ]
 
 
@@ -819,9 +824,20 @@ def inject_company_separator(text: str) -> str:
     return text
 
 
+def _escape_inline_hash(body: str) -> str:
+    """blockquote内のコードコメント ``> #x = ...`` をH1誤認識から救う。
+
+    Python-Markdown の atx heading パーサは空白の有無を問わないので
+    ``#x`` でも H1 として扱われ、ローカルでは超巨大な見出しになってしまう。
+    Medium が出力するコメント付きコード片の先頭の ``#`` をバックスラッシュで
+    エスケープしてプレーンテキストとしてレンダリングさせる。"""
+    return re.sub(r"^(\s*>+\s*)#(?!\s|#)", r"\1\\#", body, flags=re.M)
+
+
 def clean_body(body: str) -> str:
     """先頭の重複H1 (Mediumは同タイトルを2回出力する) とバイラインブロック、
     本文中のMedium UIアーティファクトを取り除く。"""
+    body = _escape_inline_hash(body)
     paragraphs = re.split(r"\n\s*\n", body)
     out = []
     in_intro = True
@@ -1161,6 +1177,7 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
         tagline=html.escape(PUBLICATION_TAGLINE),
         logo=html.escape(PUBLICATION_LOGO, quote=True),
         site_url=html.escape(index_url, quote=True),
+        ailia_url=html.escape(lang["ailia_url"], quote=True),
         cards=cards,
         tag_chips=tag_chips_html,
         articles_label=html.escape(articles_label),
