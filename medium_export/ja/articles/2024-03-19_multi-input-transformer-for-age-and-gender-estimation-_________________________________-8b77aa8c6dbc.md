@@ -3,7 +3,7 @@ title: "Multi-input Transformer for Age and Gender Estimation：年齢と性別�
 author: "Taketo Kimura"
 date: 2024-03-19
 lastmod: 2024-03-26
-original_url: https://tech.ailia.ai/multi-input-transformer-for-age-and-gender-estimation-年齢と性別を推定するためのマルチインプットトランスフォーマーモデル-8b77aa8c6dbc
+original_url: https://medium.com/axinc/multi-input-transformer-for-age-and-gender-estimation-年齢と性別を推定するためのマルチインプットトランスフォーマーモデル-8b77aa8c6dbc
 tags: [neural-networks, computer-vision, artificial-intelligence, image-processing, machine-learning]
 ---
 

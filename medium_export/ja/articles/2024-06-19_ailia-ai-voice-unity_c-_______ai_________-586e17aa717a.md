@@ -3,7 +3,7 @@ title: "ailia AI Voice : UnityやC++から使用できるAI音声合成ライブ
 author: "Kazuki Kyakuno"
 date: 2024-06-19
 lastmod: 2026-01-07
-original_url: https://tech.ailia.ai/ailia-ai-voice-unityやc-から使用できるai音声合成ライブラリ-586e17aa717a
+original_url: https://medium.com/axinc/ailia-ai-voice-unityやc-から使用できるai音声合成ライブラリ-586e17aa717a
 tags: [ailia-sdk]
 ---
 

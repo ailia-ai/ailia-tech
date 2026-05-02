@@ -4,7 +4,7 @@ author: "Kazuki Kyakuno"
 date: 2020-02-01
 lastmod: 2020-12-13
 tags: [ailia-tutorial]
-original_url: https://tech.ailia.ai/ailia-sdk-api解説-predict-api-dcae1dc62780
+original_url: https://medium.com/axinc/ailia-sdk-api解説-predict-api-dcae1dc62780
 ---
 
 # ailia SDK API解説(Predict API)

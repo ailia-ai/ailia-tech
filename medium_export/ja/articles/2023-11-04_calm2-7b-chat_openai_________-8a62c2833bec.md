@@ -3,7 +3,7 @@ title: "CALM2–7B-CHATのOpenAI互換サーバを立てる"
 author: "Kazuki Kyakuno"
 date: 2023-11-04
 lastmod: 2024-03-27
-original_url: https://tech.ailia.ai/calm2-7b-chatのopenai互換サーバを立てる-8a62c2833bec
+original_url: https://medium.com/axinc/calm2-7b-chatのopenai互換サーバを立てる-8a62c2833bec
 tags: [ailia-technology]
 ---
 

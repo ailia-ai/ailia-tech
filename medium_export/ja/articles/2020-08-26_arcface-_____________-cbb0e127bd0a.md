@@ -3,7 +3,7 @@ title: "ArcFace : 顔認証を行う機械学習モデル"
 author: "Kazuki Kyakuno"
 date: 2020-08-26
 lastmod: 2021-09-29
-original_url: https://tech.ailia.ai/arcface-顔認証を行う機械学習モデル-cbb0e127bd0a
+original_url: https://medium.com/axinc/arcface-顔認証を行う機械学習モデル-cbb0e127bd0a
 tags: [ailia-models]
 ---
 

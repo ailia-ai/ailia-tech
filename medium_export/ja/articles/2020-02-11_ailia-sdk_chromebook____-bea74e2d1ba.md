@@ -4,7 +4,7 @@ author: "Kazuki Kyakuno"
 date: 2020-02-11
 lastmod: 2020-10-20
 tags: [ailia-tutorial]
-original_url: https://tech.ailia.ai/ailia-sdkをchromebookで動かす-bea74e2d1ba
+original_url: https://medium.com/axinc/ailia-sdkをchromebookで動かす-bea74e2d1ba
 ---
 
 # ailia SDKをJetsonNanoやChromeBookで動かす

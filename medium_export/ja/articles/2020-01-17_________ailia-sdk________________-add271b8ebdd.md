@@ -4,7 +4,7 @@ author: "Kazuki Kyakuno"
 date: 2020-01-17
 lastmod: 2024-03-26
 tags: [ailia-tutorial]
-original_url: https://tech.ailia.ai/学習したモデルをailia-sdkで使用できる形にエクスポートする-add271b8ebdd
+original_url: https://medium.com/axinc/学習したモデルをailia-sdkで使用できる形にエクスポートする-add271b8ebdd
 ---
 
 # ailia SDK チュートリアル(ONNXへのモデル変換)

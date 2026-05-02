@@ -3,7 +3,7 @@ title: "AppleSiliconでailia SDKを使用する"
 author: "Kazuki Kyakuno"
 date: 2021-01-07
 lastmod: 2021-01-07
-original_url: https://tech.ailia.ai/applesiliconでailia-sdkを使用する-4a0830177ec0
+original_url: https://medium.com/axinc/applesiliconでailia-sdkを使用する-4a0830177ec0
 tags: [ailia-tutorial]
 ---
 

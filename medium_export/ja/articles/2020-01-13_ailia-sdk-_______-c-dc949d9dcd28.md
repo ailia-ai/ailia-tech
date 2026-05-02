@@ -4,7 +4,7 @@ author: "Kazuki Kyakuno"
 date: 2020-01-13
 lastmod: 2023-03-03
 tags: [ailia-tutorial]
-original_url: https://tech.ailia.ai/ailia-sdk-チュートリアル-c-dc949d9dcd28
+original_url: https://medium.com/axinc/ailia-sdk-チュートリアル-c-dc949d9dcd28
 ---
 
 # ailia SDK チュートリアル(C++)

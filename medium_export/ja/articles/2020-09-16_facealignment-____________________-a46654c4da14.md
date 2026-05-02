@@ -3,7 +3,7 @@ title: "FaceAlignment : 顔のキーポイントを認識する機械学習モ�
 author: "Kazuki Kyakuno"
 date: 2020-09-16
 lastmod: 2020-10-20
-original_url: https://tech.ailia.ai/facealignment-顔のキーポイントを認識する機械学習モデル-a46654c4da14
+original_url: https://medium.com/axinc/facealignment-顔のキーポイントを認識する機械学習モデル-a46654c4da14
 tags: [ailia-models]
 ---
 

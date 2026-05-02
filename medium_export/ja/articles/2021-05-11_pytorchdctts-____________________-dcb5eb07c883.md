@@ -3,7 +3,7 @@ title: "PytorchDcTts : テキストから音声合成を行う機械学習モデ
 author: "Kazuki Kyakuno"
 date: 2021-05-11
 lastmod: 2021-05-11
-original_url: https://tech.ailia.ai/pytorchdctts-テキストから音声合成を行う機械学習モデル-dcb5eb07c883
+original_url: https://medium.com/axinc/pytorchdctts-テキストから音声合成を行う機械学習モデル-dcb5eb07c883
 tags: [ailia-models]
 ---
 

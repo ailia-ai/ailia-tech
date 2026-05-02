@@ -3,7 +3,7 @@ title: "ailia Tokenizer : UnityやC++から使用できるNLP向けトークナ�
 author: "Kazuki Kyakuno"
 date: 2023-05-12
 lastmod: 2024-08-04
-original_url: https://tech.ailia.ai/ailia-tokenizer-unityやc-から使用できるnlp向けトークナイザ-b60b68c46b06
+original_url: https://medium.com/axinc/ailia-tokenizer-unityやc-から使用できるnlp向けトークナイザ-b60b68c46b06
 tags: [ailia-sdk]
 ---
 

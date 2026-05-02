@@ -3,7 +3,7 @@ title: "Moirai : Salesforceが開発した時系列予測の基盤モデル"
 author: "Kazuki Kyakuno"
 date: 2026-05-01
 tags: [ailia-model]
-original_url: https://tech.ailia.ai/moirai-salesforceが開発した時系列予測の基盤モデル-cad4a857f142
+original_url: https://medium.com/axinc/moirai-salesforceが開発した時系列予測の基盤モデル-cad4a857f142
 ---
 
 # Moirai : Salesforceが開発した時系列予測の基盤モデル

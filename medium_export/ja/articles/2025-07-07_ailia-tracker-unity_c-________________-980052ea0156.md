@@ -3,7 +3,7 @@ title: "ailia Tracker : UnityやC++から使用できる物体追跡ライブラ
 author: "Kazuki Kyakuno"
 date: 2025-07-07
 lastmod: 2026-01-07
-original_url: https://tech.ailia.ai/ailia-tracker-unityやc-から使用できる物体追跡ライブラリ-980052ea0156
+original_url: https://medium.com/axinc/ailia-tracker-unityやc-から使用できる物体追跡ライブラリ-980052ea0156
 tags: [ailia-sdk]
 ---
 

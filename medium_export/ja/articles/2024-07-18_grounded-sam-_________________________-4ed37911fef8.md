@@ -3,7 +3,7 @@ title: "Grounded-SAM : 任意の物体をセグメンテーションできる機
 author: "Kazuki Kyakuno"
 date: 2024-07-18
 lastmod: 2024-07-18
-original_url: https://tech.ailia.ai/grounded-sam-任意の物体をセグメンテーションできる機械学習モデル-4ed37911fef8
+original_url: https://medium.com/axinc/grounded-sam-任意の物体をセグメンテーションできる機械学習モデル-4ed37911fef8
 tags: [ailia-models]
 ---
 

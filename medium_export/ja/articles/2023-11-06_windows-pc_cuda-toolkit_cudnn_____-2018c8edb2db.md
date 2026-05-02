@@ -3,7 +3,7 @@ title: "Windows PCにCUDA ToolkitとcuDNNを導入する"
 author: "Kazuki Kyakuno"
 date: 2023-11-06
 lastmod: 2026-02-16
-original_url: https://tech.ailia.ai/windows-pcにcuda-toolkitとcudnnを導入する-2018c8edb2db
+original_url: https://medium.com/axinc/windows-pcにcuda-toolkitとcudnnを導入する-2018c8edb2db
 tags: [ailia-tutorial]
 ---
 

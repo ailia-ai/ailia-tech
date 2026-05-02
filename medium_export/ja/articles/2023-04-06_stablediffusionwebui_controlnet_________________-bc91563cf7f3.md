@@ -3,7 +3,7 @@ title: "StableDiffusionWebUIとControlNetを使って任意ポーズの画像を
 author: "Kazuki Kyakuno"
 date: 2023-04-06
 lastmod: 2023-04-18
-original_url: https://tech.ailia.ai/stablediffusionwebuiでcontrolnetを使って任意ポーズの画像を生成する-bc91563cf7f3
+original_url: https://medium.com/axinc/stablediffusionwebuiでcontrolnetを使って任意ポーズの画像を生成する-bc91563cf7f3
 tags: [ailia-technology]
 ---
 

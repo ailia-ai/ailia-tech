@@ -3,7 +3,7 @@ title: "PaddleOCR v3 : 日本語が高精度化した最新のOCRモデル"
 author: "Kazuki Kyakuno"
 date: 2025-09-21
 lastmod: 2025-09-22
-original_url: https://tech.ailia.ai/paddleocr-v3-日本語が高精度化した最新のocrモデル-7dfa93a3dfcd
+original_url: https://medium.com/axinc/paddleocr-v3-日本語が高精度化した最新のocrモデル-7dfa93a3dfcd
 tags: [ailia-models]
 ---
 

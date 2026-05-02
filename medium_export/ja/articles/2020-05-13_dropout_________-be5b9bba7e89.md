@@ -3,7 +3,7 @@ title: "Dropoutによる過学習の抑制"
 author: "Kazuki Kyakuno"
 date: 2020-05-13
 lastmod: 2020-12-08
-original_url: https://tech.ailia.ai/dropoutによる過学習の抑制-be5b9bba7e89
+original_url: https://medium.com/axinc/dropoutによる過学習の抑制-be5b9bba7e89
 tags: [ailia-technology]
 ---
 

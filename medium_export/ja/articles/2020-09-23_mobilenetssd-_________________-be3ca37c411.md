@@ -3,7 +3,7 @@ title: "MobilenetSSD : 高速に物体検出を行う機械学習モデル"
 author: "Kazuki Kyakuno"
 date: 2020-09-23
 lastmod: 2020-12-28
-original_url: https://tech.ailia.ai/mobilenetssd-高速に物体検出を行う機械学習モデル-be3ca37c411
+original_url: https://medium.com/axinc/mobilenetssd-高速に物体検出を行う機械学習モデル-be3ca37c411
 tags: [ailia-model]
 ---
 

@@ -3,7 +3,7 @@ title: "ailia DX InsightでAIにプログラムを書いてもらう"
 author: "Kazuki Kyakuno"
 date: 2024-07-22
 lastmod: 2024-07-22
-original_url: https://tech.ailia.ai/ailia-dx-insightでaiにプログラムを書いてもらう-f75486dc7655
+original_url: https://medium.com/axinc/ailia-dx-insightでaiにプログラムを書いてもらう-f75486dc7655
 tags: [ailia-dx-insight]
 ---
 

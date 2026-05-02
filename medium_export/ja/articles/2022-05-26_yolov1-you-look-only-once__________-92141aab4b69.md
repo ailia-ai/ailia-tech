@@ -3,7 +3,7 @@ title: "YOLOv1 :近年の物体検出の基礎となる高速な物体検出モ�
 author: "Takashi Hatakeyama"
 date: 2022-05-26
 lastmod: 2022-05-26
-original_url: https://tech.ailia.ai/yolov1-you-look-only-once高速な物体検出モデル-92141aab4b69
+original_url: https://medium.com/axinc/yolov1-you-look-only-once高速な物体検出モデル-92141aab4b69
 tags: [ailia-models]
 ---
 

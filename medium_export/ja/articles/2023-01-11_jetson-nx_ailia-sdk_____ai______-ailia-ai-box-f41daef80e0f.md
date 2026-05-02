@@ -3,7 +3,7 @@ title: "Jetson NXとailia SDKを搭載したAIハードウェア ailia AI Box"
 author: "Kazuki Kyakuno"
 date: 2023-01-11
 lastmod: 2023-01-11
-original_url: https://tech.ailia.ai/jetson-nxとailia-sdkを搭載したaiハードウェア-ailia-ai-box-f41daef80e0f
+original_url: https://medium.com/axinc/jetson-nxとailia-sdkを搭載したaiハードウェア-ailia-ai-box-f41daef80e0f
 tags: [ailia-sdk]
 ---
 

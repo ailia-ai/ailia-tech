@@ -3,7 +3,7 @@ title: "ailia SDKを使用してFlutterでONNX形式のAIモデルを推論す�
 author: "Kazuki Kyakuno"
 date: 2023-07-31
 lastmod: 2024-10-16
-original_url: https://tech.ailia.ai/ailia-sdkを使用してflutterでonnx形式のaiモデル推論する-7c68509b296
+original_url: https://medium.com/axinc/ailia-sdkを使用してflutterでonnx形式のaiモデル推論する-7c68509b296
 tags: [ailia-tutorial]
 ---
 

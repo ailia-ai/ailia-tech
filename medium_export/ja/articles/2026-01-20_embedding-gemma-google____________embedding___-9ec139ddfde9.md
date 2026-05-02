@@ -3,7 +3,7 @@ title: "Embedding Gemma : Googleの開発した軽量で高精度なEmbeddingモ
 author: "Kazuki Kyakuno"
 date: 2026-01-20
 lastmod: 2026-02-02
-original_url: https://tech.ailia.ai/embedding-gemma-googleの開発した軽量で高精度なembeddingモデル-9ec139ddfde9
+original_url: https://medium.com/axinc/embedding-gemma-googleの開発した軽量で高精度なembeddingモデル-9ec139ddfde9
 tags: [ailia-models]
 ---
 

@@ -3,7 +3,7 @@ title: "AndroidとUnityでUSB接続のUVCカメラを使用する"
 author: "Kazuki Kyakuno"
 date: 2023-06-16
 lastmod: 2023-06-28
-original_url: https://tech.ailia.ai/androidとunityでusb接続のuvcカメラを使用する-6bf1087bbf86
+original_url: https://medium.com/axinc/androidとunityでusb接続のuvcカメラを使用する-6bf1087bbf86
 tags: [ailia-technology]
 ---
 

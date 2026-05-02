@@ -3,7 +3,7 @@ title: "ailia AI Speech 1.1.0をリリース"
 author: "Kazuki Kyakuno"
 date: 2024-02-01
 lastmod: 2024-02-02
-original_url: https://tech.ailia.ai/ailia-ai-speech-1-1-0をリリース-407e41cceef5
+original_url: https://medium.com/axinc/ailia-ai-speech-1-1-0をリリース-407e41cceef5
 tags: [ailia-sdk]
 ---
 

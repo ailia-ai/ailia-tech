@@ -3,7 +3,7 @@ title: "AnimateDiffとStableDiffusionを使用してテキストや静止画か�
 author: "Kazuki Kyakuno"
 date: 2023-07-24
 lastmod: 2023-07-24
-original_url: https://tech.ailia.ai/animatediffとstablediffusionを使用してテキストや静止画から動画を生成する-76dcc8f924c6
+original_url: https://medium.com/axinc/animatediffとstablediffusionを使用してテキストや静止画から動画を生成する-76dcc8f924c6
 tags: [ailia-technology]
 ---
 

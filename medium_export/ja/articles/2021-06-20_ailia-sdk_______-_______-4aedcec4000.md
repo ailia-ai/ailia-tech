@@ -3,7 +3,7 @@ title: "ailia SDKチュートリアル（省メモリモード）"
 author: "Kazuki Kyakuno"
 date: 2021-06-20
 lastmod: 2021-06-20
-original_url: https://tech.ailia.ai/ailia-sdkチュートリアル-省メモリモード-4aedcec4000
+original_url: https://medium.com/axinc/ailia-sdkチュートリアル-省メモリモード-4aedcec4000
 tags: [ailia-tutorial]
 ---
 

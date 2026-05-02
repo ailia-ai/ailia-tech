@@ -3,7 +3,7 @@ title: "AWSのGPUインスタンスにailia SDKをデプロイする"
 author: "Kazuki Kyakuno"
 date: 2023-12-15
 lastmod: 2023-12-15
-original_url: https://tech.ailia.ai/awsのgpuインスタンスにailia-sdkをデプロイする-cdf5b83675cd
+original_url: https://medium.com/axinc/awsのgpuインスタンスにailia-sdkをデプロイする-cdf5b83675cd
 tags: [ailia-tutorial]
 ---
 

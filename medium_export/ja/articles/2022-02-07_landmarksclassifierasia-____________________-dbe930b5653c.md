@@ -3,7 +3,7 @@ title: "LandmarksClassifierAsia : 日本の観光名所を識別できる機械�
 author: "Kazuki Kyakuno"
 date: 2022-02-07
 lastmod: 2023-02-14
-original_url: https://tech.ailia.ai/landmarksclassifierasia-日本の観光名所を識別できる機械学習モデル-dbe930b5653c
+original_url: https://medium.com/axinc/landmarksclassifierasia-日本の観光名所を識別できる機械学習モデル-dbe930b5653c
 tags: [ailia-models]
 ---
 

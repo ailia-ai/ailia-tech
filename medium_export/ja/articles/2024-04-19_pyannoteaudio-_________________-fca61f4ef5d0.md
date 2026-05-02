@@ -3,7 +3,7 @@ title: "PyannoteAudio : 話者分離を行うための機械学習モデル"
 author: "Kazuki Kyakuno"
 date: 2024-04-19
 lastmod: 2025-08-13
-original_url: https://tech.ailia.ai/pyannoteaudio-話者分離を行うための機械学習モデル-fca61f4ef5d0
+original_url: https://medium.com/axinc/pyannoteaudio-話者分離を行うための機械学習モデル-fca61f4ef5d0
 tags: [ailia-models]
 ---
 

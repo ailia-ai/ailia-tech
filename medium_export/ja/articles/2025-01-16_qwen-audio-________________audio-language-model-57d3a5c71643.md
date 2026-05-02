@@ -3,7 +3,7 @@ title: "Qwen Audio : 音を入力してテキストを生成可能なAudio Langu
 author: "Kazuki Kyakuno"
 date: 2025-01-16
 lastmod: 2025-01-16
-original_url: https://tech.ailia.ai/qwen-audio-音を入力してテキストを生成可能なaudio-language-model-57d3a5c71643
+original_url: https://medium.com/axinc/qwen-audio-音を入力してテキストを生成可能なaudio-language-model-57d3a5c71643
 tags: [ailia-models]
 ---
 

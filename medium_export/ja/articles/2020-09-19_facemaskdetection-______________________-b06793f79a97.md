@@ -3,7 +3,7 @@ title: "FaceMaskDetection : マスクを付けているかを判定する機械�
 author: "Kazuki Kyakuno"
 date: 2020-09-19
 lastmod: 2020-10-20
-original_url: https://tech.ailia.ai/facemaskdetection-マスクを付けているかを判定する機械学習モデル-b06793f79a97
+original_url: https://medium.com/axinc/facemaskdetection-マスクを付けているかを判定する機械学習モデル-b06793f79a97
 tags: [ailia-model]
 ---
 

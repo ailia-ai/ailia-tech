@@ -3,7 +3,7 @@ title: "SentenceTransformer : テキストからEmbeddingを取得する言語�
 author: "Kazuki Kyakuno"
 date: 2023-06-12
 lastmod: 2023-06-12
-original_url: https://tech.ailia.ai/sentencetransformer-テキストからembeddingを取得する言語処理モデル-b7d2a9bb2c31
+original_url: https://medium.com/axinc/sentencetransformer-テキストからembeddingを取得する言語処理モデル-b7d2a9bb2c31
 tags: [ailia-models]
 ---
 

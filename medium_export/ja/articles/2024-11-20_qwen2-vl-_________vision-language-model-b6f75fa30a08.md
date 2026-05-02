@@ -3,7 +3,7 @@ title: "Qwen2-VL : ローカルで動作するVision Language Model"
 author: "Kazuki Kyakuno"
 date: 2024-11-20
 lastmod: 2024-11-24
-original_url: https://tech.ailia.ai/qwen2-vl-ローカルで動作するvision-language-model-b6f75fa30a08
+original_url: https://medium.com/axinc/qwen2-vl-ローカルで動作するvision-language-model-b6f75fa30a08
 tags: [ailia-model]
 ---
 

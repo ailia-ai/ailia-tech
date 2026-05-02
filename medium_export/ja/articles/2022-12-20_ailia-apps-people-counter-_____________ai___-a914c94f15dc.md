@@ -3,7 +3,7 @@ title: "ailia APPS People Counter : 人流解析を行うことができるAIア
 author: "Kazuki Kyakuno"
 date: 2022-12-20
 lastmod: 2023-01-11
-original_url: https://tech.ailia.ai/ailia-apps-people-counter-人流解析を行うことができるaiアプリ-a914c94f15dc
+original_url: https://medium.com/axinc/ailia-apps-people-counter-人流解析を行うことができるaiアプリ-a914c94f15dc
 tags: [ailia-apps]
 ---
 

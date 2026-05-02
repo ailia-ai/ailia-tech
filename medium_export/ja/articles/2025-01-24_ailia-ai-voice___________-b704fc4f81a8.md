@@ -3,7 +3,7 @@ title: "ailia AI Voiceでユーザ辞書を使用する"
 author: "Kazuki Kyakuno"
 date: 2025-01-24
 lastmod: 2025-12-01
-original_url: https://tech.ailia.ai/ailia-ai-voiceでユーザ辞書を使用する-b704fc4f81a8
+original_url: https://medium.com/axinc/ailia-ai-voiceでユーザ辞書を使用する-b704fc4f81a8
 tags: [ailia-sdk]
 ---
 

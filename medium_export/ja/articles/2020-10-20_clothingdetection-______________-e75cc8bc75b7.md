@@ -3,7 +3,7 @@ title: "ClothingDetection : 服装を検出する機械学習モデル"
 author: "Kazuki Kyakuno"
 date: 2020-10-20
 lastmod: 2020-11-06
-original_url: https://tech.ailia.ai/clothingdetection-服装を検出する機械学習モデル-e75cc8bc75b7
+original_url: https://medium.com/axinc/clothingdetection-服装を検出する機械学習モデル-e75cc8bc75b7
 tags: [ailia-model]
 ---
 

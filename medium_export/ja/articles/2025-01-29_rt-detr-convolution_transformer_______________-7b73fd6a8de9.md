@@ -3,7 +3,7 @@ title: "RT-DETR : ConvolutionとTransformerのハイブリッドな物体検出�
 author: "Kazuki Kyakuno"
 date: 2025-01-29
 lastmod: 2025-02-01
-original_url: https://tech.ailia.ai/rt-detr-convolutionとtransformerのハイブリッドな物体検出モデル-7b73fd6a8de9
+original_url: https://medium.com/axinc/rt-detr-convolutionとtransformerのハイブリッドな物体検出モデル-7b73fd6a8de9
 tags: [ailia-models]
 ---
 

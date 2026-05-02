@@ -3,7 +3,7 @@ title: "ailia AI Speech : UnityやC++から使用できるAI音声認識ライ�
 author: "Kazuki Kyakuno"
 date: 2023-03-16
 lastmod: 2026-01-07
-original_url: https://tech.ailia.ai/ailia-speech-unityやc-から使用できるai音声認識ライブラリ-16a05b5280d2
+original_url: https://medium.com/axinc/ailia-speech-unityやc-から使用できるai音声認識ライブラリ-16a05b5280d2
 tags: [ailia-sdk]
 ---
 

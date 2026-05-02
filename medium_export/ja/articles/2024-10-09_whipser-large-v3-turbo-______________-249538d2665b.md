@@ -3,7 +3,7 @@ title: "Whipser Large V3 Turbo : 高精度で高速な音声認識モデル"
 author: "Kazuki Kyakuno"
 date: 2024-10-09
 lastmod: 2024-11-19
-original_url: https://tech.ailia.ai/whipser-large-v3-turbo-高精度で高速な音声認識モデル-249538d2665b
+original_url: https://medium.com/axinc/whipser-large-v3-turbo-高精度で高速な音声認識モデル-249538d2665b
 tags: [ailia-models]
 ---
 

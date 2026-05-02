@@ -3,7 +3,7 @@ title: "ailia APPS Empty Detection : 駐車場やレストランの空き状況�
 author: "Kazuki Kyakuno"
 date: 2023-01-05
 lastmod: 2023-01-05
-original_url: https://tech.ailia.ai/ailia-apps-empty-detection-駐車場やレストランの空き状況を確認することができるaiアプリ-a2a7c84a383e
+original_url: https://medium.com/axinc/ailia-apps-empty-detection-駐車場やレストランの空き状況を確認することができるaiアプリ-a2a7c84a383e
 tags: [ailia-apps]
 ---
 

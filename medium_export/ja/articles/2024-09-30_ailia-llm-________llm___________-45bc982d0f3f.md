@@ -3,7 +3,7 @@ title: "ailia LLM : エッジデバイスにLLMを実装できるライブラリ
 author: "Kazuki Kyakuno"
 date: 2024-09-30
 lastmod: 2026-01-07
-original_url: https://tech.ailia.ai/ailia-llm-エッジデバイスにllmを実装できるライブラリ-45bc982d0f3f
+original_url: https://medium.com/axinc/ailia-llm-エッジデバイスにllmを実装できるライブラリ-45bc982d0f3f
 tags: [ailia-sdk]
 ---
 

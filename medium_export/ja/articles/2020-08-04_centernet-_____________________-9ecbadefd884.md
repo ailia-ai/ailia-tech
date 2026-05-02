@@ -3,7 +3,7 @@ title: "CenterNet : アンカーレスな物体検出を行う機械学習モデ
 author: "Kazuki Kyakuno"
 date: 2020-08-04
 lastmod: 2020-10-20
-original_url: https://tech.ailia.ai/centernet-アンカーレスな物体検出を行う機械学習モデル-9ecbadefd884
+original_url: https://medium.com/axinc/centernet-アンカーレスな物体検出を行う機械学習モデル-9ecbadefd884
 tags: [ailia-models]
 ---
 

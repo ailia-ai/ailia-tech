@@ -3,7 +3,7 @@ title: "ai-edge-torchでPytorchからtfliteに変換する"
 author: "Kazuki Kyakuno"
 date: 2024-08-13
 lastmod: 2025-02-03
-original_url: https://tech.ailia.ai/ai-edge-torchでpytorchからtfliteに変換する-376be7dc5619
+original_url: https://medium.com/axinc/ai-edge-torchでpytorchからtfliteに変換する-376be7dc5619
 tags: [ailia-technology]
 ---
 

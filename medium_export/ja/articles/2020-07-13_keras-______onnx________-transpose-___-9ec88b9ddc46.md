@@ -3,7 +3,7 @@ title: "Keras から変換したONNXモデルに含まれる Transpose の除去
 author: "MOGI Kazuhiro"
 date: 2020-07-13
 lastmod: 2021-01-20
-original_url: https://tech.ailia.ai/keras-から変換したonnxモデルに含まれる-transpose-の除去-9ec88b9ddc46
+original_url: https://medium.com/axinc/keras-から変換したonnxモデルに含まれる-transpose-の除去-9ec88b9ddc46
 tags: [ailia-technology]
 ---
 
