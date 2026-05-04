@@ -1163,8 +1163,8 @@ _PRODUCT_CTA_COPY = {
         "en": "ailia SDK is a cross-platform AI inference engine developed by ailia.ai. It runs on Windows / macOS / Linux / iOS / Android and supports every model published in ailia MODELS out of the box.",
     },
     "llm/": {
-        "ja": "ailia LLM は ailia SDK と連携してエッジデバイス上で大規模言語モデル (LLM) を動作させるライブラリです。Windows / macOS / Linux / iOS / Android で動作します。",
-        "en": "ailia LLM is a library that lets large language models (LLMs) run on edge devices in concert with the ailia SDK, on Windows / macOS / Linux / iOS / Android.",
+        "ja": "ailia LLM はエッジデバイス上で大規模言語モデル (LLM) を動作させるライブラリです。Windows / macOS / Linux / iOS / Android で動作します。",
+        "en": "ailia LLM is a library that runs large language models (LLMs) on edge devices, supporting Windows / macOS / Linux / iOS / Android.",
     },
     "voice/": {
         "ja": "ailia AI Voice はクロスプラットフォーム対応の音声合成ライブラリです。Unity や C++ から呼び出してアプリにオフラインの TTS 機能を組み込めます。",
@@ -1183,8 +1183,8 @@ _PRODUCT_CTA_COPY = {
         "en": "ailia Tracker is a cross-platform object-tracking library callable from Unity, C++ and more for embedding tracking into your apps.",
     },
     "models/": {
-        "ja": "ailia MODELS は ailia SDK 上で動作する事前学習済み AI モデルのコレクションです。物体検出、姿勢推定、生成 AI、音声処理など 200 以上のモデルを公開しています。",
-        "en": "ailia MODELS is a curated collection of 200+ pre-trained AI models that run on the ailia SDK, covering detection, pose estimation, generative AI, audio, and more.",
+        "ja": "ailia MODELS は ailia SDK 上で動作する事前学習済み AI モデルのコレクションです。物体検出、姿勢推定、生成 AI、音声処理など 400 以上のモデルを公開しています。",
+        "en": "ailia MODELS is a curated collection of 400+ pre-trained AI models that run on the ailia SDK, covering detection, pose estimation, generative AI, audio, and more.",
     },
 }
 
