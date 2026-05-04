@@ -934,6 +934,45 @@ def inject_company_separator(text: str) -> str:
     return text
 
 
+# NLPで使う特殊トークン名のうち、HTMLでも有効な要素名と被る/被りそうな
+# ものを列挙。<s>...</s> は HTML strikethrough として描画され、本文末尾が
+# まるまる取り消し線になる事故が起きた。コードブロックの外でこれらが
+# 出現したら HTML エンティティに置換する。
+_NLP_TOKEN_NAMES = ["s", "bos", "eos", "sos", "pad", "unk", "sep", "cls", "mask"]
+_NLP_TOKEN_RE = re.compile(
+    r"</?(?:" + "|".join(_NLP_TOKEN_NAMES) + r")>", re.IGNORECASE
+)
+
+
+def escape_nlp_tokens(text: str) -> str:
+    """``<s>`` 等のNLP特殊トークンをコードブロック外でHTMLエンティティに
+    置き換える。コードブロック (fenced + inline) はプレースホルダで退避し、
+    エスケープ後に復元する。"""
+    if not text:
+        return text
+    fences: list = []
+    inline_codes: list = []
+
+    def _stash_fence(m: re.Match) -> str:
+        fences.append(m.group())
+        return f"\x01{len(fences) - 1}\x01"
+
+    def _stash_inline(m: re.Match) -> str:
+        inline_codes.append(m.group())
+        return f"\x02{len(inline_codes) - 1}\x02"
+
+    text = re.sub(r"```[\s\S]*?```", _stash_fence, text)
+    text = re.sub(r"`[^`\n]+`", _stash_inline, text)
+
+    text = _NLP_TOKEN_RE.sub(
+        lambda m: m.group().replace("<", "&lt;").replace(">", "&gt;"), text
+    )
+
+    text = re.sub(r"\x02(\d+)\x02", lambda m: inline_codes[int(m.group(1))], text)
+    text = re.sub(r"\x01(\d+)\x01", lambda m: fences[int(m.group(1))], text)
+    return text
+
+
 def _escape_inline_hash(body: str) -> str:
     """blockquote内の ``#`` をH1誤認識から救う。
 
@@ -1385,7 +1424,9 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
             rewrite_internal_links(
                 inject_company_separator(
                     apply_substitutions(
-                        normalize_card_links(clean_body(body), lang["publication"])
+                        escape_nlp_tokens(
+                            normalize_card_links(clean_body(body), lang["publication"])
+                        )
                     )
                 ),
                 lang["publication"],
