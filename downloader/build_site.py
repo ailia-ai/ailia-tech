@@ -1214,17 +1214,69 @@ def auto_link_products(text: str, docs_url: str) -> str:
     return text
 
 
-def article_opening_banner(tags: list, lang: dict) -> str:
+def detect_primary_product(title: str, slug: str, body: str) -> tuple:
+    """記事の主題となっている ailia 製品を推定する。
+    優先順位: title → slug → body の出現頻度。
+
+    返り値: ``(display_name, docs_path)`` のタプル。判定不能時は ``(None, None)``。
+    最長マッチ優先 ("ailia AI Voice" を "ailia Voice" や "ailia" より先に判定)。"""
+    if not (title or slug or body):
+        return (None, None)
+    title_l = (title or "").lower()
+    # スラグはハイフン/アンダースコア区切りなので空白に正規化
+    slug_l = (slug or "").lower().replace("-", " ").replace("_", " ")
+    body_l = (body or "").lower()
+
+    # title / slug のどちらかに含まれていれば即決
+    for name, path in _PRODUCT_PATHS:
+        n = name.lower()
+        if n in title_l or n in slug_l:
+            return (name, path)
+
+    # 本文中の最頻出を採用 (短い名前が長い名前を侵食しないよう減算する)
+    counts: list = []
+    seen_spans: list = []  # (start, end) of already-counted matches
+    for name, path in _PRODUCT_PATHS:
+        n = name.lower()
+        c = 0
+        idx = 0
+        while True:
+            i = body_l.find(n, idx)
+            if i == -1:
+                break
+            # 既により長い名前で計上済みの位置はスキップ
+            if any(s <= i < e for s, e in seen_spans):
+                idx = i + 1
+                continue
+            c += 1
+            seen_spans.append((i, i + len(n)))
+            idx = i + len(n)
+        if c > 0:
+            counts.append((c, name, path))
+    if counts:
+        counts.sort(key=lambda x: -x[0])
+        return (counts[0][1], counts[0][2])
+    return (None, None)
+
+
+def article_opening_banner(tags: list, lang: dict, product_path: str = "") -> str:
     """記事先頭に出すカテゴリ別CTAバナー。
 
+    - 本文に出現する具体的な製品 (ailia AI Voice 等) が検出されていれば
+      その製品のDocsへのリンクを優先する。
     - ailia-sdk タグ: ailia SDK の Docs へ
     - ailia-tutorial タグ: インストール手順 (Docs/sdk) へ
     - その他: 出さない
     """
     docs = lang["docs_url"].rstrip("/") + "/"
-    # docs.ailia.ai/sdk/install/ は未公開なので、tutorial / sdk いずれも
-    # 現状は SDK ドキュメントトップにリンクする (将来 install/ が出来たら
-    # 切り戻す)。
+    if product_path and product_path != "sdk/":
+        # 製品固有のDocsへ。labelは tutorial label を流用 (誘導意図が同じ)。
+        return (
+            '<aside class="article-banner">'
+            f'<a href="{html.escape(docs + product_path, quote=True)}">'
+            f'{html.escape(lang["banner_tutorial_label"])} →</a>'
+            "</aside>"
+        )
     if "ailia-tutorial" in tags:
         return (
             '<aside class="article-banner">'
@@ -1290,6 +1342,22 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
         )
         excerpt = extract_excerpt(cleaned)
 
+        # 記事の主題製品 (ailia AI Voice / ailia LLM など) を検出して
+        # 末尾CTAと冒頭バナーを切り替える。検出できなかった場合は
+        # LANGUAGES に書いた既定値 (ailia SDK) のまま。
+        product_name, product_path = detect_primary_product(title, slug, cleaned)
+        if product_path:
+            cta_primary_url = (
+                lang["docs_url"].rstrip("/") + "/" + product_path
+            )
+            if lang["code"] == "ja":
+                cta_title = f"{product_name} を試す"
+            else:
+                cta_title = f"Try {product_name}"
+        else:
+            cta_primary_url = lang["cta_primary_url"]
+            cta_title = lang["cta_title"]
+
         body_html = md.convert(cleaned)
         md.reset()
 
@@ -1335,11 +1403,11 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
             hreflang_links=_hreflang_links(lang["code"]),
             lang_switch=_lang_switch_html(lang["code"]),
             site_nav=_site_nav_html(lang),
-            opening_banner=article_opening_banner(tags, lang),
+            opening_banner=article_opening_banner(tags, lang, product_path or ""),
             footer_back=html.escape(lang["footer_back"]),
-            cta_title=html.escape(lang["cta_title"]),
+            cta_title=html.escape(cta_title),
             cta_subtitle=html.escape(lang["cta_subtitle"]),
-            cta_primary_url=html.escape(lang["cta_primary_url"], quote=True),
+            cta_primary_url=html.escape(cta_primary_url, quote=True),
             cta_primary_label=html.escape(lang["cta_primary_label"]),
             cta_secondary_url=html.escape(lang["contact_url"], quote=True),
             cta_secondary_label=html.escape(lang["cta_secondary_label"]),
