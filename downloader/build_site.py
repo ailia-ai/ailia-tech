@@ -900,7 +900,13 @@ def rewrite_internal_links(text: str, lang_pub: str = "axinc") -> str:
 
 
 _BOILERPLATE_LEAD_RE = re.compile(
-    r"\n+(アイリア株式会社(?:は|では|の)|AIで、しごとするなら|株式会社アクセル)"
+    # 会社名がmarkdownリンク化されているケース ([アイリア株式会社](...) や
+    # [ailia Inc.](...)) もあるため、先頭の "[" を任意で受け付ける。
+    r"\n+(\[?(?:アイリア株式会社(?:は|では|の|\])"
+    r"|AIで、しごとするなら"
+    r"|株式会社アクセル"
+    r"|ailia Inc\."
+    r"))"
 )
 _REDUNDANT_HR_RE = re.compile(r"(?:\n*---\n+){2,}")
 
