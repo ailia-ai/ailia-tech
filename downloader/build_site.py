@@ -1266,8 +1266,13 @@ def detect_primary_product(title: str, slug: str, body: str) -> tuple:
         if n in title_l or n in slug_l:
             return (name, path)
 
-    # 本文中の最頻出を採用 (短い名前が長い名前を侵食しないよう減算する)
+    # 本文中の最頻出を採用 (短い名前が長い名前を侵食しないよう減算する)。
+    # ただし ``ailia SDK`` は ailia エコシステム全般の枠組み名で、ほぼ
+    # どの記事にも頻繁に出るため、より具体的な製品 (Voice / Speech /
+    # LLM / Tokenizer / Tracker / MODELS) が1回でも言及されていれば
+    # そちらを優先する。SDK は他に何も検出できなかった場合のフォールバック。
     counts: list = []
+    sdk_fallback: tuple = ()
     seen_spans: list = []  # (start, end) of already-counted matches
     for name, path in _PRODUCT_PATHS:
         n = name.lower()
@@ -1285,10 +1290,16 @@ def detect_primary_product(title: str, slug: str, body: str) -> tuple:
             seen_spans.append((i, i + len(n)))
             idx = i + len(n)
         if c > 0:
-            counts.append((c, name, path))
+            if path == "sdk/":
+                if not sdk_fallback or c > sdk_fallback[0]:
+                    sdk_fallback = (c, name, path)
+            else:
+                counts.append((c, name, path))
     if counts:
         counts.sort(key=lambda x: -x[0])
         return (counts[0][1], counts[0][2])
+    if sdk_fallback:
+        return (sdk_fallback[1], sdk_fallback[2])
     return (None, None)
 
 
