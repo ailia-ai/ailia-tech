@@ -1155,6 +1155,39 @@ _PRODUCT_PATHS = [
     ("ailia SDK", "sdk/"),
 ]
 
+# CTA の subtitle を製品別に差し替えるためのコピー集。キーは Docs パス
+# (sdk/ / voice/ / speech/ / ...) で、値は言語コードごとの本文。
+_PRODUCT_CTA_COPY = {
+    "sdk/": {
+        "ja": "ailia SDK は ailia.ai が開発するクロスプラットフォーム対応の AI 推論エンジンです。Windows / macOS / Linux / iOS / Android で動作し、ailia MODELS の推論モデルがそのまま使えます。",
+        "en": "ailia SDK is a cross-platform AI inference engine developed by ailia.ai. It runs on Windows / macOS / Linux / iOS / Android and supports every model published in ailia MODELS out of the box.",
+    },
+    "llm/": {
+        "ja": "ailia LLM は ailia SDK と連携してエッジデバイス上で大規模言語モデル (LLM) を動作させるライブラリです。Windows / macOS / Linux / iOS / Android で動作します。",
+        "en": "ailia LLM is a library that lets large language models (LLMs) run on edge devices in concert with the ailia SDK, on Windows / macOS / Linux / iOS / Android.",
+    },
+    "voice/": {
+        "ja": "ailia AI Voice はクロスプラットフォーム対応の音声合成ライブラリです。Unity や C++ から呼び出してアプリにオフラインの TTS 機能を組み込めます。",
+        "en": "ailia AI Voice is a cross-platform voice-synthesis library callable from Unity, C++ and more, ready for fully on-device TTS in your apps.",
+    },
+    "speech/": {
+        "ja": "ailia AI Speech はクロスプラットフォーム対応の音声認識ライブラリです。Unity や C++ から呼び出してアプリにオフラインの音声認識機能を組み込めます。",
+        "en": "ailia AI Speech is a cross-platform speech-recognition library callable from Unity, C++ and more, ready for fully on-device ASR in your apps.",
+    },
+    "tokenizer/": {
+        "ja": "ailia Tokenizer は ailia SDK と組み合わせて使う自然言語処理向けトークナイザです。Unity や C++ から BERT 等の前処理を呼び出せます。",
+        "en": "ailia Tokenizer is the NLP tokenizer paired with ailia SDK so you can run BERT-style preprocessing from Unity, C++ and more.",
+    },
+    "tracker/": {
+        "ja": "ailia Tracker はクロスプラットフォーム対応の物体追跡ライブラリです。Unity や C++ から呼び出してトラッキング機能をアプリに組み込めます。",
+        "en": "ailia Tracker is a cross-platform object-tracking library callable from Unity, C++ and more for embedding tracking into your apps.",
+    },
+    "models/": {
+        "ja": "ailia MODELS は ailia SDK 上で動作する事前学習済み AI モデルのコレクションです。物体検出、姿勢推定、生成 AI、音声処理など 200 以上のモデルを公開しています。",
+        "en": "ailia MODELS is a curated collection of 200+ pre-trained AI models that run on the ailia SDK, covering detection, pose estimation, generative AI, audio, and more.",
+    },
+}
+
 
 def auto_link_products(text: str, docs_url: str) -> str:
     """本文markdown中で初めて出てくる ailia 製品名にDocsページへのリンクを
@@ -1354,9 +1387,14 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
                 cta_title = f"{product_name} を試す"
             else:
                 cta_title = f"Try {product_name}"
+            cta_subtitle = (
+                _PRODUCT_CTA_COPY.get(product_path, {}).get(lang["code"])
+                or lang["cta_subtitle"]
+            )
         else:
             cta_primary_url = lang["cta_primary_url"]
             cta_title = lang["cta_title"]
+            cta_subtitle = lang["cta_subtitle"]
 
         body_html = md.convert(cleaned)
         md.reset()
@@ -1406,7 +1444,7 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
             opening_banner=article_opening_banner(tags, lang, product_path or ""),
             footer_back=html.escape(lang["footer_back"]),
             cta_title=html.escape(cta_title),
-            cta_subtitle=html.escape(lang["cta_subtitle"]),
+            cta_subtitle=html.escape(cta_subtitle),
             cta_primary_url=html.escape(cta_primary_url, quote=True),
             cta_primary_label=html.escape(lang["cta_primary_label"]),
             cta_secondary_url=html.escape(lang["contact_url"], quote=True),
