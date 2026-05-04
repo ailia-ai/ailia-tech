@@ -1303,22 +1303,30 @@ def detect_primary_product(title: str, slug: str, body: str) -> tuple:
     return (None, None)
 
 
-def article_opening_banner(tags: list, lang: dict, product_path: str = "") -> str:
+def article_opening_banner(
+    tags: list, lang: dict, product_path: str = "", product_name: str = ""
+) -> str:
     """記事先頭に出すカテゴリ別CTAバナー。
 
     - 本文に出現する具体的な製品 (ailia AI Voice 等) が検出されていれば
-      その製品のDocsへのリンクを優先する。
-    - ailia-sdk タグ: ailia SDK の Docs へ
-    - ailia-tutorial タグ: インストール手順 (Docs/sdk) へ
-    - その他: 出さない
+      その製品のDocsへのリンクを優先する。"<Product> のドキュメント" の
+      形でラベルを作って統一感を出す。
+    - 製品が検出されない場合のみ、タグに応じて
+      ailia-sdk → ailia SDK のドキュメント
+      ailia-tutorial → インストール手順を先に見る
+      他は出さない。
     """
     docs = lang["docs_url"].rstrip("/") + "/"
-    if product_path and product_path != "sdk/":
-        # 製品固有のDocsへ。labelは tutorial label を流用 (誘導意図が同じ)。
+    if product_path and product_name:
+        target_path = product_path if product_path != "sdk/" else "sdk/"
+        if lang["code"] == "ja":
+            label = f"{product_name} のドキュメント"
+        else:
+            label = f"{product_name} documentation"
         return (
             '<aside class="article-banner">'
-            f'<a href="{html.escape(docs + product_path, quote=True)}">'
-            f'{html.escape(lang["banner_tutorial_label"])} →</a>'
+            f'<a href="{html.escape(docs + target_path, quote=True)}">'
+            f'{html.escape(label)} →</a>'
             "</aside>"
         )
     if "ailia-tutorial" in tags:
@@ -1452,7 +1460,9 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
             hreflang_links=_hreflang_links(lang["code"]),
             lang_switch=_lang_switch_html(lang["code"]),
             site_nav=_site_nav_html(lang),
-            opening_banner=article_opening_banner(tags, lang, product_path or ""),
+            opening_banner=article_opening_banner(
+                tags, lang, product_path or "", product_name or ""
+            ),
             footer_back=html.escape(lang["footer_back"]),
             cta_title=html.escape(cta_title),
             cta_subtitle=html.escape(cta_subtitle),
