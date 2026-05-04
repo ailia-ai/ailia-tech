@@ -1141,16 +1141,16 @@ def _site_nav_html(lang: dict) -> str:
 # 自動リンク先も言語に応じて切り替わる。長い名前から順にマッチさせるため
 # リストで保持し、リンク先は build 時に組み立てる。
 _PRODUCT_PATHS = [
+    # ホワイトリスト方針: docs.ailia.ai に実在するページだけを対象にする。
+    # 長い名前ほど先に置いてマッチを取る (例: "ailia AI Voice" は "ailia
+    # Voice" より先に判定する必要がある)。
+    ("ailia TFLite Runtime", "tflite/"),
     ("ailia AI Speech", "speech/"),
     ("ailia AI Voice", "voice/"),
     ("ailia Tokenizer", "tokenizer/"),
     ("ailia Tracker", "tracker/"),
-    ("ailia MODELS", "models/"),
     ("ailia Speech", "speech/"),
     ("ailia Voice", "voice/"),
-    # docs.ailia.ai/audio/ は存在しないので、ailia Audio は ailia SDK の
-    # ドキュメントトップにマップする。
-    ("ailia Audio", "sdk/"),
     ("ailia LLM", "llm/"),
     ("ailia SDK", "sdk/"),
 ]
@@ -1175,16 +1175,16 @@ _PRODUCT_CTA_COPY = {
         "en": "ailia AI Speech is a cross-platform speech-recognition library callable from Unity, C++ and more, ready for fully on-device ASR in your apps.",
     },
     "tokenizer/": {
-        "ja": "ailia Tokenizer は ailia SDK と組み合わせて使う自然言語処理向けトークナイザです。Unity や C++ から BERT 等の前処理を呼び出せます。",
-        "en": "ailia Tokenizer is the NLP tokenizer paired with ailia SDK so you can run BERT-style preprocessing from Unity, C++ and more.",
+        "ja": "ailia Tokenizer は自然言語処理向けトークナイザライブラリです。Unity や C++ から BERT 等の前処理を呼び出せます。",
+        "en": "ailia Tokenizer is an NLP tokenizer library callable from Unity, C++ and more, for BERT-style preprocessing.",
     },
     "tracker/": {
         "ja": "ailia Tracker はクロスプラットフォーム対応の物体追跡ライブラリです。Unity や C++ から呼び出してトラッキング機能をアプリに組み込めます。",
         "en": "ailia Tracker is a cross-platform object-tracking library callable from Unity, C++ and more for embedding tracking into your apps.",
     },
-    "models/": {
-        "ja": "ailia MODELS は ailia SDK 上で動作する事前学習済み AI モデルのコレクションです。物体検出、姿勢推定、生成 AI、音声処理など 400 以上のモデルを公開しています。",
-        "en": "ailia MODELS is a curated collection of 400+ pre-trained AI models that run on the ailia SDK, covering detection, pose estimation, generative AI, audio, and more.",
+    "tflite/": {
+        "ja": "ailia TFLite Runtime はクロスプラットフォーム対応の TensorFlow Lite ランタイムです。Windows / macOS / Linux / iOS / Android / WebAssembly で TFLite モデルを高速に実行できます。",
+        "en": "ailia TFLite Runtime is a cross-platform runtime for TensorFlow Lite that runs TFLite models on Windows / macOS / Linux / iOS / Android / WebAssembly.",
     },
 }
 
