@@ -342,6 +342,11 @@ body {
 }
 .post-body pre { white-space: pre-wrap; max-width: 100%; }
 .post-body table { display: block; max-width: 100%; overflow-x: auto; }
+.post-body hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 32px 0;
+}
 a { color: inherit; text-decoration: none; }
 a:hover { text-decoration: underline; }
 
