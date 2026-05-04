@@ -934,6 +934,45 @@ def inject_company_separator(text: str) -> str:
     return text
 
 
+# NLPで使う特殊トークン名のうち、HTMLでも有効な要素名と被る/被りそうな
+# ものを列挙。<s>...</s> は HTML strikethrough として描画され、本文末尾が
+# まるまる取り消し線になる事故が起きた。コードブロックの外でこれらが
+# 出現したら HTML エンティティに置換する。
+_NLP_TOKEN_NAMES = ["s", "bos", "eos", "sos", "pad", "unk", "sep", "cls", "mask"]
+_NLP_TOKEN_RE = re.compile(
+    r"</?(?:" + "|".join(_NLP_TOKEN_NAMES) + r")>", re.IGNORECASE
+)
+
+
+def escape_nlp_tokens(text: str) -> str:
+    """``<s>`` 等のNLP特殊トークンをコードブロック外でHTMLエンティティに
+    置き換える。コードブロック (fenced + inline) はプレースホルダで退避し、
+    エスケープ後に復元する。"""
+    if not text:
+        return text
+    fences: list = []
+    inline_codes: list = []
+
+    def _stash_fence(m: re.Match) -> str:
+        fences.append(m.group())
+        return f"\x01{len(fences) - 1}\x01"
+
+    def _stash_inline(m: re.Match) -> str:
+        inline_codes.append(m.group())
+        return f"\x02{len(inline_codes) - 1}\x02"
+
+    text = re.sub(r"```[\s\S]*?```", _stash_fence, text)
+    text = re.sub(r"`[^`\n]+`", _stash_inline, text)
+
+    text = _NLP_TOKEN_RE.sub(
+        lambda m: m.group().replace("<", "&lt;").replace(">", "&gt;"), text
+    )
+
+    text = re.sub(r"\x02(\d+)\x02", lambda m: inline_codes[int(m.group(1))], text)
+    text = re.sub(r"\x01(\d+)\x01", lambda m: fences[int(m.group(1))], text)
+    return text
+
+
 def _escape_inline_hash(body: str) -> str:
     """blockquote内の ``#`` をH1誤認識から救う。
 
@@ -1141,19 +1180,52 @@ def _site_nav_html(lang: dict) -> str:
 # 自動リンク先も言語に応じて切り替わる。長い名前から順にマッチさせるため
 # リストで保持し、リンク先は build 時に組み立てる。
 _PRODUCT_PATHS = [
+    # ホワイトリスト方針: docs.ailia.ai に実在するページだけを対象にする。
+    # 長い名前ほど先に置いてマッチを取る (例: "ailia AI Voice" は "ailia
+    # Voice" より先に判定する必要がある)。
+    ("ailia TFLite Runtime", "tflite/"),
     ("ailia AI Speech", "speech/"),
     ("ailia AI Voice", "voice/"),
     ("ailia Tokenizer", "tokenizer/"),
     ("ailia Tracker", "tracker/"),
-    ("ailia MODELS", "models/"),
     ("ailia Speech", "speech/"),
     ("ailia Voice", "voice/"),
-    # docs.ailia.ai/audio/ は存在しないので、ailia Audio は ailia SDK の
-    # ドキュメントトップにマップする。
-    ("ailia Audio", "sdk/"),
     ("ailia LLM", "llm/"),
     ("ailia SDK", "sdk/"),
 ]
+
+# CTA の subtitle を製品別に差し替えるためのコピー集。キーは Docs パス
+# (sdk/ / voice/ / speech/ / ...) で、値は言語コードごとの本文。
+_PRODUCT_CTA_COPY = {
+    "sdk/": {
+        "ja": "ailia SDK は ailia.ai が開発するクロスプラットフォーム対応の AI 推論エンジンです。Windows / macOS / Linux / iOS / Android で動作し、ailia MODELS の推論モデルがそのまま使えます。",
+        "en": "ailia SDK is a cross-platform AI inference engine developed by ailia.ai. It runs on Windows / macOS / Linux / iOS / Android and supports every model published in ailia MODELS out of the box.",
+    },
+    "llm/": {
+        "ja": "ailia LLM はエッジデバイス上で大規模言語モデル (LLM) を動作させるライブラリです。Windows / macOS / Linux / iOS / Android で動作します。",
+        "en": "ailia LLM is a library that runs large language models (LLMs) on edge devices, supporting Windows / macOS / Linux / iOS / Android.",
+    },
+    "voice/": {
+        "ja": "ailia AI Voice はクロスプラットフォーム対応の音声合成ライブラリです。Unity や C++ から呼び出してアプリにオフラインの TTS 機能を組み込めます。",
+        "en": "ailia AI Voice is a cross-platform voice-synthesis library callable from Unity, C++ and more, ready for fully on-device TTS in your apps.",
+    },
+    "speech/": {
+        "ja": "ailia AI Speech はクロスプラットフォーム対応の音声認識ライブラリです。Unity や C++ から呼び出してアプリにオフラインの音声認識機能を組み込めます。",
+        "en": "ailia AI Speech is a cross-platform speech-recognition library callable from Unity, C++ and more, ready for fully on-device ASR in your apps.",
+    },
+    "tokenizer/": {
+        "ja": "ailia Tokenizer は自然言語処理向けトークナイザライブラリです。Unity や C++ から BERT 等の前処理を呼び出せます。",
+        "en": "ailia Tokenizer is an NLP tokenizer library callable from Unity, C++ and more, for BERT-style preprocessing.",
+    },
+    "tracker/": {
+        "ja": "ailia Tracker はクロスプラットフォーム対応の物体追跡ライブラリです。Unity や C++ から呼び出してトラッキング機能をアプリに組み込めます。",
+        "en": "ailia Tracker is a cross-platform object-tracking library callable from Unity, C++ and more for embedding tracking into your apps.",
+    },
+    "tflite/": {
+        "ja": "ailia TFLite Runtime はクロスプラットフォーム対応の TensorFlow Lite ランタイムです。Windows / macOS / Linux / iOS / Android / WebAssembly で TFLite モデルを高速に実行できます。",
+        "en": "ailia TFLite Runtime is a cross-platform runtime for TensorFlow Lite that runs TFLite models on Windows / macOS / Linux / iOS / Android / WebAssembly.",
+    },
+}
 
 
 def auto_link_products(text: str, docs_url: str) -> str:
@@ -1214,17 +1286,88 @@ def auto_link_products(text: str, docs_url: str) -> str:
     return text
 
 
-def article_opening_banner(tags: list, lang: dict) -> str:
+def detect_primary_product(title: str, slug: str, body: str) -> tuple:
+    """記事の主題となっている ailia 製品を推定する。
+    優先順位: title → slug → body の出現頻度。
+
+    返り値: ``(display_name, docs_path)`` のタプル。判定不能時は ``(None, None)``。
+    最長マッチ優先 ("ailia AI Voice" を "ailia Voice" や "ailia" より先に判定)。"""
+    if not (title or slug or body):
+        return (None, None)
+    title_l = (title or "").lower()
+    # スラグはハイフン/アンダースコア区切りなので空白に正規化
+    slug_l = (slug or "").lower().replace("-", " ").replace("_", " ")
+    body_l = (body or "").lower()
+
+    # title / slug のどちらかに含まれていれば即決
+    for name, path in _PRODUCT_PATHS:
+        n = name.lower()
+        if n in title_l or n in slug_l:
+            return (name, path)
+
+    # 本文中の最頻出を採用 (短い名前が長い名前を侵食しないよう減算する)。
+    # ただし ``ailia SDK`` は ailia エコシステム全般の枠組み名で、ほぼ
+    # どの記事にも頻繁に出るため、より具体的な製品 (Voice / Speech /
+    # LLM / Tokenizer / Tracker / MODELS) が1回でも言及されていれば
+    # そちらを優先する。SDK は他に何も検出できなかった場合のフォールバック。
+    counts: list = []
+    sdk_fallback: tuple = ()
+    seen_spans: list = []  # (start, end) of already-counted matches
+    for name, path in _PRODUCT_PATHS:
+        n = name.lower()
+        c = 0
+        idx = 0
+        while True:
+            i = body_l.find(n, idx)
+            if i == -1:
+                break
+            # 既により長い名前で計上済みの位置はスキップ
+            if any(s <= i < e for s, e in seen_spans):
+                idx = i + 1
+                continue
+            c += 1
+            seen_spans.append((i, i + len(n)))
+            idx = i + len(n)
+        if c > 0:
+            if path == "sdk/":
+                if not sdk_fallback or c > sdk_fallback[0]:
+                    sdk_fallback = (c, name, path)
+            else:
+                counts.append((c, name, path))
+    if counts:
+        counts.sort(key=lambda x: -x[0])
+        return (counts[0][1], counts[0][2])
+    if sdk_fallback:
+        return (sdk_fallback[1], sdk_fallback[2])
+    return (None, None)
+
+
+def article_opening_banner(
+    tags: list, lang: dict, product_path: str = "", product_name: str = ""
+) -> str:
     """記事先頭に出すカテゴリ別CTAバナー。
 
-    - ailia-sdk タグ: ailia SDK の Docs へ
-    - ailia-tutorial タグ: インストール手順 (Docs/sdk) へ
-    - その他: 出さない
+    - 本文に出現する具体的な製品 (ailia AI Voice 等) が検出されていれば
+      その製品のDocsへのリンクを優先する。"<Product> のドキュメント" の
+      形でラベルを作って統一感を出す。
+    - 製品が検出されない場合のみ、タグに応じて
+      ailia-sdk → ailia SDK のドキュメント
+      ailia-tutorial → インストール手順を先に見る
+      他は出さない。
     """
     docs = lang["docs_url"].rstrip("/") + "/"
-    # docs.ailia.ai/sdk/install/ は未公開なので、tutorial / sdk いずれも
-    # 現状は SDK ドキュメントトップにリンクする (将来 install/ が出来たら
-    # 切り戻す)。
+    if product_path and product_name:
+        target_path = product_path if product_path != "sdk/" else "sdk/"
+        if lang["code"] == "ja":
+            label = f"{product_name} のドキュメント"
+        else:
+            label = f"{product_name} documentation"
+        return (
+            '<aside class="article-banner">'
+            f'<a href="{html.escape(docs + target_path, quote=True)}">'
+            f'{html.escape(label)} →</a>'
+            "</aside>"
+        )
     if "ailia-tutorial" in tags:
         return (
             '<aside class="article-banner">'
@@ -1281,7 +1424,9 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
             rewrite_internal_links(
                 inject_company_separator(
                     apply_substitutions(
-                        normalize_card_links(clean_body(body), lang["publication"])
+                        escape_nlp_tokens(
+                            normalize_card_links(clean_body(body), lang["publication"])
+                        )
                     )
                 ),
                 lang["publication"],
@@ -1289,6 +1434,27 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
             lang["docs_url"],
         )
         excerpt = extract_excerpt(cleaned)
+
+        # 記事の主題製品 (ailia AI Voice / ailia LLM など) を検出して
+        # 末尾CTAと冒頭バナーを切り替える。検出できなかった場合は
+        # LANGUAGES に書いた既定値 (ailia SDK) のまま。
+        product_name, product_path = detect_primary_product(title, slug, cleaned)
+        if product_path:
+            cta_primary_url = (
+                lang["docs_url"].rstrip("/") + "/" + product_path
+            )
+            if lang["code"] == "ja":
+                cta_title = f"{product_name} を試す"
+            else:
+                cta_title = f"Try {product_name}"
+            cta_subtitle = (
+                _PRODUCT_CTA_COPY.get(product_path, {}).get(lang["code"])
+                or lang["cta_subtitle"]
+            )
+        else:
+            cta_primary_url = lang["cta_primary_url"]
+            cta_title = lang["cta_title"]
+            cta_subtitle = lang["cta_subtitle"]
 
         body_html = md.convert(cleaned)
         md.reset()
@@ -1335,11 +1501,13 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
             hreflang_links=_hreflang_links(lang["code"]),
             lang_switch=_lang_switch_html(lang["code"]),
             site_nav=_site_nav_html(lang),
-            opening_banner=article_opening_banner(tags, lang),
+            opening_banner=article_opening_banner(
+                tags, lang, product_path or "", product_name or ""
+            ),
             footer_back=html.escape(lang["footer_back"]),
-            cta_title=html.escape(lang["cta_title"]),
-            cta_subtitle=html.escape(lang["cta_subtitle"]),
-            cta_primary_url=html.escape(lang["cta_primary_url"], quote=True),
+            cta_title=html.escape(cta_title),
+            cta_subtitle=html.escape(cta_subtitle),
+            cta_primary_url=html.escape(cta_primary_url, quote=True),
             cta_primary_label=html.escape(lang["cta_primary_label"]),
             cta_secondary_url=html.escape(lang["contact_url"], quote=True),
             cta_secondary_label=html.escape(lang["cta_secondary_label"]),
