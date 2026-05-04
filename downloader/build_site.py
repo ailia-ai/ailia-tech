@@ -1206,10 +1206,13 @@ def article_opening_banner(tags: list, lang: dict) -> str:
     - その他: 出さない
     """
     docs = lang["docs_url"].rstrip("/") + "/"
+    # docs.ailia.ai/sdk/install/ は未公開なので、tutorial / sdk いずれも
+    # 現状は SDK ドキュメントトップにリンクする (将来 install/ が出来たら
+    # 切り戻す)。
     if "ailia-tutorial" in tags:
         return (
             '<aside class="article-banner">'
-            f'<a href="{html.escape(docs + "sdk/install/", quote=True)}">'
+            f'<a href="{html.escape(docs + "sdk/", quote=True)}">'
             f'{html.escape(lang["banner_tutorial_label"])} →</a>'
             "</aside>"
         )
