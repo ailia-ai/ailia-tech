@@ -344,6 +344,14 @@ body {
 }
 .post-body pre { white-space: pre-wrap; max-width: 100%; }
 .post-body table { display: block; max-width: 100%; overflow-x: auto; }
+/* ブラウザ既定の <hr> は inset 縁取りで太く見えるので、シンプルな
+   1px の細いラインに揃える。 */
+.post-body hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  height: 0;
+  margin: 28px 0;
+}
 a { color: inherit; text-decoration: none; }
 a:hover { text-decoration: underline; }
 
