@@ -98,7 +98,7 @@ LANGUAGES = [
         "cta_title": "Try ailia SDK",
         "cta_subtitle": "ailia SDK is a cross-platform AI inference engine developed by ailia.ai. It runs on Windows / macOS / Linux / iOS / Android and supports every model published in ailia MODELS out of the box.",
         "cta_primary_url": "https://docs.ailia.ai/en/sdk/",
-        "cta_primary_label": "Read the docs",
+        "cta_primary_label": "Get Started",
         "cta_secondary_label": "Contact us",
         "banner_sdk_label": "ailia SDK documentation",
         "banner_tutorial_label": "Jump to install instructions",
