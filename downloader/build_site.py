@@ -62,6 +62,18 @@ LANGUAGES = [
         "footer_back": "← 記事一覧へ",
         "publication": "axinc",
         "ailia_url": "https://ailia.ai/",
+        "docs_url": "https://docs.ailia.ai/",
+        "github_url": "https://github.com/ailia-ai/ailia-models",
+        "contact_url": "https://ailia.ai/contact/",
+        "nav_docs_label": "Docs",
+        "nav_github_label": "GitHub",
+        "cta_title": "ailia SDK を試す",
+        "cta_subtitle": "ailia SDK は ailia.ai が開発するクロスプラットフォーム対応の AI 推論エンジンです。Windows / macOS / Linux / iOS / Android で動作し、ailia MODELS の推論モデルがそのまま使えます。",
+        "cta_primary_url": "https://docs.ailia.ai/sdk/",
+        "cta_primary_label": "インストール手順",
+        "cta_secondary_label": "お問い合わせ",
+        "banner_sdk_label": "ailia SDK のドキュメント",
+        "banner_tutorial_label": "インストール手順を先に見る",
     },
     {
         "code": "en",
@@ -78,6 +90,18 @@ LANGUAGES = [
         "footer_back": "← All posts",
         "publication": "axinc-ai",
         "ailia_url": "https://ailia.ai/en/",
+        "docs_url": "https://docs.ailia.ai/en/",
+        "github_url": "https://github.com/ailia-ai/ailia-models",
+        "contact_url": "https://ailia.ai/en/contact/",
+        "nav_docs_label": "Docs",
+        "nav_github_label": "GitHub",
+        "cta_title": "Try ailia SDK",
+        "cta_subtitle": "ailia SDK is a cross-platform AI inference engine developed by ailia.ai. It runs on Windows / macOS / Linux / iOS / Android and supports every model published in ailia MODELS out of the box.",
+        "cta_primary_url": "https://docs.ailia.ai/en/sdk/",
+        "cta_primary_label": "Get Started",
+        "cta_secondary_label": "Contact us",
+        "banner_sdk_label": "ailia SDK documentation",
+        "banner_tutorial_label": "Jump to install instructions",
     },
 ]
 
@@ -119,7 +143,10 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
 </head>
 <body>
 {gtm_body}
-<nav class="lang-switch" aria-label="Language">{lang_switch}</nav>
+<div class="site-top">
+  <nav class="site-nav" aria-label="Site">{site_nav}</nav>
+  <nav class="lang-switch" aria-label="Language">{lang_switch}</nav>
+</div>
 <header class="pub-header">
   <img src="{logo}" alt="{title}" class="pub-logo">
   <div class="pub-meta">
@@ -255,7 +282,10 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 </head>
 <body class="page-article">
 {gtm_body}
-<nav class="lang-switch" aria-label="Language">{lang_switch}</nav>
+<div class="site-top">
+  <nav class="site-nav" aria-label="Site">{site_nav}</nav>
+  <nav class="lang-switch" aria-label="Language">{lang_switch}</nav>
+</div>
 <header class="post-nav">
   <a href="../"><img src="{logo}" alt="{pub_title}" class="post-nav-logo">{pub_title}</a>
 </header>
@@ -264,9 +294,18 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
     <h1>{title}</h1>
     <p class="post-meta"><span class="post-author">{author}</span><span class="post-date">{date}</span></p>
   </header>
+  {opening_banner}
   <div class="post-body">
 {content}
   </div>
+  <aside class="article-cta" aria-label="Try ailia SDK">
+    <h3>{cta_title}</h3>
+    <p>{cta_subtitle}</p>
+    <p class="cta-buttons">
+      <a class="cta-primary" href="{cta_primary_url}">{cta_primary_label}</a>
+      <a class="cta-secondary" href="{cta_secondary_url}">{cta_secondary_label}</a>
+    </p>
+  </aside>
 </article>
 <footer class="site-footer">
   <p><a href="../">{footer_back}</a></p>
@@ -305,26 +344,91 @@ body {
 }
 .post-body pre { white-space: pre-wrap; max-width: 100%; }
 .post-body table { display: block; max-width: 100%; overflow-x: auto; }
+/* ブラウザ既定の <hr> は inset 縁取りで太く見えるので、シンプルな
+   1px の細いラインに揃える。 */
+.post-body hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  height: 0;
+  margin: 28px 0;
+}
 a { color: inherit; text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-/* Language switcher */
-.lang-switch {
+/* Top bar: site navigation + language switcher */
+.site-top {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  font-size: 0.85em;
-  padding: 4px 0 0;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 6px 0 4px;
+  font-size: 0.88em;
+  flex-wrap: wrap;
 }
+.site-nav { display: flex; gap: 4px; flex-wrap: wrap; }
+.site-nav a {
+  color: var(--fg);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.site-nav a:hover { background: var(--hover); }
+.lang-switch { display: flex; gap: 6px; }
 .lang-switch a {
   color: var(--fg-muted);
   text-decoration: none;
   padding: 4px 10px;
   border-radius: 999px;
   border: 1px solid transparent;
+  font-weight: 600;
 }
 .lang-switch a.active { color: var(--fg); border-color: var(--border); }
 .lang-switch a:hover { background: var(--hover); }
+
+/* Opening banner: category-aware callout shown above the article body */
+.article-banner {
+  margin: 0 0 28px;
+  padding: 10px 16px;
+  border-left: 3px solid var(--link);
+  background: #f3faf3;
+  font-size: 0.92em;
+}
+.article-banner a { color: var(--link); text-decoration: none; font-weight: 600; }
+.article-banner a:hover { text-decoration: underline; }
+
+/* End-of-article CTA */
+.article-cta {
+  margin: 48px 0 16px;
+  padding: 22px 24px 24px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fbfbfb 0%, #f3f6f9 100%);
+}
+.article-cta h3 {
+  margin: 0 0 8px;
+  font-size: 1.15em;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.article-cta p { margin: 0 0 14px; color: var(--fg-muted); font-size: 0.95em; line-height: 1.6; }
+.article-cta .cta-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 0; }
+.article-cta .cta-primary,
+.article-cta .cta-secondary {
+  display: inline-block;
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-size: 0.9em;
+  font-weight: 600;
+  text-decoration: none;
+}
+.article-cta .cta-primary { background: var(--fg); color: #fff !important; }
+.article-cta .cta-primary:hover { background: #000; text-decoration: none; }
+.article-cta .cta-secondary {
+  background: #fff;
+  color: var(--fg) !important;
+  border: 1px solid var(--border);
+}
+.article-cta .cta-secondary:hover { background: var(--hover); text-decoration: none; }
 
 /* Publication header (index page) */
 .pub-header {
@@ -804,7 +908,13 @@ def rewrite_internal_links(text: str, lang_pub: str = "axinc") -> str:
 
 
 _BOILERPLATE_LEAD_RE = re.compile(
-    r"\n+(アイリア株式会社(?:は|では|の)|AIで、しごとするなら|株式会社アクセル)"
+    # 会社名がmarkdownリンク化されているケース ([アイリア株式会社](...) や
+    # [ailia Inc.](...)) もあるため、先頭の "[" を任意で受け付ける。
+    r"\n+(\[?(?:アイリア株式会社(?:は|では|の|\])"
+    r"|AIで、しごとするなら"
+    r"|株式会社アクセル"
+    r"|ailia Inc\."
+    r"))"
 )
 _REDUNDANT_HR_RE = re.compile(r"(?:\n*---\n+){2,}")
 
@@ -1013,6 +1123,125 @@ def _lang_switch_html(current_lang_code: str) -> str:
     return "".join(parts)
 
 
+def _site_nav_html(lang: dict) -> str:
+    """ヘッダー左寄せのサイトナビゲーション。検索流入してきた読者を
+    Docs / GitHub に誘導するための共通リンクをすべてのページに表示する。"""
+    items = [
+        ("ailia.ai", lang["ailia_url"]),
+        (lang["nav_docs_label"], lang["docs_url"]),
+        (lang["nav_github_label"], lang["github_url"]),
+    ]
+    return "".join(
+        f'<a href="{html.escape(url, quote=True)}">{html.escape(label)}</a>'
+        for label, url in items
+    )
+
+
+# 製品名 → Docs上のサブパス。``docs_url`` は言語別 (en は /en/) なので
+# 自動リンク先も言語に応じて切り替わる。長い名前から順にマッチさせるため
+# リストで保持し、リンク先は build 時に組み立てる。
+_PRODUCT_PATHS = [
+    ("ailia AI Speech", "speech/"),
+    ("ailia AI Voice", "voice/"),
+    ("ailia Tokenizer", "tokenizer/"),
+    ("ailia Tracker", "tracker/"),
+    ("ailia MODELS", "models/"),
+    ("ailia Speech", "speech/"),
+    ("ailia Voice", "voice/"),
+    # docs.ailia.ai/audio/ は存在しないので、ailia Audio は ailia SDK の
+    # ドキュメントトップにマップする。
+    ("ailia Audio", "sdk/"),
+    ("ailia LLM", "llm/"),
+    ("ailia SDK", "sdk/"),
+]
+
+
+def auto_link_products(text: str, docs_url: str) -> str:
+    """本文markdown中で初めて出てくる ailia 製品名にDocsページへのリンクを
+    付与する。
+
+    実装は次の手順:
+      1. 既存の markdown link `[..](..)` と fenced code block を一時的に
+         プレースホルダ ``\\x00n\\x00`` / ``\\x01n\\x01`` に退避。これで
+         「リンクのテキスト中の製品名」「コード内の製品名」を誤マッチ
+         させないようにする。
+      2. 長い名前から順に ``count=1`` で置換し、初出だけリンク化。
+         同じ名前を2回以上自動リンクするとくどくなるのでスキップ。
+      3. プレースホルダを元に戻す。
+    """
+    if not text:
+        return text
+
+    # Step 1: stash markdown links and fenced code blocks
+    links: list = []
+    code_fences: list = []
+
+    def _stash_link(m: re.Match) -> str:
+        links.append(m.group())
+        return f"\x00{len(links) - 1}\x00"
+
+    def _stash_code(m: re.Match) -> str:
+        code_fences.append(m.group())
+        return f"\x01{len(code_fences) - 1}\x01"
+
+    # Fenced code blocks are matched first to avoid eating the closing ```
+    # of a code block as part of an inline backtick later.
+    text = re.sub(r"```[\s\S]*?```", _stash_code, text)
+    # Inline code `like this`
+    text = re.sub(r"`[^`\n]+`", _stash_code, text)
+    # Image references ![alt](url) - tag images BEFORE plain links so the
+    # leading `!` stays glued to its alt/url
+    text = re.sub(r"!\[[^\]]*\]\([^)]+\)", _stash_link, text)
+    # Plain markdown links [text](url)
+    text = re.sub(r"\[[^\]]+\]\([^)]+\)", _stash_link, text)
+
+    # Step 2: substitute first occurrence per product
+    seen = set()
+    for name, path in _PRODUCT_PATHS:
+        if name in seen:
+            continue
+        url = docs_url.rstrip("/") + "/" + path
+        pattern = re.compile(r"(?<![A-Za-z0-9_/\.])" + re.escape(name) + r"(?![A-Za-z0-9_])")
+        text, n = pattern.subn(f"[{name}]({url})", text, count=1)
+        if n:
+            seen.add(name)
+
+    # Step 3: restore placeholders
+    text = re.sub(
+        r"\x01(\d+)\x01", lambda m: code_fences[int(m.group(1))], text
+    )
+    text = re.sub(r"\x00(\d+)\x00", lambda m: links[int(m.group(1))], text)
+    return text
+
+
+def article_opening_banner(tags: list, lang: dict) -> str:
+    """記事先頭に出すカテゴリ別CTAバナー。
+
+    - ailia-sdk タグ: ailia SDK の Docs へ
+    - ailia-tutorial タグ: インストール手順 (Docs/sdk) へ
+    - その他: 出さない
+    """
+    docs = lang["docs_url"].rstrip("/") + "/"
+    # docs.ailia.ai/sdk/install/ は未公開なので、tutorial / sdk いずれも
+    # 現状は SDK ドキュメントトップにリンクする (将来 install/ が出来たら
+    # 切り戻す)。
+    if "ailia-tutorial" in tags:
+        return (
+            '<aside class="article-banner">'
+            f'<a href="{html.escape(docs + "sdk/", quote=True)}">'
+            f'{html.escape(lang["banner_tutorial_label"])} →</a>'
+            "</aside>"
+        )
+    if "ailia-sdk" in tags:
+        return (
+            '<aside class="article-banner">'
+            f'<a href="{html.escape(docs + "sdk/", quote=True)}">'
+            f'{html.escape(lang["banner_sdk_label"])} →</a>'
+            "</aside>"
+        )
+    return ""
+
+
 def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
     """1言語分の記事と index ページをビルドし、posts (sitemap用) を返す。"""
     out = output_root / lang["site_path"].rstrip("/") if lang["site_path"] else output_root
@@ -1048,13 +1277,16 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
             tags = [t.strip() for t in tags.split(",") if t.strip()]
 
         thumb_url = extract_thumbnail(body)
-        cleaned = rewrite_internal_links(
-            inject_company_separator(
-                apply_substitutions(
-                    normalize_card_links(clean_body(body), lang["publication"])
-                )
+        cleaned = auto_link_products(
+            rewrite_internal_links(
+                inject_company_separator(
+                    apply_substitutions(
+                        normalize_card_links(clean_body(body), lang["publication"])
+                    )
+                ),
+                lang["publication"],
             ),
-            lang["publication"],
+            lang["docs_url"],
         )
         excerpt = extract_excerpt(cleaned)
 
@@ -1102,7 +1334,15 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
             logo=html.escape(PUBLICATION_LOGO, quote=True),
             hreflang_links=_hreflang_links(lang["code"]),
             lang_switch=_lang_switch_html(lang["code"]),
+            site_nav=_site_nav_html(lang),
+            opening_banner=article_opening_banner(tags, lang),
             footer_back=html.escape(lang["footer_back"]),
+            cta_title=html.escape(lang["cta_title"]),
+            cta_subtitle=html.escape(lang["cta_subtitle"]),
+            cta_primary_url=html.escape(lang["cta_primary_url"], quote=True),
+            cta_primary_label=html.escape(lang["cta_primary_label"]),
+            cta_secondary_url=html.escape(lang["contact_url"], quote=True),
+            cta_secondary_label=html.escape(lang["cta_secondary_label"]),
             gtm_head=GTM_HEAD,
             gtm_body=GTM_BODY,
         )
@@ -1187,6 +1427,7 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
         empty_state=html.escape(lang["empty_state"]),
         hreflang_links=_hreflang_links(lang["code"]),
         lang_switch=_lang_switch_html(lang["code"]),
+        site_nav=_site_nav_html(lang),
         gtm_head=GTM_HEAD,
         gtm_body=GTM_BODY,
     )
