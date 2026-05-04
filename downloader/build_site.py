@@ -62,6 +62,15 @@ LANGUAGES = [
         "footer_back": "← 記事一覧へ",
         "publication": "axinc",
         "ailia_url": "https://ailia.ai/",
+        "docs_url": "https://docs.ailia.ai/",
+        "github_url": "https://github.com/ailia-ai/ailia-models",
+        "contact_url": "https://ailia.ai/",
+        "nav_docs_label": "Docs",
+        "nav_github_label": "GitHub",
+        "cta_title": "ailia SDK を試す",
+        "cta_subtitle": "ailia SDK は ailia.ai が開発するクロスプラットフォーム対応の AI 推論エンジンです。Windows / macOS / Linux / iOS / Android で動作し、ailia MODELS の推論モデルがそのまま使えます。",
+        "cta_primary_label": "Docs / インストール手順",
+        "cta_secondary_label": "お問い合わせ",
     },
     {
         "code": "en",
@@ -78,6 +87,15 @@ LANGUAGES = [
         "footer_back": "← All posts",
         "publication": "axinc-ai",
         "ailia_url": "https://ailia.ai/en/",
+        "docs_url": "https://docs.ailia.ai/",
+        "github_url": "https://github.com/ailia-ai/ailia-models",
+        "contact_url": "https://ailia.ai/en/",
+        "nav_docs_label": "Docs",
+        "nav_github_label": "GitHub",
+        "cta_title": "Try ailia SDK",
+        "cta_subtitle": "ailia SDK is a cross-platform AI inference engine developed by ailia.ai. It runs on Windows / macOS / Linux / iOS / Android and supports every model published in ailia MODELS out of the box.",
+        "cta_primary_label": "Read the docs",
+        "cta_secondary_label": "Contact us",
     },
 ]
 
@@ -119,7 +137,10 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
 </head>
 <body>
 {gtm_body}
-<nav class="lang-switch" aria-label="Language">{lang_switch}</nav>
+<div class="site-top">
+  <nav class="site-nav" aria-label="Site">{site_nav}</nav>
+  <nav class="lang-switch" aria-label="Language">{lang_switch}</nav>
+</div>
 <header class="pub-header">
   <img src="{logo}" alt="{title}" class="pub-logo">
   <div class="pub-meta">
@@ -255,7 +276,10 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 </head>
 <body class="page-article">
 {gtm_body}
-<nav class="lang-switch" aria-label="Language">{lang_switch}</nav>
+<div class="site-top">
+  <nav class="site-nav" aria-label="Site">{site_nav}</nav>
+  <nav class="lang-switch" aria-label="Language">{lang_switch}</nav>
+</div>
 <header class="post-nav">
   <a href="../"><img src="{logo}" alt="{pub_title}" class="post-nav-logo">{pub_title}</a>
 </header>
@@ -267,6 +291,14 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
   <div class="post-body">
 {content}
   </div>
+  <aside class="article-cta" aria-label="Try ailia SDK">
+    <h3>{cta_title}</h3>
+    <p>{cta_subtitle}</p>
+    <p class="cta-buttons">
+      <a class="cta-primary" href="{cta_primary_url}">{cta_primary_label}</a>
+      <a class="cta-secondary" href="{cta_secondary_url}">{cta_secondary_label}</a>
+    </p>
+  </aside>
 </article>
 <footer class="site-footer">
   <p><a href="../">{footer_back}</a></p>
@@ -308,23 +340,69 @@ body {
 a { color: inherit; text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-/* Language switcher */
-.lang-switch {
+/* Top bar: site navigation + language switcher */
+.site-top {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  font-size: 0.85em;
-  padding: 4px 0 0;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 6px 0 4px;
+  font-size: 0.88em;
+  flex-wrap: wrap;
 }
+.site-nav { display: flex; gap: 4px; flex-wrap: wrap; }
+.site-nav a {
+  color: var(--fg);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.site-nav a:hover { background: var(--hover); }
+.lang-switch { display: flex; gap: 6px; }
 .lang-switch a {
   color: var(--fg-muted);
   text-decoration: none;
   padding: 4px 10px;
   border-radius: 999px;
   border: 1px solid transparent;
+  font-weight: 600;
 }
 .lang-switch a.active { color: var(--fg); border-color: var(--border); }
 .lang-switch a:hover { background: var(--hover); }
+
+/* End-of-article CTA */
+.article-cta {
+  margin: 48px 0 16px;
+  padding: 22px 24px 24px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fbfbfb 0%, #f3f6f9 100%);
+}
+.article-cta h3 {
+  margin: 0 0 8px;
+  font-size: 1.15em;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.article-cta p { margin: 0 0 14px; color: var(--fg-muted); font-size: 0.95em; line-height: 1.6; }
+.article-cta .cta-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 0; }
+.article-cta .cta-primary,
+.article-cta .cta-secondary {
+  display: inline-block;
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-size: 0.9em;
+  font-weight: 600;
+  text-decoration: none;
+}
+.article-cta .cta-primary { background: var(--fg); color: #fff !important; }
+.article-cta .cta-primary:hover { background: #000; text-decoration: none; }
+.article-cta .cta-secondary {
+  background: #fff;
+  color: var(--fg) !important;
+  border: 1px solid var(--border);
+}
+.article-cta .cta-secondary:hover { background: var(--hover); text-decoration: none; }
 
 /* Publication header (index page) */
 .pub-header {
@@ -1013,6 +1091,20 @@ def _lang_switch_html(current_lang_code: str) -> str:
     return "".join(parts)
 
 
+def _site_nav_html(lang: dict) -> str:
+    """ヘッダー左寄せのサイトナビゲーション。検索流入してきた読者を
+    Docs / GitHub に誘導するための共通リンクをすべてのページに表示する。"""
+    items = [
+        ("ailia.ai", lang["ailia_url"]),
+        (lang["nav_docs_label"], lang["docs_url"]),
+        (lang["nav_github_label"], lang["github_url"]),
+    ]
+    return "".join(
+        f'<a href="{html.escape(url, quote=True)}">{html.escape(label)}</a>'
+        for label, url in items
+    )
+
+
 def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
     """1言語分の記事と index ページをビルドし、posts (sitemap用) を返す。"""
     out = output_root / lang["site_path"].rstrip("/") if lang["site_path"] else output_root
@@ -1102,7 +1194,14 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
             logo=html.escape(PUBLICATION_LOGO, quote=True),
             hreflang_links=_hreflang_links(lang["code"]),
             lang_switch=_lang_switch_html(lang["code"]),
+            site_nav=_site_nav_html(lang),
             footer_back=html.escape(lang["footer_back"]),
+            cta_title=html.escape(lang["cta_title"]),
+            cta_subtitle=html.escape(lang["cta_subtitle"]),
+            cta_primary_url=html.escape(lang["docs_url"], quote=True),
+            cta_primary_label=html.escape(lang["cta_primary_label"]),
+            cta_secondary_url=html.escape(lang["contact_url"], quote=True),
+            cta_secondary_label=html.escape(lang["cta_secondary_label"]),
             gtm_head=GTM_HEAD,
             gtm_body=GTM_BODY,
         )
@@ -1187,6 +1286,7 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
         empty_state=html.escape(lang["empty_state"]),
         hreflang_links=_hreflang_links(lang["code"]),
         lang_switch=_lang_switch_html(lang["code"]),
+        site_nav=_site_nav_html(lang),
         gtm_head=GTM_HEAD,
         gtm_body=GTM_BODY,
     )
