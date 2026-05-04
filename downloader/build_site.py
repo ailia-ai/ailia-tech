@@ -71,6 +71,8 @@ LANGUAGES = [
         "cta_subtitle": "ailia SDK は ailia.ai が開発するクロスプラットフォーム対応の AI 推論エンジンです。Windows / macOS / Linux / iOS / Android で動作し、ailia MODELS の推論モデルがそのまま使えます。",
         "cta_primary_label": "Docs / インストール手順",
         "cta_secondary_label": "お問い合わせ",
+        "banner_sdk_label": "ailia SDK のドキュメント",
+        "banner_tutorial_label": "インストール手順を先に見る",
     },
     {
         "code": "en",
@@ -87,7 +89,7 @@ LANGUAGES = [
         "footer_back": "← All posts",
         "publication": "axinc-ai",
         "ailia_url": "https://ailia.ai/en/",
-        "docs_url": "https://docs.ailia.ai/",
+        "docs_url": "https://docs.ailia.ai/en/",
         "github_url": "https://github.com/ailia-ai/ailia-models",
         "contact_url": "https://ailia.ai/en/",
         "nav_docs_label": "Docs",
@@ -96,6 +98,8 @@ LANGUAGES = [
         "cta_subtitle": "ailia SDK is a cross-platform AI inference engine developed by ailia.ai. It runs on Windows / macOS / Linux / iOS / Android and supports every model published in ailia MODELS out of the box.",
         "cta_primary_label": "Read the docs",
         "cta_secondary_label": "Contact us",
+        "banner_sdk_label": "ailia SDK documentation",
+        "banner_tutorial_label": "Jump to install instructions",
     },
 ]
 
@@ -288,6 +292,7 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
     <h1>{title}</h1>
     <p class="post-meta"><span class="post-author">{author}</span><span class="post-date">{date}</span></p>
   </header>
+  {opening_banner}
   <div class="post-body">
 {content}
   </div>
@@ -369,6 +374,17 @@ a:hover { text-decoration: underline; }
 }
 .lang-switch a.active { color: var(--fg); border-color: var(--border); }
 .lang-switch a:hover { background: var(--hover); }
+
+/* Opening banner: category-aware callout shown above the article body */
+.article-banner {
+  margin: 0 0 28px;
+  padding: 10px 16px;
+  border-left: 3px solid var(--link);
+  background: #f3faf3;
+  font-size: 0.92em;
+}
+.article-banner a { color: var(--link); text-decoration: none; font-weight: 600; }
+.article-banner a:hover { text-decoration: underline; }
 
 /* End-of-article CTA */
 .article-cta {
@@ -1105,6 +1121,106 @@ def _site_nav_html(lang: dict) -> str:
     )
 
 
+# 製品名 → Docs上のサブパス。``docs_url`` は言語別 (en は /en/) なので
+# 自動リンク先も言語に応じて切り替わる。長い名前から順にマッチさせるため
+# リストで保持し、リンク先は build 時に組み立てる。
+_PRODUCT_PATHS = [
+    ("ailia AI Speech", "speech/"),
+    ("ailia AI Voice", "voice/"),
+    ("ailia Tokenizer", "tokenizer/"),
+    ("ailia Tracker", "tracker/"),
+    ("ailia MODELS", "models/"),
+    ("ailia Speech", "speech/"),
+    ("ailia Voice", "voice/"),
+    ("ailia Audio", "audio/"),
+    ("ailia LLM", "llm/"),
+    ("ailia SDK", "sdk/"),
+]
+
+
+def auto_link_products(text: str, docs_url: str) -> str:
+    """本文markdown中で初めて出てくる ailia 製品名にDocsページへのリンクを
+    付与する。
+
+    実装は次の手順:
+      1. 既存の markdown link `[..](..)` と fenced code block を一時的に
+         プレースホルダ ``\\x00n\\x00`` / ``\\x01n\\x01`` に退避。これで
+         「リンクのテキスト中の製品名」「コード内の製品名」を誤マッチ
+         させないようにする。
+      2. 長い名前から順に ``count=1`` で置換し、初出だけリンク化。
+         同じ名前を2回以上自動リンクするとくどくなるのでスキップ。
+      3. プレースホルダを元に戻す。
+    """
+    if not text:
+        return text
+
+    # Step 1: stash markdown links and fenced code blocks
+    links: list = []
+    code_fences: list = []
+
+    def _stash_link(m: re.Match) -> str:
+        links.append(m.group())
+        return f"\x00{len(links) - 1}\x00"
+
+    def _stash_code(m: re.Match) -> str:
+        code_fences.append(m.group())
+        return f"\x01{len(code_fences) - 1}\x01"
+
+    # Fenced code blocks are matched first to avoid eating the closing ```
+    # of a code block as part of an inline backtick later.
+    text = re.sub(r"```[\s\S]*?```", _stash_code, text)
+    # Inline code `like this`
+    text = re.sub(r"`[^`\n]+`", _stash_code, text)
+    # Image references ![alt](url) - tag images BEFORE plain links so the
+    # leading `!` stays glued to its alt/url
+    text = re.sub(r"!\[[^\]]*\]\([^)]+\)", _stash_link, text)
+    # Plain markdown links [text](url)
+    text = re.sub(r"\[[^\]]+\]\([^)]+\)", _stash_link, text)
+
+    # Step 2: substitute first occurrence per product
+    seen = set()
+    for name, path in _PRODUCT_PATHS:
+        if name in seen:
+            continue
+        url = docs_url.rstrip("/") + "/" + path
+        pattern = re.compile(r"(?<![A-Za-z0-9_/\.])" + re.escape(name) + r"(?![A-Za-z0-9_])")
+        text, n = pattern.subn(f"[{name}]({url})", text, count=1)
+        if n:
+            seen.add(name)
+
+    # Step 3: restore placeholders
+    text = re.sub(
+        r"\x01(\d+)\x01", lambda m: code_fences[int(m.group(1))], text
+    )
+    text = re.sub(r"\x00(\d+)\x00", lambda m: links[int(m.group(1))], text)
+    return text
+
+
+def article_opening_banner(tags: list, lang: dict) -> str:
+    """記事先頭に出すカテゴリ別CTAバナー。
+
+    - ailia-sdk タグ: ailia SDK の Docs へ
+    - ailia-tutorial タグ: インストール手順 (Docs/sdk) へ
+    - その他: 出さない
+    """
+    docs = lang["docs_url"].rstrip("/") + "/"
+    if "ailia-tutorial" in tags:
+        return (
+            '<aside class="article-banner">'
+            f'<a href="{html.escape(docs + "sdk/install/", quote=True)}">'
+            f'{html.escape(lang["banner_tutorial_label"])} →</a>'
+            "</aside>"
+        )
+    if "ailia-sdk" in tags:
+        return (
+            '<aside class="article-banner">'
+            f'<a href="{html.escape(docs + "sdk/", quote=True)}">'
+            f'{html.escape(lang["banner_sdk_label"])} →</a>'
+            "</aside>"
+        )
+    return ""
+
+
 def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
     """1言語分の記事と index ページをビルドし、posts (sitemap用) を返す。"""
     out = output_root / lang["site_path"].rstrip("/") if lang["site_path"] else output_root
@@ -1140,13 +1256,16 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
             tags = [t.strip() for t in tags.split(",") if t.strip()]
 
         thumb_url = extract_thumbnail(body)
-        cleaned = rewrite_internal_links(
-            inject_company_separator(
-                apply_substitutions(
-                    normalize_card_links(clean_body(body), lang["publication"])
-                )
+        cleaned = auto_link_products(
+            rewrite_internal_links(
+                inject_company_separator(
+                    apply_substitutions(
+                        normalize_card_links(clean_body(body), lang["publication"])
+                    )
+                ),
+                lang["publication"],
             ),
-            lang["publication"],
+            lang["docs_url"],
         )
         excerpt = extract_excerpt(cleaned)
 
@@ -1195,6 +1314,7 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
             hreflang_links=_hreflang_links(lang["code"]),
             lang_switch=_lang_switch_html(lang["code"]),
             site_nav=_site_nav_html(lang),
+            opening_banner=article_opening_banner(tags, lang),
             footer_back=html.escape(lang["footer_back"]),
             cta_title=html.escape(lang["cta_title"]),
             cta_subtitle=html.escape(lang["cta_subtitle"]),
