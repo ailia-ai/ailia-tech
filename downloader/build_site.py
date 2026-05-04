@@ -1132,7 +1132,9 @@ _PRODUCT_PATHS = [
     ("ailia MODELS", "models/"),
     ("ailia Speech", "speech/"),
     ("ailia Voice", "voice/"),
-    ("ailia Audio", "audio/"),
+    # docs.ailia.ai/audio/ は存在しないので、ailia Audio は ailia SDK の
+    # ドキュメントトップにマップする。
+    ("ailia Audio", "sdk/"),
     ("ailia LLM", "llm/"),
     ("ailia SDK", "sdk/"),
 ]
