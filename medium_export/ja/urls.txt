@@ -181,6 +181,7 @@ https://medium.com/axinc/pytorchのnn-maxunpool2dをonnxにエクスポートす
 https://medium.com/axinc/qwen-audio-音を入力してテキストを生成可能なaudio-language-model-57d3a5c71643
 https://medium.com/axinc/qwen2-vl-ローカルで動作するvision-language-model-b6f75fa30a08
 https://medium.com/axinc/raft-optical-flowを推定する機械学習モデル-bf898965de05
+https://medium.com/axinc/react-推論と行動を融合するaiエージェントの基本パラダイム-212788dc72c0
 https://medium.com/axinc/real-esrgan-デノイズを強化した超解像モデル-91a434b3683b
 https://medium.com/axinc/retinaface-高解像度に対応した顔検出モデル-37d0807581ce
 https://medium.com/axinc/roc曲線とauc-機械学習モデルの評価指標-6fd98974576c
