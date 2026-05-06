@@ -32,6 +32,14 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+# 同じ run の中で push 後の build/deploy まで完結させたいので、
+# pages.yml と同じ concurrency group で deploy をシリアライズする。
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   scrape:
@@ -107,3 +115,37 @@ jobs:
           fi
           git commit -m "$msg"
           git push
+
+  # GITHUB_TOKEN が push したコミットは別ワークフローを発火させないため、
+  # pages.yml の build/deploy 相当をこの workflow 内で直接実行する。
+  # scrape の commit が無くても (新着記事ゼロでも) main を再ビルドして
+  # 取りこぼしを救済できるよう、scrape job の成否に関わらず実行する。
+  build:
+    needs: scrape
+    if: ${{ always() && needs.scrape.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # scrape job が push した最新コミットを取得するため
+          # 起動時 SHA ではなく branch HEAD を明示的に指す。
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install markdown
+      - run: python downloader/build_site.py --source medium_export --output _site
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

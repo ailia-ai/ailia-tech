@@ -39,9 +39,7 @@ import markdown
 GTM_ID = "GTM-5Q579RMM"
 PUBLICATION_TITLE = "ailia Tech BLOG"
 PUBLICATION_TAGLINE = "The latest technology related to AI."
-PUBLICATION_LOGO = (
-    "https://miro.medium.com/v2/resize:fill:160:160/1*5yfBcdCERuuQ1y98iuvhAg.png"
-)
+PUBLICATION_LOGO = "https://tech.ailia.ai/logo.png"
 
 # 言語別の設定。site_url_path は SITE_BASE_URL からの相対 (空 or "en/" 等)、
 # articles_label は記事カウント表記、search_placeholder は検索ボックスの
@@ -138,6 +136,7 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
 <meta name="twitter:title" content="{title}">
 <meta name="twitter:description" content="{tagline}">
 <meta name="twitter:image" content="{logo}">
+<link rel="shortcut icon" type="image/png" href="/favicon.png">
 <link rel="stylesheet" href="/style.css">
 {gtm_head}
 </head>
@@ -277,6 +276,7 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <meta name="twitter:description" content="{excerpt}">
 <meta name="twitter:image" content="{og_image}">
 <script type="application/ld+json">{ld_json}</script>
+<link rel="shortcut icon" type="image/png" href="/favicon.png">
 <link rel="stylesheet" href="/style.css">
 {gtm_head}
 </head>
@@ -1619,6 +1619,11 @@ def build(source_root: Path, output: Path) -> int:
     # 共有アセット
     (output / "style.css").write_text(CSS, encoding="utf-8")
     (output / "CNAME").write_text(SITE_HOST + "\n", encoding="utf-8")
+    assets_dir = Path(__file__).parent / "assets"
+    for asset_name in ("favicon.png", "logo.png"):
+        src = assets_dir / asset_name
+        if src.exists():
+            shutil.copy(src, output / asset_name)
     _write_sitemap_combined(all_posts, output)
     _write_robots(output)
 

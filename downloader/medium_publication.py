@@ -219,27 +219,36 @@ def collect_urls_from_references(
     if not articles_dir.exists():
         return []
     found: set = set()
+    pub_prefix = f"{publication}/"
     medium_pub_re = re.compile(
         r"https?://medium\.com/" + re.escape(publication) + r"/([^?\s)\"<>]+)"
     )
+
+    def _emit(slug: str) -> None:
+        # 英語版 (axinc-ai) のように publication slug が記事相対パスにそのまま
+        # 含まれる事があり、二重に prefix を付けると medium.com/axinc-ai/axinc-ai/...
+        # のような不正URLになるため、先頭の <publication>/ は剥がしてから組み立てる。
+        if slug.startswith(pub_prefix):
+            slug = slug[len(pub_prefix):]
+        # /@user/... 等、別 publication / ユーザー scope のパスは publication の
+        # 配下に勝手に組み入れない (誤った URL を生成してしまう)。
+        if "/" in slug:
+            return
+        if not _HEX_ID_RE.search(slug):
+            return
+        if ref_domain == "medium.com":
+            found.add(f"https://medium.com/{publication}/{slug}")
+        else:
+            found.add(f"https://{ref_domain}/{slug}")
+
     for mdf in articles_dir.glob("*.md"):
         text = mdf.read_text(encoding="utf-8")
         # 絶対 URL: medium.com/<publication>/<encoded-slug-with-hex>
         for m in medium_pub_re.finditer(text):
-            slug = unquote(m.group(1).rstrip("/"))
-            if _HEX_ID_RE.search(slug):
-                if ref_domain == "medium.com":
-                    found.add(f"https://medium.com/{publication}/{slug}")
-                else:
-                    found.add(f"https://{ref_domain}/{slug}")
+            _emit(unquote(m.group(1).rstrip("/")))
         # 相対 URL: ](/<encoded-slug-with-hex>?source=...)
         for m in re.finditer(r"\]\(/([^?\s)\"<>]+)", text):
-            slug = unquote(m.group(1).rstrip("/"))
-            if _HEX_ID_RE.search(slug):
-                if ref_domain == "medium.com":
-                    found.add(f"https://medium.com/{publication}/{slug}")
-                else:
-                    found.add(f"https://{ref_domain}/{slug}")
+            _emit(unquote(m.group(1).rstrip("/")))
     new = sorted(found - known)
     print(f"[refs]    found {len(new)} new URL(s) referenced from existing articles")
     return new
