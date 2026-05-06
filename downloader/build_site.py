@@ -39,7 +39,7 @@ import markdown
 GTM_ID = "GTM-5Q579RMM"
 PUBLICATION_TITLE = "ailia Tech BLOG"
 PUBLICATION_TAGLINE = "The latest technology related to AI."
-PUBLICATION_LOGO = "https://tech.ailia.ai/logo.png"
+PUBLICATION_LOGO = "https://tech.ailia.ai/favicon.png"
 
 # 言語別の設定。site_url_path は SITE_BASE_URL からの相対 (空 or "en/" 等)、
 # articles_label は記事カウント表記、search_placeholder は検索ボックスの
@@ -1621,11 +1621,9 @@ def build(source_root: Path, output: Path) -> int:
     # 共有アセット
     (output / "style.css").write_text(CSS, encoding="utf-8")
     (output / "CNAME").write_text(SITE_HOST + "\n", encoding="utf-8")
-    assets_dir = Path(__file__).parent / "assets"
-    for asset_name in ("favicon.png", "logo.png"):
-        src = assets_dir / asset_name
-        if src.exists():
-            shutil.copy(src, output / asset_name)
+    favicon_src = Path(__file__).parent / "assets" / "favicon.png"
+    if favicon_src.exists():
+        shutil.copy(favicon_src, output / "favicon.png")
     _write_sitemap_combined(all_posts, output)
     _write_robots(output)
 
