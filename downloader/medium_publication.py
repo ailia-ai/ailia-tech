@@ -444,7 +444,7 @@ def scrape_article(
             for f in existing:
                 f.unlink()
         elif not refresh:
-            print(f"[skip] already saved: {existing[0].name}")
+            # 個別ログは抑制 (件数が多いと埋もれるため main() の最後にまとめて出す)
             return "skip"
         else:
             local_lastmod = _read_lastmod(existing[0])
@@ -472,10 +472,7 @@ def scrape_article(
                 for f in existing:
                     f.unlink()
             else:
-                print(
-                    f"[skip-uptodate] {existing[0].name} "
-                    f"(local={local_lastmod or '-'} sitemap={sitemap_lastmod or '-'})"
-                )
+                # 個別ログは抑制 (件数が多いと埋もれるため main() の最後にまとめて出す)
                 return "uptodate"
 
     print(f"[scrape] {url}")
@@ -663,8 +660,8 @@ def main():
 
     refresh_mode = args.refresh or args.refresh_all
     counts: dict = {}
-    for i, url in enumerate(urls, 1):
-        print(f"\n--- {i}/{len(urls)} ---")
+    total = len(urls)
+    for url in urls:
         lastmod = sitemap_map.get(url, "")
         result = scrape_article(
             url,
@@ -675,6 +672,11 @@ def main():
         )
         if result:
             counts[result] = counts.get(result, 0) + 1
+
+    # スキップ系 (skip / uptodate) は個別ログを出さない代わりにここで件数だけ出す
+    skipped = counts.get("skip", 0) + counts.get("uptodate", 0)
+    if skipped:
+        print(f"\n[skip-uptodate] {skipped} / {total} (already up-to-date, no fetch)")
 
     print(f"\n[done] export complete: {output_dir}")
     if counts:
