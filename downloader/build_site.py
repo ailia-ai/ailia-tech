@@ -138,6 +138,7 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
 <meta name="twitter:title" content="{title}">
 <meta name="twitter:description" content="{tagline}">
 <meta name="twitter:image" content="{logo}">
+<link rel="shortcut icon" type="image/png" href="/favicon.png">
 <link rel="stylesheet" href="/style.css">
 {gtm_head}
 </head>
@@ -277,6 +278,7 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <meta name="twitter:description" content="{excerpt}">
 <meta name="twitter:image" content="{og_image}">
 <script type="application/ld+json">{ld_json}</script>
+<link rel="shortcut icon" type="image/png" href="/favicon.png">
 <link rel="stylesheet" href="/style.css">
 {gtm_head}
 </head>
@@ -1619,6 +1621,9 @@ def build(source_root: Path, output: Path) -> int:
     # 共有アセット
     (output / "style.css").write_text(CSS, encoding="utf-8")
     (output / "CNAME").write_text(SITE_HOST + "\n", encoding="utf-8")
+    favicon_src = Path(__file__).parent / "assets" / "favicon.png"
+    if favicon_src.exists():
+        shutil.copy(favicon_src, output / "favicon.png")
     _write_sitemap_combined(all_posts, output)
     _write_robots(output)
 
