@@ -1629,6 +1629,12 @@ def build(source_root: Path, output: Path) -> int:
     favicon_src = Path(__file__).parent / "assets" / "favicon.png"
     if favicon_src.exists():
         shutil.copy(favicon_src, output / "favicon.png")
+        # iOS Safari の「ホーム画面に追加」は <link rel="apple-touch-icon">
+        # より先にこの well-known パスを直接叩くため、404 を返すと過去の
+        # キャッシュ (og:image など) が使われ続けてしまう。同じ favicon を
+        # 両パスに配置して常に解決させる。
+        shutil.copy(favicon_src, output / "apple-touch-icon.png")
+        shutil.copy(favicon_src, output / "apple-touch-icon-precomposed.png")
     logo_src = Path(__file__).parent / "assets" / "logo.png"
     if logo_src.exists():
         shutil.copy(logo_src, output / "logo.png")
