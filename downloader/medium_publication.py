@@ -39,25 +39,46 @@ IMPERSONATE = "chrome120"
 DELAY = 2  # サーバ負荷を避けるための待機秒数
 
 
+_FETCH_RETRIES = 3
+_FETCH_BACKOFF = 4  # 秒。失敗1回目→4s, 2回目→8s, 3回目→16s
+
+
 def fetch(url: str) -> str:
-    """URLをGETしてHTMLを返す。エラー時は空文字。"""
-    try:
-        r = requests.get(url, impersonate=IMPERSONATE, timeout=30)
-        r.raise_for_status()
-        return r.text
-    except Exception as e:
-        print(f"  [warn] fetch failed: {url} ({e})")
-        return ""
+    """URLをGETしてHTMLを返す。Cloudflareの一時的な403や接続エラーは
+    指数バックオフで再試行する。最終的に失敗したら空文字を返す。"""
+    last_err = None
+    for attempt in range(1, _FETCH_RETRIES + 1):
+        try:
+            r = requests.get(url, impersonate=IMPERSONATE, timeout=30)
+            r.raise_for_status()
+            return r.text
+        except Exception as e:
+            last_err = e
+            if attempt < _FETCH_RETRIES:
+                wait = _FETCH_BACKOFF * (2 ** (attempt - 1))
+                print(
+                    f"  [warn] fetch failed (attempt {attempt}/{_FETCH_RETRIES}): "
+                    f"{url} ({e}); retrying in {wait}s"
+                )
+                time.sleep(wait)
+    print(f"  [warn] fetch failed after {_FETCH_RETRIES} attempts: {url} ({last_err})")
+    return ""
 
 
 def fetch_bytes(url: str) -> bytes:
-    try:
-        r = requests.get(url, impersonate=IMPERSONATE, timeout=30)
-        r.raise_for_status()
-        return r.content
-    except Exception as e:
-        print(f"  [warn] fetch failed: {url} ({e})")
-        return b""
+    last_err = None
+    for attempt in range(1, _FETCH_RETRIES + 1):
+        try:
+            r = requests.get(url, impersonate=IMPERSONATE, timeout=30)
+            r.raise_for_status()
+            return r.content
+        except Exception as e:
+            last_err = e
+            if attempt < _FETCH_RETRIES:
+                wait = _FETCH_BACKOFF * (2 ** (attempt - 1))
+                time.sleep(wait)
+    print(f"  [warn] fetch_bytes failed: {url} ({last_err})")
+    return b""
 
 
 _HEX_ID_RE = re.compile(r"-[a-f0-9]{10,14}$")
@@ -112,25 +133,30 @@ def collect_urls_from_feed(publication: str) -> list:
 
 
 def _resolve_post_id(post_id: str) -> str:
-    """medium.com/p/<id> のリダイレクトを辿り、canonical URLを取得する。"""
-    try:
-        r = requests.get(
-            f"https://medium.com/p/{post_id}",
-            impersonate=IMPERSONATE,
-            timeout=30,
-            allow_redirects=False,
-        )
-        loc = r.headers.get("location", "")
-        if not loc:
-            return ""
-        # Medium のリダイレクト先は環境によって絶対 URL だったり / から
-        # 始まる相対パスだったりするので medium.com に正規化する。
-        if loc.startswith("/"):
-            loc = "https://medium.com" + loc
-        url = unquote(loc.split("?")[0].rstrip("/"))
-        return url if _HEX_ID_RE.search(url) else ""
-    except Exception:
-        return ""
+    """medium.com/p/<id> のリダイレクトを辿り、canonical URLを取得する。
+    Cloudflare 等の一時的な失敗には fetch() と同じ指数バックオフで再試行。"""
+    target = f"https://medium.com/p/{post_id}"
+    last_err = None
+    for attempt in range(1, _FETCH_RETRIES + 1):
+        try:
+            r = requests.get(
+                target, impersonate=IMPERSONATE, timeout=30, allow_redirects=False
+            )
+            loc = r.headers.get("location", "")
+            if not loc:
+                return ""
+            # Medium のリダイレクト先は環境によって絶対 URL だったり / から
+            # 始まる相対パスだったりするので medium.com に正規化する。
+            if loc.startswith("/"):
+                loc = "https://medium.com" + loc
+            url = unquote(loc.split("?")[0].rstrip("/"))
+            return url if _HEX_ID_RE.search(url) else ""
+        except Exception as e:
+            last_err = e
+            if attempt < _FETCH_RETRIES:
+                time.sleep(_FETCH_BACKOFF * (2 ** (attempt - 1)))
+    print(f"  [warn] resolve {post_id} failed: {last_err}")
+    return ""
 
 
 def collect_urls_from_references(
@@ -654,6 +680,7 @@ def main():
 
     refresh_mode = args.refresh or args.refresh_all
     counts: dict = {}
+    failed_urls: list = []
     for i, url in enumerate(urls, 1):
         print(f"\n--- {i}/{len(urls)} ---")
         lastmod = sitemap_map.get(url, "")
@@ -666,6 +693,25 @@ def main():
         )
         if result:
             counts[result] = counts.get(result, 0) + 1
+            if result in ("fetch-failed", "no-article"):
+                failed_urls.append((url, lastmod))
+
+    # CIではCloudflareから一時的に弾かれることがある。冷却時間を置いた後に
+    # fetch-failed / no-article になったURLを最後にもう一度試す。
+    if failed_urls:
+        print(f"\n[retry] cooling down 30s, then retrying {len(failed_urls)} failed URL(s)")
+        time.sleep(30)
+        for i, (url, lastmod) in enumerate(failed_urls, 1):
+            print(f"\n--- retry {i}/{len(failed_urls)} ---")
+            result = scrape_article(
+                url,
+                output_dir,
+                sitemap_lastmod=lastmod,
+                refresh=refresh_mode,
+                force=args.refresh_all,
+            )
+            if result:
+                counts[f"retry-{result}"] = counts.get(f"retry-{result}", 0) + 1
 
     print(f"\n[done] export complete: {output_dir}")
     if counts:
