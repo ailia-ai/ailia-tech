@@ -39,7 +39,7 @@ import markdown
 GTM_ID = "GTM-5Q579RMM"
 PUBLICATION_TITLE = "ailia Tech BLOG"
 PUBLICATION_TAGLINE = "The latest technology related to AI."
-PUBLICATION_LOGO = "https://tech.ailia.ai/favicon.png"
+PUBLICATION_LOGO = "https://tech.ailia.ai/logo.png"
 
 # 言語別の設定。site_url_path は SITE_BASE_URL からの相対 (空 or "en/" 等)、
 # articles_label は記事カウント表記、search_placeholder は検索ボックスの
@@ -1624,6 +1624,15 @@ def build(source_root: Path, output: Path) -> int:
     favicon_src = Path(__file__).parent / "assets" / "favicon.png"
     if favicon_src.exists():
         shutil.copy(favicon_src, output / "favicon.png")
+        # iOS Safari の「ホーム画面に追加」は <link rel="apple-touch-icon">
+        # より先にこの well-known パスを直接叩くため、404 を返すと過去の
+        # キャッシュ (og:image など) が使われ続けてしまう。同じ favicon を
+        # 両パスに配置して常に解決させる。
+        shutil.copy(favicon_src, output / "apple-touch-icon.png")
+        shutil.copy(favicon_src, output / "apple-touch-icon-precomposed.png")
+    logo_src = Path(__file__).parent / "assets" / "logo.png"
+    if logo_src.exists():
+        shutil.copy(logo_src, output / "logo.png")
     _write_sitemap_combined(all_posts, output)
     _write_robots(output)
 
