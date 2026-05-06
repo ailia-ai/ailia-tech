@@ -40,10 +40,6 @@ GTM_ID = "GTM-5Q579RMM"
 PUBLICATION_TITLE = "ailia Tech BLOG"
 PUBLICATION_TAGLINE = "The latest technology related to AI."
 PUBLICATION_LOGO = "https://tech.ailia.ai/logo.png"
-# OGP / Twitter Card 用は SNS のサムネ表示でよりはっきり判別できる
-# サイト ファビコンを優先する。ページ内の <img> やJSON-LD publisher
-# logoは Medium 由来の publication ロゴ (logo.png) を維持する。
-PUBLICATION_OG_IMAGE = "https://tech.ailia.ai/favicon.png"
 
 # 言語別の設定。site_url_path は SITE_BASE_URL からの相対 (空 or "en/" 等)、
 # articles_label は記事カウント表記、search_placeholder は検索ボックスの
@@ -135,11 +131,11 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
 <meta property="og:description" content="{tagline}">
 <meta property="og:url" content="{site_url}">
 <meta property="og:site_name" content="{title}">
-<meta property="og:image" content="{og_image}">
+<meta property="og:image" content="{logo}">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="{title}">
 <meta name="twitter:description" content="{tagline}">
-<meta name="twitter:image" content="{og_image}">
+<meta name="twitter:image" content="{logo}">
 <link rel="shortcut icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
 <link rel="stylesheet" href="/style.css">
@@ -1470,7 +1466,7 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
         # 優先し、無ければ自サイトのアバター画像を使う。
         og_image = thumb_url if (thumb_url and thumb_url.startswith("http")) else (
             f"{SITE_BASE_URL}{lang['site_path']}images/{slug_q}/image_001.png"
-            if thumb_url else PUBLICATION_OG_IMAGE
+            if thumb_url else PUBLICATION_LOGO
         )
 
         ld_json = json.dumps({
@@ -1591,7 +1587,6 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
         title=html.escape(PUBLICATION_TITLE),
         tagline=html.escape(PUBLICATION_TAGLINE),
         logo=html.escape(PUBLICATION_LOGO, quote=True),
-        og_image=html.escape(PUBLICATION_OG_IMAGE, quote=True),
         site_url=html.escape(index_url, quote=True),
         ailia_url=html.escape(lang["ailia_url"], quote=True),
         cards=cards,
