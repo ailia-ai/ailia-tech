@@ -44,6 +44,8 @@ concurrency:
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
 
@@ -96,11 +98,14 @@ jobs:
           fi
 
       - name: Commit & push if there are new articles
+        id: commit
         run: |
           if [[ -z "$(git status --porcelain medium_export/)" ]]; then
             echo "No changes — nothing to commit."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add medium_export/
@@ -118,11 +123,10 @@ jobs:
 
   # GITHUB_TOKEN が push したコミットは別ワークフローを発火させないため、
   # pages.yml の build/deploy 相当をこの workflow 内で直接実行する。
-  # scrape の commit が無くても (新着記事ゼロでも) main を再ビルドして
-  # 取りこぼしを救済できるよう、scrape job の成否に関わらず実行する。
+  # 新着・更新記事が無いときは build/deploy をスキップして CI 時間を節約する。
   build:
     needs: scrape
-    if: ${{ always() && needs.scrape.result == 'success' }}
+    if: ${{ needs.scrape.outputs.changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
