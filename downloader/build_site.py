@@ -137,6 +137,7 @@ INDEX_TEMPLATE = """<!DOCTYPE html>
 <meta name="twitter:description" content="{tagline}">
 <meta name="twitter:image" content="{logo}">
 <link rel="shortcut icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
 <link rel="stylesheet" href="/style.css">
 {gtm_head}
 </head>
@@ -277,6 +278,7 @@ ARTICLE_TEMPLATE = """<!DOCTYPE html>
 <meta name="twitter:image" content="{og_image}">
 <script type="application/ld+json">{ld_json}</script>
 <link rel="shortcut icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
 <link rel="stylesheet" href="/style.css">
 {gtm_head}
 </head>
