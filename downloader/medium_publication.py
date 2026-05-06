@@ -42,41 +42,85 @@ DELAY = 2  # サーバ負荷を避けるための待機秒数
 _FETCH_RETRIES = 3
 _FETCH_BACKOFF = 4  # 秒。失敗1回目→4s, 2回目→8s, 3回目→16s
 
+# Cloudflareのbot判定はTLSフィンガープリントとUAをセットで見るので、
+# 失敗時は別ブラウザに切り替えて当たり直す。最初に Chrome を試して、
+# それで通らないなら Safari / Edge / Firefox を順番に投げる。
+_IMPERSONATE_POOL = [
+    "chrome120",
+    "chrome131",
+    "safari17_2",
+    "edge101",
+    "firefox133",
+]
+
+# curl_cffi の Session を使い回し、RSSフィードで一度cookieを焼いて
+# おく事で、後続の home / 個別記事リクエストが既存セッション (cf_*
+# クッキー含む) として扱われやすくする。
+_SESSION_CACHE: dict = {}
+
+
+def _get_session(impersonate: str):
+    sess = _SESSION_CACHE.get(impersonate)
+    if sess is not None:
+        return sess
+    sess = requests.Session(impersonate=impersonate)
+    # ウォームアップ: RSSフィード (CIでも200を返す) を1回叩いて
+    # CloudflareのcookieをSessionに取り込む。
+    try:
+        sess.get("https://medium.com/feed/axinc", timeout=30)
+    except Exception:
+        pass
+    _SESSION_CACHE[impersonate] = sess
+    return sess
+
 
 def fetch(url: str) -> str:
-    """URLをGETしてHTMLを返す。Cloudflareの一時的な403や接続エラーは
-    指数バックオフで再試行する。最終的に失敗したら空文字を返す。"""
+    """URLをGETしてHTMLを返す。Cloudflareの一時的な403/接続エラーには
+    指数バックオフ + 別フィンガープリントへの切替で対抗する。"""
     last_err = None
-    for attempt in range(1, _FETCH_RETRIES + 1):
+    for attempt in range(_FETCH_RETRIES):
+        impersonate = _IMPERSONATE_POOL[attempt % len(_IMPERSONATE_POOL)]
         try:
-            r = requests.get(url, impersonate=IMPERSONATE, timeout=30)
+            sess = _get_session(impersonate)
+            r = sess.get(
+                url,
+                timeout=30,
+                headers={
+                    "Referer": "https://medium.com/",
+                    "Accept-Language": "ja,en-US;q=0.9,en;q=0.8",
+                },
+            )
             r.raise_for_status()
             return r.text
         except Exception as e:
             last_err = e
-            if attempt < _FETCH_RETRIES:
-                wait = _FETCH_BACKOFF * (2 ** (attempt - 1))
+            if attempt < _FETCH_RETRIES - 1:
+                next_imp = _IMPERSONATE_POOL[(attempt + 1) % len(_IMPERSONATE_POOL)]
+                wait = _FETCH_BACKOFF * (2 ** attempt)
                 print(
-                    f"  [warn] fetch failed (attempt {attempt}/{_FETCH_RETRIES}): "
-                    f"{url} ({e}); retrying in {wait}s"
+                    f"  [warn] fetch failed (attempt {attempt + 1}/{_FETCH_RETRIES} "
+                    f"with {impersonate}): {url} ({e}); retrying in {wait}s as {next_imp}"
                 )
                 time.sleep(wait)
-    print(f"  [warn] fetch failed after {_FETCH_RETRIES} attempts: {url} ({last_err})")
+    print(
+        f"  [warn] fetch failed after {_FETCH_RETRIES} attempts: {url} ({last_err})"
+    )
     return ""
 
 
 def fetch_bytes(url: str) -> bytes:
     last_err = None
-    for attempt in range(1, _FETCH_RETRIES + 1):
+    for attempt in range(_FETCH_RETRIES):
+        impersonate = _IMPERSONATE_POOL[attempt % len(_IMPERSONATE_POOL)]
         try:
-            r = requests.get(url, impersonate=IMPERSONATE, timeout=30)
+            sess = _get_session(impersonate)
+            r = sess.get(url, timeout=30, headers={"Referer": "https://medium.com/"})
             r.raise_for_status()
             return r.content
         except Exception as e:
             last_err = e
-            if attempt < _FETCH_RETRIES:
-                wait = _FETCH_BACKOFF * (2 ** (attempt - 1))
-                time.sleep(wait)
+            if attempt < _FETCH_RETRIES - 1:
+                time.sleep(_FETCH_BACKOFF * (2 ** attempt))
     print(f"  [warn] fetch_bytes failed: {url} ({last_err})")
     return b""
 
@@ -134,27 +178,30 @@ def collect_urls_from_feed(publication: str) -> list:
 
 def _resolve_post_id(post_id: str) -> str:
     """medium.com/p/<id> のリダイレクトを辿り、canonical URLを取得する。
-    Cloudflare 等の一時的な失敗には fetch() と同じ指数バックオフで再試行。"""
+    fetch() と同じ指数バックオフ + 別UAローテで再試行する。"""
     target = f"https://medium.com/p/{post_id}"
     last_err = None
-    for attempt in range(1, _FETCH_RETRIES + 1):
+    for attempt in range(_FETCH_RETRIES):
+        impersonate = _IMPERSONATE_POOL[attempt % len(_IMPERSONATE_POOL)]
         try:
-            r = requests.get(
-                target, impersonate=IMPERSONATE, timeout=30, allow_redirects=False
+            sess = _get_session(impersonate)
+            r = sess.get(
+                target,
+                timeout=30,
+                allow_redirects=False,
+                headers={"Referer": "https://medium.com/"},
             )
             loc = r.headers.get("location", "")
             if not loc:
                 return ""
-            # Medium のリダイレクト先は環境によって絶対 URL だったり / から
-            # 始まる相対パスだったりするので medium.com に正規化する。
             if loc.startswith("/"):
                 loc = "https://medium.com" + loc
             url = unquote(loc.split("?")[0].rstrip("/"))
             return url if _HEX_ID_RE.search(url) else ""
         except Exception as e:
             last_err = e
-            if attempt < _FETCH_RETRIES:
-                time.sleep(_FETCH_BACKOFF * (2 ** (attempt - 1)))
+            if attempt < _FETCH_RETRIES - 1:
+                time.sleep(_FETCH_BACKOFF * (2 ** attempt))
     print(f"  [warn] resolve {post_id} failed: {last_err}")
     return ""
 
