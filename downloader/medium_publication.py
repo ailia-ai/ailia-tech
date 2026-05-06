@@ -39,34 +39,10 @@ IMPERSONATE = "chrome120"
 DELAY = 2  # サーバ負荷を避けるための待機秒数
 
 
-# curl_cffi の Session を使い回し、RSSフィードで一度cookieを焼いて
-# おく事で、後続の home / 個別記事リクエストが既存セッション (cf_*
-# クッキー含む) として扱われやすくする。
-# 403 が返ったら復帰しないことが多く、リトライしても CI 時間を浪費する
-# だけなので、各 URL は1回だけ取得する。
-_SESSION = None
-
-
-def _get_session():
-    global _SESSION
-    if _SESSION is not None:
-        return _SESSION
-    sess = requests.Session(impersonate=IMPERSONATE)
-    # ウォームアップ: RSSフィード (CIでも200を返す) を1回叩いて
-    # CloudflareのcookieをSessionに取り込む。
-    try:
-        sess.get("https://medium.com/feed/axinc", timeout=30)
-    except Exception:
-        pass
-    _SESSION = sess
-    return sess
-
-
 def fetch(url: str) -> str:
     """URLをGETしてHTMLを返す。エラー時は空文字。"""
     try:
-        sess = _get_session()
-        r = sess.get(url, timeout=30)
+        r = requests.get(url, impersonate=IMPERSONATE, timeout=30)
         r.raise_for_status()
         return r.text
     except Exception as e:
@@ -76,8 +52,7 @@ def fetch(url: str) -> str:
 
 def fetch_bytes(url: str) -> bytes:
     try:
-        sess = _get_session()
-        r = sess.get(url, timeout=30)
+        r = requests.get(url, impersonate=IMPERSONATE, timeout=30)
         r.raise_for_status()
         return r.content
     except Exception as e:
@@ -139,9 +114,9 @@ def collect_urls_from_feed(publication: str) -> list:
 def _resolve_post_id(post_id: str) -> str:
     """medium.com/p/<id> のリダイレクトを辿り、canonical URLを取得する。"""
     try:
-        sess = _get_session()
-        r = sess.get(
+        r = requests.get(
             f"https://medium.com/p/{post_id}",
+            impersonate=IMPERSONATE,
             timeout=30,
             allow_redirects=False,
         )
