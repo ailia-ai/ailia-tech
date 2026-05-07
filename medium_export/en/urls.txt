@@ -49,6 +49,7 @@ https://medium.com/axinc-ai/codesforlanedetection-a-machine-learning-model-for-d
 https://medium.com/axinc-ai/colorization-a-machine-learning-model-for-colorizing-black-and-white-images-829e35e4f91c
 https://medium.com/axinc-ai/contrastive-search-a-token-selection-algorithm-that-can-suppress-repetition-in-language-10712d5408da
 https://medium.com/axinc-ai/convert-models-from-pytorch-to-tflite-with-ai-edge-torch-0e85623f8d56
+https://medium.com/axinc-ai/crepe-a-machine-learning-model-for-high-precision-pitch-estimation-8562d83d44a5
 https://medium.com/axinc-ai/crnnsoundclassification-a-machine-learning-model-for-classifying-sound-8e45d1f22fa
 https://medium.com/axinc-ai/crossencodermmarco-machine-learning-model-that-calculates-the-similarity-between-a-question-and-an-1906f716f8ef
 https://medium.com/axinc-ai/crowdcounting-a-machine-learning-model-for-counting-people-a7b274a7c2af
