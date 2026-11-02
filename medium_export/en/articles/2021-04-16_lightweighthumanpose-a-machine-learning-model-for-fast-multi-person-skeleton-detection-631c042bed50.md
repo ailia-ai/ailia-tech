@@ -2,6 +2,7 @@
 title: "LightWeightHumanPose : A Machine Learning Model for Fast Multi-person Pose Estimation"
 author: "David Cochard"
 date: 2021-04-16
+published: 2021-04-16T01:58:54Z
 lastmod: 2021-07-01
 tags: [ailia-models, machine-learning, deep-learning, openpose, ai]
 original_url: https://medium.com/axinc-ai/lightweighthumanpose-a-machine-learning-model-for-fast-multi-person-skeleton-detection-631c042bed50

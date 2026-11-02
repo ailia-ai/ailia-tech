@@ -2,6 +2,7 @@
 title: "Released ailia SDK 1.2.5"
 author: "Kazuki Kyakuno"
 date: 2020-12-02
+published: 2020-12-02T09:26:39Z
 lastmod: 2020-12-02
 tags: [ailia-sdk]
 original_url: https://medium.com/axinc-ai/released-ailia-sdk-1-2-5-58aba1b4c835

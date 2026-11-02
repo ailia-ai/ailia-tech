@@ -2,6 +2,7 @@
 title: "MobilenetSSD : A Machine Learning Model for Fast Object Detection"
 author: "David Cochard"
 date: 2021-05-24
+published: 2021-05-24T22:33:25Z
 lastmod: 2021-05-25
 tags: [ailia-models, machine-learning, deep-learning, ai, yolo]
 original_url: https://medium.com/axinc-ai/mobilenetssd-a-machine-learning-model-for-fast-object-detection-37352ce6da7d

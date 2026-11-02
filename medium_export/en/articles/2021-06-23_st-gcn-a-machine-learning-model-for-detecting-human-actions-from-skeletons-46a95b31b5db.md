@@ -2,6 +2,7 @@
 title: "ST-GCN : A Machine Learning Model for Detecting Human Actions from Skeletons"
 author: "David Cochard"
 date: 2021-06-23
+published: 2021-06-23T08:57:09Z
 lastmod: 2021-06-23
 tags: [ailia-models, machine-learning, deep-learning, ai, openpose]
 original_url: https://medium.com/axinc-ai/st-gcn-a-machine-learning-model-for-detecting-human-actions-from-skeletons-46a95b31b5db

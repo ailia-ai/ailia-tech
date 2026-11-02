@@ -2,6 +2,7 @@
 title: "ailia SDK on JetsonNano and ChromeBook"
 author: "David Cochard"
 date: 2021-05-17
+published: 2021-05-17T02:02:23Z
 lastmod: 2021-05-17
 tags: [ailia-tutorial, jetson-nano, chromebook, machine-learning, deep-learning]
 original_url: https://medium.com/axinc-ai/ailia-sdk-on-jetsonnano-and-chromebook-592989181ff7

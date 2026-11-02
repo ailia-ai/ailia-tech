@@ -2,6 +2,7 @@
 title: "FaceMaskDetection : A Machine Learning Model to Determine if a Person is Wearing a Mask"
 author: "David Cochard"
 date: 2021-05-24
+published: 2021-05-24T14:21:58Z
 lastmod: 2021-05-24
 tags: [ailia-models, machine-learning, deep-learning, ai]
 original_url: https://medium.com/axinc-ai/facemaskdetection-a-machine-learning-model-to-determine-if-a-person-is-wearing-a-mask-e5a581ea8af9

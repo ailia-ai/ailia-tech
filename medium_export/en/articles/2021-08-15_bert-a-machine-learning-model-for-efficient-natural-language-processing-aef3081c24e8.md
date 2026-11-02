@@ -2,6 +2,7 @@
 title: "BERT : A Machine Learning Model for Efficient Natural Language Processing"
 author: "David Cochard"
 date: 2021-08-15
+published: 2021-08-15T09:16:30Z
 lastmod: 2022-03-31
 tags: [ailia-models, machine-learning, deep-learning, ai, bert]
 original_url: https://medium.com/axinc-ai/bert-a-machine-learning-model-for-efficient-natural-language-processing-aef3081c24e8

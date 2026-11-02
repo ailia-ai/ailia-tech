@@ -2,6 +2,7 @@
 title: "ailia SDK Tutorial (Compression and Obfuscation)"
 author: "David Cochard"
 date: 2021-05-10
+published: 2021-05-10T05:51:41Z
 lastmod: 2021-05-10
 tags: [ailia-tutorial, machine-learning, deep-learning, obfuscation, encryption]
 original_url: https://medium.com/axinc-ai/ailia-sdk-tutorial-compression-and-obfuscation-ba8cfead93a4

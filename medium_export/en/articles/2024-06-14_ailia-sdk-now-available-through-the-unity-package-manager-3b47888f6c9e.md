@@ -2,6 +2,7 @@
 title: "ailia SDK Now Available Through the Unity Package Manager"
 author: "David Cochard"
 date: 2024-06-14
+published: 2024-06-14T04:03:47Z
 lastmod: 2025-12-31
 tags: [ailia-sdk, machine-learning, ai, unity]
 original_url: https://medium.com/axinc-ai/ailia-sdk-now-available-through-the-unity-package-manager-3b47888f6c9e

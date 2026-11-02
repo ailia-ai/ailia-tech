@@ -2,6 +2,7 @@
 title: "Visual Studio Codeを活用したailia開発"
 author: "Takehiko TERADA"
 date: 2021-02-02
+published: 2021-02-02T05:56:03Z
 lastmod: 2021-02-02
 original_url: https://medium.com/axinc/visual-studio-codeを活用したailia開発-c9b21de1864f
 tags: [ai, python, visual-studio-code, ailia-tutorial]

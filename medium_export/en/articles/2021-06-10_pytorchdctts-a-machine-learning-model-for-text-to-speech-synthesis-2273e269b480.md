@@ -2,6 +2,7 @@
 title: "PytorchDcTts : A Machine Learning Model for Text-to-speech Synthesis"
 author: "David Cochard"
 date: 2021-06-10
+published: 2021-06-10T00:10:50Z
 lastmod: 2021-06-10
 tags: [ailia-models, machine-learning, deep-learning, text-to-speech, ai]
 original_url: https://medium.com/axinc-ai/pytorchdctts-a-machine-learning-model-for-text-to-speech-synthesis-2273e269b480

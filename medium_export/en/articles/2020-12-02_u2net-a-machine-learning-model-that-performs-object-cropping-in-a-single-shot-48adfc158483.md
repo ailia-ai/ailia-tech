@@ -2,6 +2,7 @@
 title: "U2Net : A machine learning model that performs object cropping in a single shot"
 author: "Kazuki Kyakuno"
 date: 2020-12-02
+published: 2020-12-02T07:47:10Z
 lastmod: 2021-09-21
 tags: [ailia-models]
 original_url: https://medium.com/axinc-ai/u2net-a-machine-learning-model-that-performs-object-cropping-in-a-single-shot-48adfc158483

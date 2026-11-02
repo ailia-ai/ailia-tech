@@ -2,6 +2,7 @@
 title: "FaceMesh : Detecting Key Points on Faces in Real Time"
 author: "David Cochard"
 date: 2021-04-14
+published: 2021-04-14T02:34:41Z
 lastmod: 2021-06-29
 tags: [ailia-models, machine-learning, deep-learning, ai]
 original_url: https://medium.com/axinc-ai/facemesh-detecting-key-points-on-faces-in-real-time-977c03f1bab

@@ -1537,6 +1537,7 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
             {
                 "title": title,
                 "date": date,
+                "published": fm.get("published", ""),
                 "lastmod": lastmod,
                 "author": author,
                 "slug": slug,
@@ -1546,7 +1547,8 @@ def _build_language(lang: dict, source: Path, output_root: Path, md) -> list:
             }
         )
 
-    posts.sort(key=lambda p: p["date"], reverse=True)
+    # 同じ日の記事は投稿時刻 (published) で並べる
+    posts.sort(key=lambda p: (p["date"], p["published"]), reverse=True)
 
     def _tag_pills(tags: list) -> str:
         # 主要タグだけインラインpillとしてカードに表示する

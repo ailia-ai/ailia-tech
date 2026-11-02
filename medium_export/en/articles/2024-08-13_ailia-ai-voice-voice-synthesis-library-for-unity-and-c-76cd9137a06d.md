@@ -2,6 +2,7 @@
 title: "ailia AI Voice: Voice Synthesis Library for Unity and C++"
 author: "David Cochard"
 date: 2024-08-13
+published: 2024-08-13T08:20:48Z
 lastmod: 2024-08-13
 tags: [ailia-sdk, machine-learning, ai, voice-synthesis]
 original_url: https://medium.com/axinc-ai/ailia-ai-voice-voice-synthesis-library-for-unity-and-c-76cd9137a06d

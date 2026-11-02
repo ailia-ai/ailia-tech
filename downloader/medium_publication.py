@@ -372,22 +372,19 @@ def _inject_lastmod(md_path: Path, lastmod: str) -> bool:
     return True
 
 
-def _extract_apollo_dates(html_text: str, post_id: str) -> tuple:
-    """記事HTMLの ``window.__APOLLO_STATE__`` から (firstPublishedAt,
-    latestPublishedAt) を ISO 日付 (YYYY-MM-DD) で取り出す。
-    Mediumの ``article:published_time`` メタタグは latestPublishedAt を
-    返してしまうので、真の投稿日を取得する目的で Apollo state を直接見る。"""
+def _apollo_post(html_text: str, post_id: str) -> dict:
+    """記事HTMLの ``window.__APOLLO_STATE__`` から ``Post:<id>`` エントリを取り出す。"""
     m = re.search(
         r"window\.__APOLLO_STATE__\s*=\s*(\{.+?\});?</script>",
         html_text,
         re.DOTALL,
     )
     if not m:
-        return "", ""
+        return {}
     try:
         data = json.loads(m.group(1))
     except Exception:
-        return "", ""
+        return {}
     post = data.get(f"Post:{post_id}") or {}
     if not post:
         # ID が分からない場合: 最初に見つかる Post:* エントリを使う
@@ -395,6 +392,15 @@ def _extract_apollo_dates(html_text: str, post_id: str) -> tuple:
             if k.startswith("Post:") and isinstance(v, dict):
                 post = v
                 break
+    return post
+
+
+def _extract_apollo_dates(html_text: str, post_id: str) -> tuple:
+    """記事HTMLの ``window.__APOLLO_STATE__`` から (firstPublishedAt,
+    latestPublishedAt) を ISO 日付 (YYYY-MM-DD) で取り出す。
+    Mediumの ``article:published_time`` メタタグは latestPublishedAt を
+    返してしまうので、真の投稿日を取得する目的で Apollo state を直接見る。"""
+    post = _apollo_post(html_text, post_id)
 
     def _to_iso(ts) -> str:
         try:
@@ -411,6 +417,22 @@ def _extract_apollo_dates(html_text: str, post_id: str) -> tuple:
     first = _to_iso(post.get("firstPublishedAt")) if post.get("firstPublishedAt") else ""
     latest = _to_iso(post.get("latestPublishedAt")) if post.get("latestPublishedAt") else ""
     return first, latest
+
+
+def _extract_first_published_at(html_text: str, post_id: str) -> str:
+    """firstPublishedAt を UTC の ISO 日時 (YYYY-MM-DDTHH:MM:SSZ) で返す。
+    同じ日に投稿された記事を一覧で投稿時刻順に並べるために使う。"""
+    ts = _apollo_post(html_text, post_id).get("firstPublishedAt")
+    if not ts:
+        return ""
+    try:
+        from datetime import datetime, timezone
+
+        return datetime.fromtimestamp(int(ts) / 1000, tz=timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        )
+    except Exception:
+        return ""
 
 
 def scrape_article(
@@ -497,6 +519,7 @@ def scrape_article(
     post_id_m = _HEX_ID_RE.search(url)
     post_id = post_id_m.group()[1:] if post_id_m else ""
     first_published, latest_published = _extract_apollo_dates(html, post_id)
+    published_at = _extract_first_published_at(html, post_id)
     pub_date = first_published or meta_published
     # lastmod は: sitemap > Apollo latestPublishedAt > article:published_time の優先順
     if not sitemap_lastmod:
@@ -536,6 +559,8 @@ def scrape_article(
             f.write(f'author: "{author}"\n')
         if pub_date:
             f.write(f"date: {pub_date}\n")
+        if published_at:
+            f.write(f"published: {published_at}\n")
         if sitemap_lastmod:
             f.write(f"lastmod: {sitemap_lastmod}\n")
         if tags:

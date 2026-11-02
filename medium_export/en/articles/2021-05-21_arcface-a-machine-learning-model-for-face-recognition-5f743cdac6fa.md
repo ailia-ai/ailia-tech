@@ -2,6 +2,7 @@
 title: "ArcFace : A Machine Learning Model for Face Recognition."
 author: "David Cochard"
 date: 2021-05-21
+published: 2021-05-21T01:47:43Z
 lastmod: 2021-05-21
 tags: [ailia-models, machine-learning, deep-learning, ai, face-recognition]
 original_url: https://medium.com/axinc-ai/arcface-a-machine-learning-model-for-face-recognition-5f743cdac6fa

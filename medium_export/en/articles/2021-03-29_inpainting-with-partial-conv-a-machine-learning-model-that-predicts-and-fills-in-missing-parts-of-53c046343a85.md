@@ -2,6 +2,7 @@
 title: "Inpainting With Partial Conv: A machine learning model that predicts and fills in missing parts of an image."
 author: "David Cochard"
 date: 2021-03-29
+published: 2021-03-29T08:25:01Z
 lastmod: 2021-09-21
 tags: [ailia-models, machine-learning, deep-learning, image-inpainting]
 original_url: https://medium.com/axinc-ai/inpainting-with-partial-conv-a-machine-learning-model-that-predicts-and-fills-in-missing-parts-of-53c046343a85

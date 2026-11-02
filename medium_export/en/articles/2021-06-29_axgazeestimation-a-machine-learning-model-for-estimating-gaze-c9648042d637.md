@@ -2,6 +2,7 @@
 title: "AxGazeEstimation : A Machine Learning Model for Estimating Gaze"
 author: "David Cochard"
 date: 2021-06-29
+published: 2021-06-29T02:48:09Z
 lastmod: 2021-06-29
 tags: [ailia-models, machine-learning, deep-learning, ai]
 original_url: https://medium.com/axinc-ai/axgazeestimation-a-machine-learning-model-for-estimating-gaze-c9648042d637

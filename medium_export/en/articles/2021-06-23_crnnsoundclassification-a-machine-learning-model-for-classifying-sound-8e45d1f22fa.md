@@ -2,6 +2,7 @@
 title: "CrnnSoundClassification : A Machine Learning Model for Classifying Sound"
 author: "David Cochard"
 date: 2021-06-23
+published: 2021-06-23T04:38:04Z
 lastmod: 2021-06-23
 tags: [ailia-models, machine-learning, deep-learning, ai, sound-classification]
 original_url: https://medium.com/axinc-ai/crnnsoundclassification-a-machine-learning-model-for-classifying-sound-8e45d1f22fa

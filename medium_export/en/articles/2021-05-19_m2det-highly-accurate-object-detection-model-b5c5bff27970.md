@@ -2,6 +2,7 @@
 title: "M2Det : Highly Accurate Object Detection Model"
 author: "David Cochard"
 date: 2021-05-19
+published: 2021-05-19T13:10:44Z
 lastmod: 2021-05-26
 tags: [ailia-models, machine-learning, deep-learning, object-detection, yolo]
 original_url: https://medium.com/axinc-ai/m2det-highly-accurate-object-detection-model-b5c5bff27970
