@@ -141,6 +141,7 @@ https://medium.com/axinc-ai/released-ailia-sdk-1-2-9-d9121216ad1e
 https://medium.com/axinc-ai/released-ailia-sdk-1-3-0-a5c91db28201
 https://medium.com/axinc-ai/released-ailia-sdk-1-4-0-92199b696593
 https://medium.com/axinc-ai/released-ailia-sdk-1-5-0-723bbcae0068
+https://medium.com/axinc-ai/released-ailia-sdk-1-6-0-034f8092bf7f
 https://medium.com/axinc-ai/released-ailia-tokenizer-1-3-e24c2068607a
 https://medium.com/axinc-ai/retinaface-a-face-detection-model-designed-for-high-resolution-6c3900771a01
 https://medium.com/axinc-ai/roc-curve-and-auc-evaluation-metrics-for-machine-learning-models-fca2907f6a81

@@ -36,6 +36,7 @@ https://medium.com/axinc/ailia-sdk-1-3-0をリリース-a5e42efafb0b
 https://medium.com/axinc/ailia-sdk-1-4-0をリリース-eb26d251f6de
 https://medium.com/axinc/ailia-sdk-1-5をリリース-22b1f06fc0b2
 https://medium.com/axinc/ailia-sdk-1-6をリリース-c602b3b2df72
+https://medium.com/axinc/ailia-sdk-1-7をリリース-d17df3365b71
 https://medium.com/axinc/ailia-sdk-api解説-predict-api-dcae1dc62780
 https://medium.com/axinc/ailia-sdk-チュートリアル-c-dc949d9dcd28
 https://medium.com/axinc/ailia-sdk-チュートリアル-c-dfa783325134
