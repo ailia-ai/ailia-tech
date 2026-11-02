@@ -2,18 +2,20 @@
 title: "Qwen2-VL : ローカルで動作するVision Language Model"
 author: "Kazuki Kyakuno"
 date: 2024-11-20
-lastmod: 2024-11-24
-original_url: https://medium.com/axinc/qwen2-vl-ローカルで動作するvision-language-model-b6f75fa30a08
+lastmod: 2026-10-31
 tags: [ailia-model]
+original_url: https://medium.com/axinc/qwen2-vl-ローカルで動作するvision-language-model-b6f75fa30a08
 ---
 
 # Qwen2-VL : ローカルで動作するVision Language Model
 
+[Ailia Model](/tag/ailia-models?source=post_page---header_tags--b6f75fa30a08-----------------------------------------)
+
 # Qwen2-VL : ローカルで動作するVision Language Model
 
-[![Kazuki Kyakuno](../images/qwen2-vl-_________vision-language-model-b6f75fa30a08/image_000.png)](https://kyakuno.medium.com/?source=post_page---byline--b6f75fa30a08---------------------------------------)
+[![Kazuki Kyakuno](../images/qwen2-vl-_________vision-language-model-b6f75fa30a08/image_000.png)](/@kyakuno?source=post_page---byline--b6f75fa30a08-----------------------------------------)
 
-[Kazuki Kyakuno](https://kyakuno.medium.com/?source=post_page---byline--b6f75fa30a08---------------------------------------)
+[Kazuki Kyakuno](/@kyakuno?source=post_page---byline--b6f75fa30a08-----------------------------------------)
 
 11 min read
 
@@ -27,13 +29,15 @@ Share
 
 ローカルで動作するVision Language ModelであるQwen2-VLのご紹介です。Qwen2-VLを使用することで、ローカル環境で画像に対して質問することが可能です。
 
+---
+
 ## Qwen2-VLの概要
 
 Qwen2-VLはAlibabaが2024年10月に公開したVision Language Modelです。2B、7B、72Bの3つのモデルが提供されており、GPT-4oの画像認識モードと同様に、画像に対してテキストで質問することが可能です。
 
 応用例としては、多言語画像テキスト理解、コード/数学推論、ビデオ分析、ライブチャット、エー ジェントが挙げられています。
 
-従来、OSSのVision Language Modelとしては[LLAVA](https://medium.com/axinc/llava-%E7%94%BB%E5%83%8F%E3%81%AB%E5%AF%BE%E3%81%97%E3%81%A6%E8%B3%AA%E5%95%8F%E3%81%A7%E3%81%8D%E3%82%8B%E5%A4%A7%E8%A6%8F%E6%A8%A1%E8%A8%80%E8%AA%9E%E3%83%A2%E3%83%87%E3%83%AB-6ede836f2bed)が使用されていましたが、最小のモデルサイズが7Bとやや大きく、日本語にも対応していないという課題がありました。Qwen2-VLは2Bという比較的、小さなモデルで、日本語が使用可能です。
+従来、OSSのVision Language Modelとしては[LLAVA](/axinc/llava-%E7%94%BB%E5%83%8F%E3%81%AB%E5%AF%BE%E3%81%97%E3%81%A6%E8%B3%AA%E5%95%8F%E3%81%A7%E3%81%8D%E3%82%8B%E5%A4%A7%E8%A6%8F%E6%A8%A1%E8%A8%80%E8%AA%9E%E3%83%A2%E3%83%87%E3%83%AB-6ede836f2bed)が使用されていましたが、最小のモデルサイズが7Bとやや大きく、日本語にも対応していないという課題がありました。Qwen2-VLは2Bという比較的、小さなモデルで、日本語が使用可能です。
 
 Press enter or click to view image in full size
 
@@ -43,7 +47,7 @@ Press enter or click to view image in full size
 
 ### Qwen2-VL is the multimodal large language model series developed by Qwen team, Alibaba Cloud. - QwenLM/Qwen2-VL
 
-github.com](https://github.com/QwenLM/Qwen2-VL?source=post_page-----b6f75fa30a08---------------------------------------)
+github.com](https://github.com/QwenLM/Qwen2-VL?source=post_page-----b6f75fa30a08-----------------------------------------)
 
 ## Qwen2-VLのアーキテクチャ
 
@@ -91,16 +95,6 @@ Press enter or click to view image in full size
 
 Qwen2-VL-2Bは、最も効率的なモデルで、ほとんどのシナリオに対して十分なパフォーマンスを提供します。7Bは、テキスト認識とビデオ理解能力が大幅に向上しています。72Bは、指示の遵守、意思決定、エージェントの能力でさらに改善をもたらします。
 
-## Get Kazuki Kyakuno’s stories in your inbox
-
-Join Medium for free to get updates from this writer.
-
-Subscribe
-
-Subscribe
-
-Remember me for faster sign in
-
 Vision Encoderのパラメータ数は675Mで固定であるため、画像の認識性能は、モデルパラメータに依存せず高くなっています。そのため、OCRなどのタスクでは、2Bでも高い性能を得ることが可能です。
 
 Press enter or click to view image in full size
@@ -133,7 +127,12 @@ You are a helpful assistant.<|im_end|>
 
 ## Qwen2-VLのトークナイザ
 
-Qwen2-VLでは、トークナイザとしてQwen2Tokenizerを使用します。Qwen2TokenizerとGPT2Tokenizerは同じBPEベースの手法で、GPT2Tokenizerと互換性があります。
+Qwen2-VLでは、トークナイザとしてQwen2Tokenizerを使用します。Qwen2TokenizerとGPT2Tokenizerは同じBPEベースの手法ですが、GPT2Tokenizerとは特殊文字の分割の正規表現と、NFC正規化の有無が異なります。
+
+```
+Qwen2： (?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+ ＋ NFC  
+GPT-2： 's|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+
+```
 
 ## Qwen2-VLを実行する
 
@@ -147,7 +146,7 @@ $ python3 qwen2_vl.py --input demo.jpeg --prompt "Describe this image."
 
 ### The collection of pre-trained, state-of-the-art AI models for ailia SDK - ailia-models/vision\_language\_model/qwen2\_vl…
 
-github.com](https://github.com/axinc-ai/ailia-models/tree/master/vision_language_model/qwen2_vl?source=post_page-----b6f75fa30a08---------------------------------------)
+github.com](https://github.com/axinc-ai/ailia-models/tree/master/vision_language_model/qwen2_vl?source=post_page-----b6f75fa30a08-----------------------------------------)
 
 M2 MacのCPUで推論した場合、画像のEmbedding（1024x683）で23sec程度、テキストの生成で42sec程度必要です。画像のEmbeddingの処理時間は画像の解像度に依存し、テキストの生成はあまり依存しません。
 
@@ -207,6 +206,8 @@ Press enter or click to view image in full size
 
 ### We're on a journey to advance and democratize artificial intelligence through open source and open science.
 
-huggingface.co](https://huggingface.co/vidore/colqwen2-v0.1?source=post_page-----b6f75fa30a08---------------------------------------)
+huggingface.co](https://huggingface.co/vidore/colqwen2-v0.1?source=post_page-----b6f75fa30a08-----------------------------------------)
+
+---
 
 ax株式会社はAIを実用化する会社として、クロスプラットフォームでGPUを使用した高速な推論を行うことができるailia SDKを開発しています。ax株式会社ではコンサルティングからモデル作成、SDKの提供、AIを利用したアプリ・システム開発、サポートまで、 AIに関するトータルソリューションを提供していますのでお気軽に[お問い合わせ](https://axinc.jp/)ください。
