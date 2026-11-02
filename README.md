@@ -43,21 +43,6 @@ ailia Tech BLOG の記事ミラー。Medium の2つの publication をスクレ�
 | ミラー ja     | `https://tech.ailia.ai/<slug>/`                                    |
 | ミラー en     | `https://tech.ailia.ai/en/<slug>/`                                 |
 
-## 記事をスクレイピング
-
-```bash
-pip install curl-cffi beautifulsoup4 markdownify
-
-# 日本語
-python downloader/medium_publication.py --publication axinc    --output medium_export/ja
-# 英語
-python downloader/medium_publication.py --publication axinc-ai --output medium_export/en
-```
-
-URL収集は (1) Apollo state from `medium.com/<publication>/`、(2) RSSフィード、
-(3) 既存記事のクロスリファレンス の3経路。独自ドメインの sitemap は
-ミラー側 (= 自分自身) を指すようになったため使用しない。
-
 ## サイトをローカルでビルド
 
 ```bash
@@ -108,6 +93,16 @@ downloader/update.sh en --refresh-all
 5. **更新された記事**: Apollo の `latestPublishedAt` がローカル保存値より
    新しい記事は本文・画像を再取得して上書き (`--refresh`)
 
+独自ドメインの sitemap はミラー側 (= 自分自身) を指すようになったため使用しない。
+
+> 注意:
+> - `medium.com/<publication>/` (Apollo state) はローカルからでも HTTP 403 に
+>   なることがある (`[warn] fetch failed` と表示される)。その場合は Medium 上で
+>   編集された記事を検出できず、すべて up-to-date 扱いになる。編集した記事が
+>   分かっている場合は下記の `--only-url` で個別に再取得する。
+> - 公開直後の記事は RSS や publication ホームにまだ載らず、新着として
+>   見つからないことがある。その場合も `--only-url` で URL を指定して取得する。
+
 取得後に差分を確認して commit & push すると、`pages.yml` がサイトを
 再ビルド & 再デプロイする。
 
@@ -127,9 +122,9 @@ python downloader/medium_publication.py --publication axinc-ai --output medium_e
 # 全記事を強制再取得
 python downloader/medium_publication.py --publication axinc --output medium_export/ja --refresh-all
 
-# 1記事だけ更新
+# 1記事だけ取得 / 強制再取得 (Apollo が 403 のときは --refresh-all を使う)
 python downloader/medium_publication.py --publication axinc --output medium_export/ja \
-    --only-url "https://medium.com/axinc/<slug>" --refresh
+    --only-url "https://medium.com/axinc/<slug>" --refresh-all
 ```
 
 各記事の YAMLフロントマターに `lastmod: YYYY-MM-DD` として保存され、次回
