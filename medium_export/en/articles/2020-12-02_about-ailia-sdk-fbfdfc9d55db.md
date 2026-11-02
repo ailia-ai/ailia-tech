@@ -2,6 +2,7 @@
 title: "About ailia SDK"
 author: "Kazuki Kyakuno"
 date: 2020-12-02
+published: 2020-12-02T04:07:20Z
 lastmod: 2021-01-08
 tags: [ailia-sdk]
 original_url: https://medium.com/axinc-ai/about-ailia-sdk-fbfdfc9d55db

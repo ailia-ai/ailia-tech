@@ -2,6 +2,7 @@
 title: "Bert Network Packet Flow Header Payload : ネットワークへの攻撃検知を行うための機械学習モデル"
 author: "Kazuki Kyakuno"
 date: 2024-04-01
+published: 2024-04-01T00:55:29Z
 lastmod: 2024-05-14
 original_url: https://medium.com/axinc/bert-network-packet-flow-header-payload-ネットワークへの攻撃検知を行うための機械学習モデル-1df9a711a338
 tags: [ailia-model]

@@ -2,6 +2,7 @@
 title: "SRResNet : A Machine Learning Model to Increase Image Resolution"
 author: "David Cochard"
 date: 2021-05-25
+published: 2021-05-25T09:05:11Z
 lastmod: 2021-05-25
 tags: [ailia-models, machine-learning, deep-learning, ai, super-resolution]
 original_url: https://medium.com/axinc-ai/srresnet-a-machine-learning-model-to-increase-image-resolution-9efc478f2674

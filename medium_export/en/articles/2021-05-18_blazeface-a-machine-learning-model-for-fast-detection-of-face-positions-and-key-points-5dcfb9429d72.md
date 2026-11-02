@@ -2,6 +2,7 @@
 title: "BlazeFace : A Machine Learning Model for Fast Detection of Face Positions and Key Points"
 author: "David Cochard"
 date: 2021-05-18
+published: 2021-05-18T00:15:58Z
 lastmod: 2021-06-29
 tags: [ailia-models, machine-learning, deep-learning, face-recognition, ai]
 original_url: https://medium.com/axinc-ai/blazeface-a-machine-learning-model-for-fast-detection-of-face-positions-and-key-points-5dcfb9429d72

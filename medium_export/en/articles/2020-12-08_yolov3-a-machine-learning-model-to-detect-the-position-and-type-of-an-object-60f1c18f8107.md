@@ -2,6 +2,7 @@
 title: "YOLOv3 : A Machine Learning Model to Detect the Position and Type of an Object"
 author: "David Cochard"
 date: 2020-12-08
+published: 2020-12-08T07:41:35Z
 lastmod: 2021-05-26
 tags: [yolov3, ai, deep-learning, machine-learning, ailia-models]
 original_url: https://medium.com/axinc-ai/yolov3-a-machine-learning-model-to-detect-the-position-and-type-of-an-object-60f1c18f8107

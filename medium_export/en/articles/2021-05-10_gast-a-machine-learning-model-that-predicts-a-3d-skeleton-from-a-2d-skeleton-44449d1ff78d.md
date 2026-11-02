@@ -2,6 +2,7 @@
 title: "GAST : A machine learning model that predicts a 3D skeleton from a 2D skeleton"
 author: "David Cochard"
 date: 2021-05-10
+published: 2021-05-10T05:23:34Z
 lastmod: 2021-09-21
 tags: [ailia-models, pose-estimation, machine-learning, deep-learning, ai]
 original_url: https://medium.com/axinc-ai/gast-a-machine-learning-model-that-predicts-a-3d-skeleton-from-a-2d-skeleton-44449d1ff78d

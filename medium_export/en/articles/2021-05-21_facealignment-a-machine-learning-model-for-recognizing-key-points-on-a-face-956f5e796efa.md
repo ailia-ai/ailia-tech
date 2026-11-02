@@ -2,6 +2,7 @@
 title: "FaceAlignment : A Machine Learning Model For Recognizing Key Points On a Face"
 author: "David Cochard"
 date: 2021-05-21
+published: 2021-05-21T02:11:02Z
 lastmod: 2021-06-29
 tags: [ailia-models, machine-learning, deep-learning, ai, recognition]
 original_url: https://medium.com/axinc-ai/facealignment-a-machine-learning-model-for-recognizing-key-points-on-a-face-956f5e796efa

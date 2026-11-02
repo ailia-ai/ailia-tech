@@ -2,6 +2,7 @@
 title: "Prevent Overfitting Using Dropout"
 author: "David Cochard"
 date: 2020-12-08
+published: 2020-12-08T08:57:09Z
 lastmod: 2020-12-08
 tags: [ai, machine-learning, overfitting, deep-learning, ailia-technology]
 original_url: https://medium.com/axinc-ai/prevent-overfitting-using-dropout-53041b5a3797

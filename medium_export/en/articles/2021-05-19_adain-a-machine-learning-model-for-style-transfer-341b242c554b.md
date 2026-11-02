@@ -2,6 +2,7 @@
 title: "Adain : A Machine Learning Model for Style Transfer"
 author: "David Cochard"
 date: 2021-05-19
+published: 2021-05-19T12:57:26Z
 lastmod: 2021-05-19
 tags: [ailia-models, machine-learning, deep-learning, style-transfer, ai]
 original_url: https://medium.com/axinc-ai/adain-a-machine-learning-model-for-style-transfer-341b242c554b

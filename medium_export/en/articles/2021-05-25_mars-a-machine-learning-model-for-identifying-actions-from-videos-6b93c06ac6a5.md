@@ -2,6 +2,7 @@
 title: "MARS : A Machine Learning Model for Identifying Actions from Videos"
 author: "David Cochard"
 date: 2021-05-25
+published: 2021-05-25T00:50:08Z
 lastmod: 2021-05-25
 tags: [ailia-models, machine-learning, deep-learning, ai]
 original_url: https://medium.com/axinc-ai/mars-a-machine-learning-model-for-identifying-actions-from-videos-6b93c06ac6a5

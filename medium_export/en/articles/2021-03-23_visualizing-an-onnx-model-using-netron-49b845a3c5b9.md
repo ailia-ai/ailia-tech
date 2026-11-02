@@ -2,6 +2,7 @@
 title: "Visualizing an ONNX model using Netron"
 author: "David Cochard"
 date: 2021-03-23
+published: 2021-03-23T03:19:48Z
 lastmod: 2021-03-23
 tags: [ailia-technology, machine-learning, netron, ai]
 original_url: https://medium.com/axinc-ai/visualizing-an-onnx-model-using-netron-49b845a3c5b9

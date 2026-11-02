@@ -2,6 +2,7 @@
 title: "DPT : Segmentation Model Using Vision Transformer"
 author: "David Cochard"
 date: 2021-06-10
+published: 2021-06-10T01:58:20Z
 lastmod: 2021-07-24
 tags: [ailia-models, machine-learning, deep-learning, ai, segmentation]
 original_url: https://medium.com/axinc-ai/dpt-segmentation-model-using-vision-transformer-b479f3027468

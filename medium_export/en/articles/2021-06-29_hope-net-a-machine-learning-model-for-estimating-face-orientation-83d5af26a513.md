@@ -2,6 +2,7 @@
 title: "HOPE-Net : A Machine Learning Model for Estimating Face Orientation"
 author: "David Cochard"
 date: 2021-06-29
+published: 2021-06-29T02:36:13Z
 lastmod: 2021-06-29
 tags: [ailia-models, machine-learning, deep-learning, ai]
 original_url: https://medium.com/axinc-ai/hope-net-a-machine-learning-model-for-estimating-face-orientation-83d5af26a513

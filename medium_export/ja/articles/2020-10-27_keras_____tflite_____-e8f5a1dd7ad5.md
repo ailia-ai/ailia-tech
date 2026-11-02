@@ -2,6 +2,7 @@
 title: "Kerasのモデルをtfliteに変換する"
 author: "Kazuki Kyakuno"
 date: 2020-10-27
+published: 2020-10-27T13:39:29Z
 lastmod: 2021-10-21
 original_url: https://medium.com/axinc/kerasのモデルをtfliteに変換する-e8f5a1dd7ad5
 tags: [ailia-technology]

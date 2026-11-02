@@ -2,6 +2,7 @@
 title: "DeepSpeech2 : A machine learning model for speech recognition"
 author: "David Cochard"
 date: 2021-04-16
+published: 2021-04-16T02:17:23Z
 lastmod: 2021-04-29
 tags: [ailia-models, speech-recognition, machine-learning, deep-learning, ai]
 original_url: https://medium.com/axinc-ai/deepspeech2-a-machine-learning-model-for-speech-recognition-d9e64c0d1afc

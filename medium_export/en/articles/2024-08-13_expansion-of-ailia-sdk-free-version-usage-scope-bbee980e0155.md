@@ -2,6 +2,7 @@
 title: "Expansion of ailia SDK Free Version Usage Scope"
 author: "David Cochard"
 date: 2024-08-13
+published: 2024-08-13T09:46:41Z
 lastmod: 2024-08-13
 tags: [ailia-sdk, machine-learning, ai]
 original_url: https://medium.com/axinc-ai/expansion-of-ailia-sdk-free-version-usage-scope-bbee980e0155

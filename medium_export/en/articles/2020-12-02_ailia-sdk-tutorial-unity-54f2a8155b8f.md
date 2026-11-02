@@ -2,6 +2,7 @@
 title: "ailia SDK Tutorial (Unity)"
 author: "Kazuki Kyakuno"
 date: 2020-12-02
+published: 2020-12-02T10:45:23Z
 lastmod: 2020-12-25
 tags: [ailia-tutorial]
 original_url: https://medium.com/axinc-ai/ailia-sdk-tutorial-unity-54f2a8155b8f

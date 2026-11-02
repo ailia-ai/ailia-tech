@@ -2,6 +2,7 @@
 title: "Released ailia SDK 1.6.0"
 author: "Kazuki Kyakuno"
 date: 2026-11-02
+published: 2026-11-02T00:40:07Z
 lastmod: 2026-11-02
 tags: [ailia-sdk]
 original_url: https://medium.com/axinc-ai/released-ailia-sdk-1-6-0-034f8092bf7f

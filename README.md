@@ -130,6 +130,9 @@ python downloader/medium_publication.py --publication axinc --output medium_expo
 各記事の YAMLフロントマターに `lastmod: YYYY-MM-DD` として保存され、次回
 以降の `--refresh` でローカル値より新しい場合のみ再取得される。
 
+フロントマターの `published: YYYY-MM-DDTHH:MM:SSZ` は Medium の投稿時刻 (UTC)。
+記事一覧は `date` の新しい順で、同じ日の記事は `published` の新しい順に並ぶ。
+
 ## SEO
 
 - 各ページに `<meta name="robots" content="index, follow,

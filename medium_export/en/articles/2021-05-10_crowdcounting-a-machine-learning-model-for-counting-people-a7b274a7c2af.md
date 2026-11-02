@@ -2,6 +2,7 @@
 title: "CrowdCounting : A Machine Learning Model for Counting People"
 author: "David Cochard"
 date: 2021-05-10
+published: 2021-05-10T23:57:01Z
 lastmod: 2021-08-30
 tags: [ailia-models, machine-learning, deep-learning, ai]
 original_url: https://medium.com/axinc-ai/crowdcounting-a-machine-learning-model-for-counting-people-a7b274a7c2af

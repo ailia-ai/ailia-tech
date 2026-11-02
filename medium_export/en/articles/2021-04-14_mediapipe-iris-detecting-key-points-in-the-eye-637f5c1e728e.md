@@ -2,6 +2,7 @@
 title: "MediaPipe Iris: Detecting Key Points in the Eye"
 author: "David Cochard"
 date: 2021-04-14
+published: 2021-04-14T01:50:42Z
 lastmod: 2021-04-29
 tags: [ailia-models, machine-learning, deep-learning, ai]
 original_url: https://medium.com/axinc-ai/mediapipe-iris-detecting-key-points-in-the-eye-637f5c1e728e

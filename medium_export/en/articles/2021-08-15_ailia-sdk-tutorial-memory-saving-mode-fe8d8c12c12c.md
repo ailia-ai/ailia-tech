@@ -2,6 +2,7 @@
 title: "ailia SDK Tutorial (Memory Saving Mode)"
 author: "David Cochard"
 date: 2021-08-15
+published: 2021-08-15T10:02:13Z
 lastmod: 2021-08-15
 tags: [ailia-tutorial, machine-learning, deep-learning, ai, optimization]
 original_url: https://medium.com/axinc-ai/ailia-sdk-tutorial-memory-saving-mode-fe8d8c12c12c

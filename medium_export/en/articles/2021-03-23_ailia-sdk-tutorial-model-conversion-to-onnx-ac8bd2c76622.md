@@ -2,6 +2,7 @@
 title: "ailia SDK tutorial (model conversion to ONNX)"
 author: "David Cochard"
 date: 2021-03-23
+published: 2021-03-23T02:46:01Z
 lastmod: 2021-07-12
 tags: [ailia-tutorial, ai, machine-learning]
 original_url: https://medium.com/axinc-ai/ailia-sdk-tutorial-model-conversion-to-onnx-ac8bd2c76622

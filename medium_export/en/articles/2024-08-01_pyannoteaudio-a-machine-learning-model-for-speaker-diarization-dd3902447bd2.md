@@ -2,6 +2,7 @@
 title: "PyannoteAudio: A Machine Learning Model for Speaker Diarization"
 author: "David Cochard"
 date: 2024-08-01
+published: 2024-08-01T07:41:16Z
 lastmod: 2024-08-01
 tags: [ailia-models, machine-learning, ai]
 original_url: https://medium.com/axinc-ai/pyannoteaudio-a-machine-learning-model-for-speaker-diarization-dd3902447bd2

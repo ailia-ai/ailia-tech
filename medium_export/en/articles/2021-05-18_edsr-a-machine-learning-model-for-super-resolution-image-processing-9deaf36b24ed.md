@@ -2,6 +2,7 @@
 title: "EDSR : A Machine Learning Model for Super-resolution Image Processing"
 author: "David Cochard"
 date: 2021-05-18
+published: 2021-05-18T00:39:15Z
 lastmod: 2021-05-18
 tags: [ailia-models, machine-learning, deep-learning, ai, super-resolution]
 original_url: https://medium.com/axinc-ai/edsr-a-machine-learning-model-for-super-resolution-image-processing-9deaf36b24ed

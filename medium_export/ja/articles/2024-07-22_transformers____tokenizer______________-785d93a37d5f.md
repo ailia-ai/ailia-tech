@@ -2,6 +2,7 @@
 title: "TransformersにおけるTokenizerのオプションによる挙動の変化"
 author: "Kazuki Kyakuno"
 date: 2024-07-22
+published: 2024-07-22T05:17:40Z
 lastmod: 2024-07-31
 original_url: https://medium.com/axinc/transformersにおけるtokenizerのオプションによる挙動の変化-785d93a37d5f
 tags: [ailia-technology]

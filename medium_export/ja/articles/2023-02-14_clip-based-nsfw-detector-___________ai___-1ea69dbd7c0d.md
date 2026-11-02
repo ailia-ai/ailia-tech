@@ -2,6 +2,7 @@
 title: "CLIP-based-NSFW-Detector : 不適切画像を検出できるAIモデル"
 author: "Kazuki Kyakuno"
 date: 2023-02-14
+published: 2023-02-14T01:45:28Z
 lastmod: 2026-03-24
 original_url: https://medium.com/axinc/clip-based-nsfw-detector-不適切画像を検出できるaiモデル-1ea69dbd7c0d
 tags: [ailia-modes]

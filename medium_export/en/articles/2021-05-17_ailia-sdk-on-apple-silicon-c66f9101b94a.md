@@ -2,6 +2,7 @@
 title: "ailia SDK on Apple Silicon"
 author: "David Cochard"
 date: 2021-05-17
+published: 2021-05-17T02:23:31Z
 lastmod: 2021-05-17
 tags: [ailia-tutorial, apple-silicon, m1, machine-learning, deep-learning]
 original_url: https://medium.com/axinc-ai/ailia-sdk-on-apple-silicon-c66f9101b94a

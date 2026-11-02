@@ -2,6 +2,7 @@
 title: "ailia SDK Now Available Through Flutter pubspec"
 author: "David Cochard"
 date: 2024-06-14
+published: 2024-06-14T04:14:38Z
 lastmod: 2025-12-31
 tags: [ailia-sdk, machine-learning, ai, flutter, pubspec]
 original_url: https://medium.com/axinc-ai/ailia-sdk-now-available-through-flutter-pubspec-7e859dad842d

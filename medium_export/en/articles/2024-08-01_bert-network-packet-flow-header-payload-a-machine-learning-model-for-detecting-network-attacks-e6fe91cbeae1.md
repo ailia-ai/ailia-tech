@@ -2,6 +2,7 @@
 title: "Bert Network Packet Flow Header Payload: A Machine Learning Model for Detecting Network Attacks"
 author: "David Cochard"
 date: 2024-08-01
+published: 2024-08-01T02:22:44Z
 lastmod: 2024-08-01
 tags: [ailia-models, machine-learning, ai, bert, network-security]
 original_url: https://medium.com/axinc-ai/bert-network-packet-flow-header-payload-a-machine-learning-model-for-detecting-network-attacks-e6fe91cbeae1

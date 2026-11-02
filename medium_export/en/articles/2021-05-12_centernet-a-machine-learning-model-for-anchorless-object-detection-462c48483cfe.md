@@ -2,6 +2,7 @@
 title: "CenterNet : A Machine Learning Model for Anchorless Object Detection"
 author: "David Cochard"
 date: 2021-05-12
+published: 2021-05-12T03:44:46Z
 lastmod: 2021-05-12
 tags: [ailia-models, machine-learning, deep-learning, ai, object-detection]
 original_url: https://medium.com/axinc-ai/centernet-a-machine-learning-model-for-anchorless-object-detection-462c48483cfe

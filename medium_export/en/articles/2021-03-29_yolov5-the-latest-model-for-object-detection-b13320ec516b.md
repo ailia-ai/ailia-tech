@@ -2,6 +2,7 @@
 title: "YOLOv5 : The Latest Model for Object Detection"
 author: "David Cochard"
 date: 2021-03-29
+published: 2021-03-29T08:50:56Z
 lastmod: 2021-05-26
 tags: [ailia-models, machine-learning, deep-learning, yolo]
 original_url: https://medium.com/axinc-ai/yolov5-the-latest-model-for-object-detection-b13320ec516b
