@@ -804,8 +804,12 @@ def apply_substitutions(text: str) -> str:
     # 末尾が単語の途中である場合は置換しない。Pythonの \b は Unicode
     # 文字 (日本語) と隣接する位置で word boundary を認識しないので、
     # 明示的な lookbehind/lookahead を使う。
+    # Medium publication の記事リンク (medium.com/axinc-ai/... と相対形式
+    # ](/axinc-ai/...) は後段の rewrite_internal_links で解決するので残す。
     text = re.sub(
-        r"(?<![A-Za-z0-9_])axinc-ai(?![A-Za-z0-9_])", "ailia-ai", text
+        r"(?<![A-Za-z0-9_])(?<!medium\.com/)(?<!\]\(/)axinc-ai(?![A-Za-z0-9_])",
+        "ailia-ai",
+        text,
     )
     return text
 
@@ -889,6 +893,16 @@ def _rewrite_internal_link_url(url: str, lang_pub: str = "axinc") -> str:
         if not m2:
             return url
         slug = m2.group(1).rstrip("/")
+        # 相対形式 /<publication>/<slug>: 同じ publication なら prefix を外し、
+        # 別 publication なら cross-language リンクとして Medium 絶対URLにする。
+        pub, sep, rest = slug.partition("/")
+        # /@<user>/<slug> は個人ブログの記事なので Medium 絶対URLにする
+        if pub.startswith("@"):
+            return f"https://medium.com{url}"
+        if sep and pub in ("axinc", "axinc-ai"):
+            if pub != lang_pub:
+                return f"https://medium.com{url}"
+            slug = rest
     else:
         return url
     if not _INTERNAL_LINK_HEX_RE.search(slug):

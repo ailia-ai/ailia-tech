@@ -2,18 +2,24 @@
 title: "Qwen2-VL: A Vision Language Model That Runs Locally"
 author: "David Cochard"
 date: 2024-11-27
-lastmod: 2024-11-27
+lastmod: 2026-11-02
 tags: [ailia-models, machine-learning, ai]
 original_url: https://medium.com/axinc-ai/qwen2-vl-a-vision-language-model-that-runs-locally-4b97ccab1bf6
 ---
 
 # Qwen2-VL: A Vision Language Model That Runs Locally
 
+[Ailia Models](/tag/ailia-models?source=post_page---header_tags--4b97ccab1bf6-----------------------------------------)
+
+[Machine Learning](/tag/machine-learning?source=post_page---header_tags--4b97ccab1bf6-----------------------------------------)
+
+[AI](/tag/ai?source=post_page---header_tags--4b97ccab1bf6-----------------------------------------)
+
 # Qwen2-VL: A Vision Language Model That Runs Locally
 
-[![David Cochard](../images/qwen2-vl-a-vision-language-model-that-runs-locally-4b97ccab1bf6/image_000.jpg)](/@cochard-dav?source=post_page---byline--4b97ccab1bf6---------------------------------------)
+[![David Cochard](../images/qwen2-vl-a-vision-language-model-that-runs-locally-4b97ccab1bf6/image_000.jpg)](/@cochard-dav?source=post_page---byline--4b97ccab1bf6-----------------------------------------)
 
-[David Cochard](/@cochard-dav?source=post_page---byline--4b97ccab1bf6---------------------------------------)
+[David Cochard](/@cochard-dav?source=post_page---byline--4b97ccab1bf6-----------------------------------------)
 
 6 min read
 
@@ -25,7 +31,7 @@ Nov 27, 2024
 
 1
 
-[Listen](/m/signin?actionUrl=https%3A%2F%2Fmedium.com%2Fplans%3Fdimension%3Dpost_audio_button%26postId%3D4b97ccab1bf6&operation=register&redirect=https%3A%2F%2Fmedium.com%2Faxinc-ai%2Fqwen2-vl-a-vision-language-model-that-runs-locally-4b97ccab1bf6&source=---header_actions--4b97ccab1bf6---------------------post_audio_button------------------)
+[Listen](/m/signin?actionUrl=https%3A%2F%2Fmedium.com%2Fplans%3Fdimension%3Dpost_audio_button%26postId%3D4b97ccab1bf6&operation=register&redirect=https%3A%2F%2Fmedium.com%2Faxinc-ai%2Fqwen2-vl-a-vision-language-model-that-runs-locally-4b97ccab1bf6&source=---header_actions--4b97ccab1bf6---------------------post_audio_button--------------------)
 
 Share
 
@@ -47,7 +53,7 @@ Press enter or click to view image in full size
 
 ### Qwen2-VL is the multimodal large language model series developed by Qwen team, Alibaba Cloud. — QwenLM/Qwen2-VL
 
-github.com](https://github.com/QwenLM/Qwen2-VL?source=post_page-----4b97ccab1bf6---------------------------------------)
+github.com](https://github.com/QwenLM/Qwen2-VL?source=post_page-----4b97ccab1bf6-----------------------------------------)
 
 ## Architecture
 
@@ -131,7 +137,12 @@ When the input tokens are of size (1, 913), the output from the Vision Encoder w
 
 ## Tokenizer
 
-*Qwen2-VL* uses the *Qwen2Tokenizer* as its tokenizer. *Qwen2Tokenizer* is compatible and employs the same BPE-based method as *GPT2Tokenizer*.
+Qwen2-VL uses Qwen2Tokenizer as its tokenizer. Qwen2Tokenizer and GPT2Tokenizer use the same BPE-based method, but they differ from GPT2Tokenizer in the regular expression used to split special characters and in whether NFC normalization is applied.
+
+```
+Qwen2： (?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+ ＋ NFC  
+GPT-2： 's|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+
+```
 
 ## Usage
 
@@ -145,7 +156,7 @@ $ python3 qwen2_vl.py --input demo.jpeg --prompt "Describe this image."
 
 ### The collection of pre-trained, state-of-the-art AI models for ailia SDK - ailia-models/vision\_language\_model/qwen2\_vl…
 
-github.com](https://github.com/axinc-ai/ailia-models/tree/master/vision_language_model/qwen2_vl?source=post_page-----4b97ccab1bf6---------------------------------------)
+github.com](https://github.com/axinc-ai/ailia-models/tree/master/vision_language_model/qwen2_vl?source=post_page-----4b97ccab1bf6-----------------------------------------)
 
 When running inference on an M2 Mac CPU, it takes approximately 23 seconds for image embedding (1024x683 resolution) and about 42 seconds for text generation. The processing time for image embedding depends on the image resolution, while text generation time is less affected by resolution.
 
@@ -189,7 +200,7 @@ Source: <https://huggingface.co/vidore/colqwen2-v0.1>
 
 ### We’re on a journey to advance and democratize artificial intelligence through open source and open science.
 
-huggingface.co](https://huggingface.co/vidore/colqwen2-v0.1?source=post_page-----4b97ccab1bf6---------------------------------------)
+huggingface.co](https://huggingface.co/vidore/colqwen2-v0.1?source=post_page-----4b97ccab1bf6-----------------------------------------)
 
 ---
 

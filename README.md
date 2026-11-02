@@ -14,6 +14,7 @@ ailia Tech BLOG の記事ミラー。Medium の2つの publication をスクレ�
 .
 ├── downloader/
 │   ├── medium_publication.py       # Mediumスクレイパー (curl_cffi で Cloudflare 回避)
+│   ├── update.sh                   # ローカル手動更新スクリプト (ja + en)
 │   └── build_site.py               # 静的サイトジェネレータ (Markdown → HTML)
 ├── medium_export/
 │   ├── ja/                         # 日本語 (axinc) スクレイプ結果
@@ -25,8 +26,7 @@ ailia Tech BLOG の記事ミラー。Medium の2つの publication をスクレ�
 │       ├── articles/
 │       └── images/
 └── .github/workflows/
-    ├── pages.yml                   # GitHub Pagesビルド & デプロイ
-    └── scrape.yml                  # 1日1回 ja/en 両方の新着記事を取得 → 自動コミット
+    └── pages.yml                   # GitHub Pagesビルド & デプロイ
 ```
 
 ## URLマッピング
@@ -42,21 +42,6 @@ ailia Tech BLOG の記事ミラー。Medium の2つの publication をスクレ�
 | Medium en    | `https://medium.com/axinc-ai/<slug>`                               |
 | ミラー ja     | `https://tech.ailia.ai/<slug>/`                                    |
 | ミラー en     | `https://tech.ailia.ai/en/<slug>/`                                 |
-
-## 記事をスクレイピング
-
-```bash
-pip install curl-cffi beautifulsoup4 markdownify
-
-# 日本語
-python downloader/medium_publication.py --publication axinc    --output medium_export/ja
-# 英語
-python downloader/medium_publication.py --publication axinc-ai --output medium_export/en
-```
-
-URL収集は (1) Apollo state from `medium.com/<publication>/`、(2) RSSフィード、
-(3) 既存記事のクロスリファレンス の3経路。独自ドメインの sitemap は
-ミラー側 (= 自分自身) を指すようになったため使用しない。
 
 ## サイトをローカルでビルド
 
@@ -75,49 +60,59 @@ python downloader/build_site.py --source medium_export --output _site
 1. リポジトリの **Settings → Pages** を開く
 2. **Build and deployment → Source** を **GitHub Actions** に設定
 3. **Settings → Pages → Custom domain** に `tech.ailia.ai` を設定
-4. ブランチへの push、または日次cron (`scrape.yml`) からの自動コミットで
-   `pages.yml` ワークフローが起動し、`_site/` がデプロイされる
+4. ブランチへの push で `pages.yml` ワークフローが起動し、`_site/` が
+   デプロイされる
 5. 手動デプロイは Actions タブから "Deploy GitHub Pages" を選択して
    **Run workflow** でも可能
 
 `build_site.py` はビルド時に `_site/CNAME` (= `tech.ailia.ai`) を出力する
 ので、Actions デプロイでも独自ドメインが維持される。
 
-## 自動更新 (1日1回)
+## 記事の更新 (ローカルPCで手動実行)
 
-`.github/workflows/scrape.yml` が毎日 01:00 UTC (10:00 JST) に実行される。
-ja と en の両方が同一ジョブで処理される (`run_one ja axinc` →
-`run_one en axinc-ai`)。
+GitHub Actions からのスクレイピングは Cloudflare に弾かれて動作しなかったため、
+自動監視・自動更新 (日次cron) は廃止した。記事の更新はローカルPCから手動で行う。
+
+```bash
+pip install curl-cffi beautifulsoup4 markdownify
+
+# ja + en の新着記事を取得し、Medium で編集された記事も再取得
+downloader/update.sh
+
+# 言語を絞る / フラグを変える
+downloader/update.sh ja
+downloader/update.sh en --refresh-all
+```
+
+`update.sh` は各言語について次を行う。
 
 1. Medium publication ホームの Apollo state から最新 ~99 記事の ID を取得
 2. RSSフィード (直近10件) でも補完
 3. 既存記事の本文中リンクから未知URLを発見 (cross-reference)
 4. **新着記事**: ローカルに無いものを新規スクレイピング
 5. **更新された記事**: Apollo の `latestPublishedAt` がローカル保存値より
-   新しい記事は本文・画像を再取得して上書き
-6. 差分があれば `medium_export/` を `github-actions[bot]` がコミット & push
-7. push を検知して `pages.yml` がサイトを再ビルド & 再デプロイ
+   新しい記事は本文・画像を再取得して上書き (`--refresh`)
 
-> 注意: GitHub Actions の `schedule` イベントはデフォルトブランチ上の
-> ワークフローのみ実行される。フィーチャーブランチでは
-> `workflow_dispatch` から手動でテストすること。
+独自ドメインの sitemap はミラー側 (= 自分自身) を指すようになったため使用しない。
 
-## 既存記事の更新
+> 注意:
+> - `medium.com/<publication>/` (Apollo state) はローカルからでも HTTP 403 に
+>   なることがある (`[warn] fetch failed` と表示される)。その場合は Medium 上で
+>   編集された記事を検出できず、すべて up-to-date 扱いになる。編集した記事が
+>   分かっている場合は下記の `--only-url` で個別に再取得する。
+> - 公開直後の記事は RSS や publication ホームにまだ載らず、新着として
+>   見つからないことがある。その場合も `--only-url` で URL を指定して取得する。
 
-Medium上で過去記事を編集した場合、デフォルトの cron では再取得されない
-(同名のmarkdownが既にあるためスキップされる)。次のいずれかで再取得する。
+取得後に差分を確認して commit & push すると、`pages.yml` がサイトを
+再ビルド & 再デプロイする。
 
-### GitHub Actions UI から (推奨)
+```bash
+git add medium_export/
+git commit -m "Update articles"
+git push
+```
 
-Actions タブ → **Daily scrape** → **Run workflow** で以下の入力を選ぶ:
-
-| 入力       | 動作                                                                  |
-| ---------- | --------------------------------------------------------------------- |
-| `refresh`  | `off` / `updated` (Apollo の lastmod 比較) / `all` (強制全件再取得)    |
-| `only_url` | 1記事だけ `--refresh` 付きで再取得 (medium.com の URL を指定)          |
-| `lang`     | 空 (両方) / `ja` / `en`                                                |
-
-### CLIから
+### スクリプトを使わず直接実行する場合
 
 ```bash
 # 更新された記事だけ再取得
@@ -127,9 +122,9 @@ python downloader/medium_publication.py --publication axinc-ai --output medium_e
 # 全記事を強制再取得
 python downloader/medium_publication.py --publication axinc --output medium_export/ja --refresh-all
 
-# 1記事だけ更新
+# 1記事だけ取得 / 強制再取得 (Apollo が 403 のときは --refresh-all を使う)
 python downloader/medium_publication.py --publication axinc --output medium_export/ja \
-    --only-url "https://medium.com/axinc/<slug>" --refresh
+    --only-url "https://medium.com/axinc/<slug>" --refresh-all
 ```
 
 各記事の YAMLフロントマターに `lastmod: YYYY-MM-DD` として保存され、次回
