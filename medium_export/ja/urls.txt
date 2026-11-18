@@ -1,3 +1,5 @@
+https://medium.com/axinc/2025年に公開されたエッジaiモデル-773f93ef0519
+https://medium.com/axinc/2026年に公開されたエッジaiモデル-6e139ae232e0
 https://medium.com/axinc/3d-gaussian-splatting-複数視点の画像から3d空間を再現する最新手法-273ce61200a8
 https://medium.com/axinc/3dobjectdetectionpytorch-3dの物体検出モデル-8df18b8eb5d1
 https://medium.com/axinc/actionclip-任意のアクションを検知できるアクション検知モデル-d12f8b513f53
